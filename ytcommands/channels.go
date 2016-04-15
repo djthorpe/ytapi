@@ -5,16 +5,15 @@
 package ytcommands
 
 import (
-	"google.golang.org/api/youtube/v3"
 	"github.com/djthorpe/ytapi/ytservice"
+	"google.golang.org/api/youtube/v3"
 )
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Returns set of channel items for YouTube service. Can return several, in the
 // case of service accounts, or a single one, based on simple OAuth authentication
 
-func Channels(service *ytservice.YTService,defaults *ytservice.Defaults) (error) {
+func Channels(service *ytservice.YTService, defaults *ytservice.Defaults) error {
 	// create call for channels
 	call := service.API.Channels.List("id,snippet")
 

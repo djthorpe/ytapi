@@ -1,9 +1,9 @@
 package ytservice
 
 import (
-	"os"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -12,10 +12,10 @@ import (
 
 // Defaults object stores all the defaults for various fields
 type Defaults struct {
-	Debug        bool     `json:"debug"`
-	ContentOwner *string  `json:"content_owner,omitempty"`
-	Channel      *string  `json:"channel,omitempty"`
-	MaxResults   uint64   `json:"max_results"`
+	Debug        bool    `json:"debug"`
+	ContentOwner *string `json:"content_owner,omitempty"`
+	Channel      *string `json:"channel,omitempty"`
+	MaxResults   uint64  `json:"max_results"`
 }
 
 // YTService object which contains the main context for calling the YouTube API
@@ -31,7 +31,7 @@ const (
 )
 
 // Returns a service object given service account details
-func NewYouTubeServiceFromServiceAccountJSON(filename string,defaults *Defaults) (*YTService, error) {
+func NewYouTubeServiceFromServiceAccountJSON(filename string, defaults *Defaults) (*YTService, error) {
 	if len(*defaults.ContentOwner) == 0 {
 		return nil, ErrorMissingContentOwner
 	}
@@ -54,9 +54,8 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string,defaults *Defaults)
 	return this, nil
 }
 
-
 // Returns a service object given client secrets details
-func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache string,defaults *Defaults) (*YTService, error) {
+func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache string, defaults *Defaults) (*YTService, error) {
 	bytes, err := ioutil.ReadFile(clientsecrets)
 	if err != nil {
 		return nil, ErrorInvalidClientSecrets
@@ -90,7 +89,6 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 	return this, nil
 }
 
-
 // Returns a defaults object from a JSON file
 func NewDefaultsFromJSON(defaults string) (*Defaults, error) {
 	bytes, err := ioutil.ReadFile(defaults)
@@ -98,15 +96,15 @@ func NewDefaultsFromJSON(defaults string) (*Defaults, error) {
 		return nil, ErrorInvalidDefaults
 	}
 	this := NewDefaults()
-    err = json.Unmarshal(bytes,this)
+	err = json.Unmarshal(bytes, this)
 	if err != nil {
 		return nil, ErrorInvalidDefaults
 	}
-    return this,nil
+	return this, nil
 }
 
 // Returns a defaults object
-func NewDefaults() (*Defaults) {
+func NewDefaults() *Defaults {
 	this := new(Defaults)
 	this.Debug = false
 	this.MaxResults = 0
@@ -116,16 +114,14 @@ func NewDefaults() (*Defaults) {
 }
 
 // Save defaults object
-func (this *Defaults) Save(filename string,perm os.FileMode) error {
-	json, err := json.MarshalIndent(this,"","  ")
+func (this *Defaults) Save(filename string, perm os.FileMode) error {
+	json, err := json.MarshalIndent(this, "", "  ")
 	if err != nil {
 		return err
 	}
-    err = ioutil.WriteFile(filename,json,perm)
+	err = ioutil.WriteFile(filename, json, perm)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
-
