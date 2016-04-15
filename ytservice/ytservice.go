@@ -1,6 +1,7 @@
 package ytservice
 
 import (
+	"os"
 	"io/ioutil"
 	"encoding/json"
 
@@ -114,10 +115,16 @@ func NewDefaults() (*Defaults) {
 	return this
 }
 
-// TODO Save defaults object
-func (this *Defaults) Save(filename string) (error) {
-	json, _ := json.Marshal(this)
-    err = ioutil.WriteFile("output.json", rankingsJson, 0644)
+// Save defaults object
+func (this *Defaults) Save(filename string,perm os.FileMode) error {
+	json, err := json.MarshalIndent(this,"","  ")
+	if err != nil {
+		return err
+	}
+    err = ioutil.WriteFile(filename,json,perm)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

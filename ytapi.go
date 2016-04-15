@@ -45,6 +45,7 @@ var (
 
 const (
     credentialsPathMode = 0700
+	crdentialsFileMode = 0644
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,16 +71,16 @@ func NewDefaults(filename string) (*ytservice.Defaults,error) {
 	}
 
 	// set up parameters
-	if debug != nil {
+	if *debug {
 		defaults.Debug = *debug
 	}
-	if paramContentOwner != nil {
+	if len(*paramContentOwner) > 0 {
 		defaults.ContentOwner = paramContentOwner
 	}
-	if paramChannel != nil {
+	if len(*paramChannel) > 0 {
 		defaults.Channel = paramChannel
 	}
-	if paramMaxResults != nil {
+	if *paramMaxResults > 0 {
 		defaults.MaxResults = *paramMaxResults
 	}
 
@@ -136,7 +137,7 @@ func main() {
 	var api *ytservice.YTService
 	var err error
 
-	// Create defaults object, override variables
+	// Create defaults object
 	defaultsPath := filepath.Join(credentialsPath, *defaultsFilename)
 	defaults,err := NewDefaults(defaultsPath)
 	if err != nil {
@@ -144,20 +145,34 @@ func main() {
 		os.Exit(1)
 	}
 
-	// if operation is to authenticate, delete existing token and save credentials
+	// iI operation is to authenticate, delete existing token and save credentials
+	tokenPath := filepath.Join(credentialsPath, *tokenFilename)
 	if opname == "auth" {
-		err = defaults.Save(defaultsPath)
+		// Save defaults
+		err = defaults.Save(defaultsPath,crdentialsFileMode)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+		// Delete OAuth token
+		if _, err := os.Stat(tokenPath); os.IsNotExist(err) {
+			// Do nothing
+		} else {
+			err = os.Remove(tokenPath)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		}
 	}
 
 	// Authenticate
+	serviceAccountPath := filepath.Join(credentialsPath, *serviceAccountFilename)
+	clientSecretPath := filepath.Join(credentialsPath, *clientsecretFilename)
 	if len(*defaults.ContentOwner) > 0 {
-		api, err = ytservice.NewYouTubeServiceFromServiceAccountJSON(filepath.Join(credentialsPath, *serviceAccountFilename),defaults)
+		api, err = ytservice.NewYouTubeServiceFromServiceAccountJSON(serviceAccountPath,defaults)
 	} else {
-		api, err = ytservice.NewYouTubeServiceFromClientSecretsJSON(filepath.Join(credentialsPath, *clientsecretFilename), filepath.Join(credentialsPath, *tokenFilename),defaults)
+		api, err = ytservice.NewYouTubeServiceFromClientSecretsJSON(clientSecretPath,tokenPath,defaults)
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
