@@ -11,23 +11,36 @@ import (
 	"strings"
     "path/filepath"
     "os/user"
+
+	"github.com/djthorpe/ytapi/ytservice"
+	"github.com/djthorpe/ytapi/ytcommands"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 var (
-	operations = map[string]int{
-		"videos":     0, // --channel=<id> --maxresults=<n>
-		"channels":   1, // --channel=<id> --maxresults=<n>
-		"broadcasts": 2, // --channel=<id> --maxresults=<n> --status=<active|all|completed|upcoming>
-		"streams":    3, // --channel=<id> --maxresults=<n>
-		"bind":       4, // --video=<id> --stream=<key>
-		"unbind":     5, // --video=<id>
+	operations = map[string]func(*ytservice.YTService,*ytservice.Defaults)(error){
+		"auth":       Authorization,
+		"videos":     ytcommands.Channels, // --channel=<id> --maxresults=<n>
+		"channels":   ytcommands.Channels, // --channel=<id> --maxresults=<n>
+		"broadcasts": ytcommands.Channels, // --channel=<id> --maxresults=<n> --status=<active|all|completed|upcoming>
+		"streams":    ytcommands.Channels, // --channel=<id> --maxresults=<n>
+		"bind":       ytcommands.Channels, // --video=<id> --stream=<key>
+		"unbind":     ytcommands.Channels, // --video=<id>
 	}
 )
 
 var (
-    credentialsFolder = flag.String("credentials", ".credentials", "Folder containing credentials")
+    credentialsFolder      = flag.String("credentials", ".credentials", "Folder containing credentials")
+	debug                  = flag.Bool("debug", false, "Debug flag")
+	clientsecretFilename   = flag.String("clientsecret", "client_secrets.json", "Client secret filename")
+	serviceAccountFilename = flag.String("serviceaccount", "service_account.json", "Service account filename")
+	defaultsFilename       = flag.String("defaults", "defaults.json", "Defaults filename")
+	tokenFilename          = flag.String("authtoken", "oauth_token", "OAuth token filename")
+
+	paramChannel          = flag.String("channel","","Channel ID")
+	paramContentOwner     = flag.String("contentowner", "", "Content Owner ID")
+	paramMaxResults       = flag.Uint64("max-results",0,"Maximum results to return (or 0)")
 )
 
 const (
@@ -40,6 +53,42 @@ func userDir() (userDir string) {
     currentUser, _ := user.Current()
     userDir = currentUser.HomeDir
     return
+}
+
+func NewDefaults(filename string) (*ytservice.Defaults,error) {
+	var defaults *ytservice.Defaults
+	var err error
+
+	// if a file exists, then read it
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		defaults = ytservice.NewDefaults()
+	} else {
+		defaults,err = ytservice.NewDefaultsFromJSON(filename)
+	}
+	if err != nil {
+		return nil,err
+	}
+
+	// set up parameters
+	if debug != nil {
+		defaults.Debug = *debug
+	}
+	if paramContentOwner != nil {
+		defaults.ContentOwner = paramContentOwner
+	}
+	if paramChannel != nil {
+		defaults.Channel = paramChannel
+	}
+	if paramMaxResults != nil {
+		defaults.MaxResults = *paramMaxResults
+	}
+
+	// return defaults
+	return defaults,nil
+}
+
+func Authorization(service *ytservice.YTService,defaults *ytservice.Defaults) (error) {
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +123,7 @@ func main() {
 		os.Exit(1)
 	}
 
-    // Obtain path for credentials
+    // Obtain path for credentials - create if not already made
     credentialsPath := filepath.Join(userDir(), *credentialsFolder)
     if credentialsPathInfo, err := os.Stat(credentialsPath); err != nil || !credentialsPathInfo.IsDir() {
         // if path is missing, try and create the folder
@@ -83,4 +132,42 @@ func main() {
             os.Exit(1)
         }
     }
+
+	var api *ytservice.YTService
+	var err error
+
+	// Create defaults object, override variables
+	defaultsPath := filepath.Join(credentialsPath, *defaultsFilename)
+	defaults,err := NewDefaults(defaultsPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// if operation is to authenticate, delete existing token and save credentials
+	if opname == "auth" {
+		err = defaults.Save(defaultsPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
+	// Authenticate
+	if len(*defaults.ContentOwner) > 0 {
+		api, err = ytservice.NewYouTubeServiceFromServiceAccountJSON(filepath.Join(credentialsPath, *serviceAccountFilename),defaults)
+	} else {
+		api, err = ytservice.NewYouTubeServiceFromClientSecretsJSON(filepath.Join(credentialsPath, *clientsecretFilename), filepath.Join(credentialsPath, *tokenFilename),defaults)
+	}
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Run command
+	err = operations[opname](api,defaults)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }
