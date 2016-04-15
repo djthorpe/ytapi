@@ -6,11 +6,11 @@ Usage:
 
 Flags:
 
- --help              Display usage information
- --channel=<id>      Set the channel
- --contentowner=<id> Set the content owner
- --debug             Debug API calls
- --max-results=<int> The maximum number of results to return or 0 for unlimited
+  * `--help`              Display usage information
+  * `--channel=<id>`      Set the channel
+  * `--contentowner=<id>` Set the content owner
+  * `--debug`             Debug API calls
+  * `--max-results=<int>` The maximum number of results to return or 0 for unlimited
 
 Commands for authenticating for using the YouTube API:
 
@@ -21,8 +21,8 @@ Commands for authenticating for using the YouTube API:
   * `--contentowner=<id> auth` Use this form when authenticating against a
     service account.
 
-  * `--contentowner=<id> --channel=<id> auth` Use this form when authenticating against a
-    service account, and setting a default channel to operate on.
+  * `--contentowner=<id> --channel=<id> auth` Use this form when authenticating 
+    against a service account, and setting a default channel to operate on.
 
 Commands for accessing channels:
 
