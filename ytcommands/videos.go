@@ -5,31 +5,35 @@
 package ytcommands
 
 import (
+	"errors"
+
 	"github.com/djthorpe/ytapi/ytservice"
 	"google.golang.org/api/youtube/v3"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
-// Returns set of channel items for YouTube service. Can return several, in the
-// case of service accounts, or a single one, based on simple OAuth authentication
+// Returns set of video items for YouTube service. Requires the channel
+// parameter in order to work
 
-func ListChannels(service *ytservice.Service, params *ytservice.Params, output *ytservice.Table) error {
-	// create call for channels
-	call := service.API.Channels.List("id,snippet")
+func ListVideos(service *ytservice.Service,params *ytservice.Params, output *ytservice.Table) error {
+	// create call for videos
+	call := service.API.Videos.List("id,snippet")
 
-	// set filter parameters
-	if params.IsValidChannel() {
-		call = call.Id(*params.Channel)
-	} else if service.ServiceAccount {
-		call = call.OnBehalfOfContentOwner(*params.ContentOwner).ManagedByMe(true)
-	} else {
-		call = call.Mine(true)
+	// set filter parameters - requires valid channel name
+	if params.IsValidChannel() == false {
+		return errors.New("Invalid channel parameter")
+	}
+	if service.ServiceAccount {
+		if params.IsValidContentOwner() == false {
+			return errors.New("Invalid content owner parameter")
+		}
+		call = call.OnBehalfOfContentOwner(*params.ContentOwner)
 	}
 
 	// Page through results
 	maxresults := params.MaxResults
 	nextPageToken := ""
-	items := make([]*youtube.Channel, 0, maxresults)
+	items := make([]*youtube.Video, 0, maxresults)
 	for {
 		var pagingresults = int64(maxresults) - int64(len(items))
 		if pagingresults <= 0 {

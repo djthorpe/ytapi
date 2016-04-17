@@ -1,5 +1,5 @@
 /*
-  Copyright David Thorpe 2015 All Rights Reserved
+  Copyright David Thorpe 2015-2016 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
 package main
@@ -19,28 +19,29 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 
 var (
-	operations = map[string]func(*ytservice.YTService, *ytservice.Defaults) error{
-		"auth":       Authorization,
-		"videos":     ytcommands.Channels, // --channel=<id> --maxresults=<n>
-		"channels":   ytcommands.Channels, // --channel=<id> --maxresults=<n>
-		"broadcasts": ytcommands.Channels, // --channel=<id> --maxresults=<n> --status=<active|all|completed|upcoming>
-		"streams":    ytcommands.Channels, // --channel=<id> --maxresults=<n>
-		"bind":       ytcommands.Channels, // --video=<id> --stream=<key>
-		"unbind":     ytcommands.Channels, // --video=<id>
+	operations = map[string]func(*ytservice.Service, *ytservice.Params, *ytservice.Table) error {
+		"Authenticate":   Authenticate,
+		"ListVideos":     ytcommands.ListVideos,     // --channel=<id> --maxresults=<n>
+		"ListChannels":   ytcommands.ListChannels,   // --channel=<id> --maxresults=<n>
+		"ListPlaylists":   ytcommands.ListPlaylists, // --channel=<id> --maxresults=<n>
+//		"broadcasts": ytcommands.Channels, // --channel=<id> --maxresults=<n> --status=<active|all|completed|upcoming>
+//		"streams":    ytcommands.Channels, // --channel=<id> --maxresults=<n>
+//		"bind":       ytcommands.Channels, // --video=<id> --stream=<key>
+//		"unbind":     ytcommands.Channels, // --video=<id>
 	}
 )
 
 var (
 	credentialsFolder      = flag.String("credentials", ".credentials", "Folder containing credentials")
-	debug                  = flag.Bool("debug", false, "Debug flag")
-	clientsecretFilename   = flag.String("clientsecret", "client_secrets.json", "Client secret filename")
+	clientsecretFilename   = flag.String("clientsecret", "client_secret.json", "Client secret filename")
 	serviceAccountFilename = flag.String("serviceaccount", "service_account.json", "Service account filename")
 	defaultsFilename       = flag.String("defaults", "defaults.json", "Defaults filename")
 	tokenFilename          = flag.String("authtoken", "oauth_token", "OAuth token filename")
 
-	paramChannel      = flag.String("channel", "", "Channel ID")
-	paramContentOwner = flag.String("contentowner", "", "Content Owner ID")
-	paramMaxResults   = flag.Uint64("max-results", 0, "Maximum results to return (or 0)")
+	flagDebug        = flag.Bool("debug", false, "Debug flag")
+	flagChannel      = flag.String("channel", "", "Channel ID")
+	flagContentOwner = flag.String("contentowner", "", "Content Owner ID")
+	flagMaxResults   = flag.Uint64("maxresults", 0, "Maximum results to return (or 0)")
 )
 
 const (
@@ -56,39 +57,54 @@ func userDir() (userDir string) {
 	return
 }
 
-func NewDefaults(filename string) (*ytservice.Defaults, error) {
-	var defaults *ytservice.Defaults
+func NewParamsFromFile(filename string) (*ytservice.Params, error) {
+	var params *ytservice.Params
 	var err error
 
 	// if a file exists, then read it
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		defaults = ytservice.NewDefaults()
+		params = ytservice.NewParams()
 	} else {
-		defaults, err = ytservice.NewDefaultsFromJSON(filename)
+		params, err = ytservice.NewParamsFromJSON(filename)
 	}
 	if err != nil {
 		return nil, err
 	}
-
-	// set up parameters
-	if *debug {
-		defaults.Debug = *debug
-	}
-	if len(*paramContentOwner) > 0 {
-		defaults.ContentOwner = paramContentOwner
-	}
-	if len(*paramChannel) > 0 {
-		defaults.Channel = paramChannel
-	}
-	if *paramMaxResults > 0 {
-		defaults.MaxResults = *paramMaxResults
-	}
-
-	// return defaults
-	return defaults, nil
+	return params,nil
 }
 
-func Authorization(service *ytservice.YTService, defaults *ytservice.Defaults) error {
+func CombineParamsWthFlags(params *ytservice.Params) *ytservice.Params {
+	copy := params.Copy()
+
+	// set up parameters
+	if len(*flagContentOwner) > 0 {
+		copy.ContentOwner = flagContentOwner
+	}
+	if len(*flagChannel) > 0 {
+		copy.Channel = flagChannel
+	}
+	if *flagMaxResults > 0 {
+		copy.MaxResults = *flagMaxResults
+	}
+
+	return copy
+}
+
+func Authenticate(service *ytservice.Service, params *ytservice.Params,output *ytservice.Table) error {
+
+	// output content owner and channel information
+	output.AppendColumn("contentowner","contentowner")
+	output.AppendColumn("channel","channel")
+	row := output.NewRow()
+
+	if params.IsEmptyContentOwner() == false {
+		row.SetString("contentowner",*params.ContentOwner)
+	}
+	if params.IsEmptyChannel() == false {
+		row.SetString("channel",*params.Channel)
+	}
+
+	// success
 	return nil
 }
 
@@ -134,30 +150,22 @@ func main() {
 		}
 	}
 
-	var api *ytservice.YTService
+	var api *ytservice.Service
 	var err error
 
-	// Create defaults object
+	// Create params object
 	defaultsPath := filepath.Join(credentialsPath, *defaultsFilename)
-	defaults, err := NewDefaults(defaultsPath)
+	defaults, err := NewParamsFromFile(defaultsPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	// iI operation is to authenticate, delete existing token and save credentials
+	// if operation is to authenticate, delete existing token
 	tokenPath := filepath.Join(credentialsPath, *tokenFilename)
-	if opname == "auth" {
-		// Save defaults
-		err = defaults.Save(defaultsPath, crdentialsFileMode)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
+	if opname == "Authenticate" {
 		// Delete OAuth token
-		if _, err := os.Stat(tokenPath); os.IsNotExist(err) {
-			// Do nothing
-		} else {
+		if _, err := os.Stat(tokenPath); os.IsNotExist(err) == false {
 			err = os.Remove(tokenPath)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -169,20 +177,55 @@ func main() {
 	// Authenticate
 	serviceAccountPath := filepath.Join(credentialsPath, *serviceAccountFilename)
 	clientSecretPath := filepath.Join(credentialsPath, *clientsecretFilename)
-	if len(*defaults.ContentOwner) > 0 {
-		api, err = ytservice.NewYouTubeServiceFromServiceAccountJSON(serviceAccountPath, defaults)
+	if defaults.IsEmptyContentOwner() == false {
+		api, err = ytservice.NewYouTubeServiceFromServiceAccountJSON(serviceAccountPath, defaults, *flagDebug)
 	} else {
-		api, err = ytservice.NewYouTubeServiceFromClientSecretsJSON(clientSecretPath, tokenPath, defaults)
+		api, err = ytservice.NewYouTubeServiceFromClientSecretsJSON(clientSecretPath, tokenPath, defaults, *flagDebug)
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
+	// If this isn't a service account and no channel parameter is set, then
+	// set the channel parameter
+	if api.ServiceAccount == false && defaults.IsValidChannel() == false {
+		call := api.API.Channels.List("id").Mine(true)
+		response, err := call.MaxResults(1).Do()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		if len(response.Items) > 0 {
+			defaults.Channel = &response.Items[0].Id
+		}
+	}
+
+	// Save Defaults
+	defaults.Save(defaultsPath,crdentialsFileMode)
+
+	// Combine defaults with command-line flags to make parameters
+	params := CombineParamsWthFlags(defaults)
+
+	// Print out parameters
+	if *flagDebug {
+		fmt.Fprintf(os.Stderr,"parameters=%+v\n",params)
+	}
+
+	// Create a table object
+	output := ytservice.NewTable([]string{})
+
 	// Run command
-	err = operations[opname](api, defaults)
+	err = operations[opname](api, params, output)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	err = output.CSV(os.Stdout)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
+
