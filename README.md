@@ -7,19 +7,21 @@ Or: `ytapi --help`
 
 Flags:
 
-  * `--help`               Display usage information
-  * `--channel=<id>`       Set the channel
-  * `--contentowner=<id>`  Set the content owner
-  * `--q=<string>`         Query text used when searching
-  * `--debug`              Debug API calls
-  * `--output=<csv|ascii>` Output format for displaying results 
-  * `--maxresults=<int>`   The maximum number of results to return or 0 for unlimited
+  * `-help`               Display usage information
+  * `-channel=<id>`       Set the channel
+  * `-contentowner=<id>`  Set the content owner
+  * `-q=<string>`         Query text used when searching
+  * `-debug`              Debug API calls
+  * `-output=<csv|ascii>` Output format for displaying results 
+  * `-part=<+part,-part,...>` Add and/or remote parts from the output
+  * `-maxresults=<int>`   The maximum number of results to return or 0 for unlimited
 
 ## Introduction
 
 This command-line utility operates on the YouTube Data API in order to list,
-update, delete and search various YouTube objects such as videos, channels and
-playlists.
+update, delete and search various YouTube objects such as videos, channels,
+broadcasts, streams and playlists.
+
 
 ## Authentication
 
@@ -49,7 +51,16 @@ Commands for performing searches of YouTube:
 Commands for accessing channels:
 
   * `ListChannels` Use this for listing the channel or channels that you have
-    access for.
+    access for
+
+## Operations for Live Streams
+
+ * `ListBroadcasts` Use this for listing your broadcasts
+ 
+ * `--video=<id> DeleteBroadcast` Delete a single broadcast from your channel
+ 
+ * `ListStreams` Use this for listing your streams
+
 
 ## Installation
 
