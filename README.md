@@ -1,8 +1,9 @@
 # ytapi
 YouTube API Command-Line Interface
 
-Usage:
-  ytapi `<flags>` `<command>`
+Usage: `ytapi <flags> <command>`
+
+Or: `ytapi --help`
 
 Flags:
 
