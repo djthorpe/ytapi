@@ -7,11 +7,19 @@ Or: `ytapi --help`
 
 Flags:
 
-  * `--help`              Display usage information
-  * `--channel=<id>`      Set the channel
-  * `--contentowner=<id>` Set the content owner
-  * `--debug`             Debug API calls
-  * `--maxresults=<int>`  The maximum number of results to return or 0 for unlimited
+  * `--help`               Display usage information
+  * `--channel=<id>`       Set the channel
+  * `--contentowner=<id>`  Set the content owner
+  * `--q=<string>`         Query text used when searching
+  * `--debug`              Debug API calls
+  * `--output=<csv|ascii>` Output format for displaying results 
+  * `--maxresults=<int>`   The maximum number of results to return or 0 for unlimited
+
+## Introduction
+
+This command-line utility operates on the YouTube Data API in order to list,
+update, delete and search various YouTube objects such as videos, channels and
+playlists.
 
 ## Authentication
 
@@ -32,6 +40,9 @@ Commands for authenticating for using the YouTube API:
 
 ## Searching YouTube
 
+Commands for performing searches of YouTube:
+
+  * `--q=<search> Search` Search videos, channels and playlists.
 
 ## Operations on Channels
 
@@ -43,12 +54,11 @@ Commands for accessing channels:
 ## Installation
 
 In order to use this package, you'll need to create a ".credentials" folder
-into which you need to place two files:
+into which you need to place one or two files:
 
-  * `client_secrets.json`
-  * `service_account.json`
+  * `client_secrets.json` is required to be placed in the folder
+  * `service_account.json` is optional where you wish to operate on the API on 
+    behalf of a YouTube content owner.
   
-There is also a file called `defaults.json` into which you can place any
-default parameters you wish to use without putting them onto the command
-line.
+These files can be downloaded from your Google Developer console.
 
