@@ -64,7 +64,7 @@ func RegisterChannelFormat(params *ytservice.Params, table *ytservice.Table) err
 	})
 
 	// set default columns
-	table.SetColumns([]string{"channel", "title", "description", "publishedAt", "countrycode", "defaultLanguage", "contentowner"})
+	table.SetColumns([]string{"channel", "title", "description", "publishedAt", "countrycode", "defaultLanguage" })
 
 	// success
 	return nil
@@ -80,10 +80,10 @@ func ListChannels(service *ytservice.Service, params *ytservice.Params, table *y
 	call := service.API.Channels.List(strings.Join(table.Parts(), ","))
 
 	// set filter parameters
-	if params.IsValidChannel() {
-		call = call.Id(*params.Channel)
-	} else if service.ServiceAccount {
+	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(*params.ContentOwner).ManagedByMe(true)
+	} else if params.IsValidChannel() {
+		call = call.Id(*params.Channel)
 	} else {
 		call = call.Mine(true)
 	}

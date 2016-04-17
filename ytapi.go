@@ -59,7 +59,7 @@ var (
 
 const (
 	credentialsPathMode = 0700
-	crdentialsFileMode  = 0644
+	credentialsFileMode = 0644
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,20 @@ func NewParamsFromFile(filename string) (*ytservice.Params, error) {
 		return nil, err
 	}
 	return params, nil
+}
+
+func CombineParamsWthContentOwnerFlag(params *ytservice.Params) (*ytservice.Params, error) {
+	copy := params.Copy()
+
+	// copy --contentowner
+	if len(*flagContentOwner) > 0 {
+		copy.ContentOwner = flagContentOwner
+		if copy.IsValidContentOwner() == false {
+			return nil, errors.New("Invalid -contentowner flag")
+		}
+	}
+
+	return copy, nil
 }
 
 func CombineParamsWthFlags(params *ytservice.Params) (*ytservice.Params, error) {
@@ -244,6 +258,13 @@ func main() {
 		}
 	}
 
+	// Combine content owner flag
+	defaults, err = CombineParamsWthContentOwnerFlag(defaults)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
 	// Authenticate
 	serviceAccountPath := filepath.Join(credentialsPath, *serviceAccountFilename)
 	clientSecretPath := filepath.Join(credentialsPath, *clientsecretFilename)
@@ -272,7 +293,7 @@ func main() {
 	}
 
 	// Save Defaults
-	defaults.Save(defaultsPath, crdentialsFileMode)
+	defaults.Save(defaultsPath, credentialsFileMode)
 
 	// Combine defaults with command-line flags to make parameters
 	params, err := CombineParamsWthFlags(defaults)

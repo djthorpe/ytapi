@@ -94,8 +94,8 @@ func (this *Params) IsValidContentOwner() bool {
 	if this.IsEmptyContentOwner() {
 		return false
 	}
-	// TODO: Check length and composition of content owner
-	return true
+	matched, _ := regexp.MatchString("^([a-zA-Z0-9]{22})$", *this.ContentOwner)
+	return matched
 }
 
 // Return boolean value which indicates an empty channel

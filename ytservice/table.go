@@ -161,6 +161,7 @@ func (this *Table) CSV(io io.Writer) error {
 func (this *Table) ASCII(io io.Writer) error {
 	w := tablewriter.NewWriter(io)
 	w.SetHeader(this.colkey)
+	w.SetAutoFormatHeaders(false)
 	for _, row := range this.rows {
 		w.Append(row.asStringArray(this))
 	}

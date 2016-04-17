@@ -92,8 +92,13 @@ func ListBroadcasts(service *ytservice.Service, params *ytservice.Params, table 
 
 func DeleteBroadcast(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
 
+	// Get video
+	if params.IsValidVideo() == false {
+		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+	}
+
 	// create call
-	call := service.API.LiveBroadcasts.Delete("XX")
+	call := service.API.LiveBroadcasts.Delete(*params.Video)
 
 	// set filter parameters
 	if service.ServiceAccount && params.IsValidChannel() {
