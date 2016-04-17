@@ -5,18 +5,20 @@
 package ytservice
 
 import (
+	"os"
+	"regexp"
 	"encoding/json"
 	"io/ioutil"
-	"os"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // Params object stores all the parameters used for making API requests
 type Params struct {
-	ContentOwner *string `json:"content_owner,omitempty"`
+	ContentOwner *string `json:"contentowner,omitempty"`
 	Channel      *string `json:"channel,omitempty"`
-	MaxResults   uint64  `json:"max_results"`
+	MaxResults   int64   `json:"maxresults,omitempty"`
+	Query        *string `json:"q,omitempty"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +29,7 @@ func NewParams() *Params {
 	this.MaxResults = 0
 	this.ContentOwner = nil
 	this.Channel = nil
+	this.Query = nil
 	return this
 }
 
@@ -53,6 +56,7 @@ func (this *Params) Copy() *Params {
 	copy.MaxResults = this.MaxResults
 	copy.ContentOwner = this.ContentOwner // TODO copy pointer?
 	copy.Channel = this.Channel // TODO copy pointer?
+	copy.Query = this.Query // TODO copy pointer?
 	return copy
 }
 
@@ -69,8 +73,7 @@ func (this *Params) Save(filename string,perm os.FileMode) error {
 	return nil
 }
 
-// Return boolean value which indicates if a content owner parameter
-// is missing
+// Return boolean value which indicates if a content owner parameter is missing
 func (this *Params) IsEmptyContentOwner() bool {
 	if this.ContentOwner == nil {
 		return true
@@ -106,7 +109,19 @@ func (this *Params) IsValidChannel() bool {
 	if this.IsEmptyChannel() {
 		return false
 	}
-	// TODO: Check length and composition of the channel parameter
-	return true
+	matched, _ := regexp.MatchString("^UC([a-zA-Z0-9\\-]{22})$",*this.Channel)
+	return matched
 }
+
+// Return boolean value which indicates an empty query
+func (this *Params) IsEmptyQuery() bool {
+	if this.Query == nil {
+		return true
+	}
+	if len(*this.Query) == 0 {
+		return true
+	}
+	return false
+}
+
 

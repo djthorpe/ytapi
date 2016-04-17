@@ -8,6 +8,8 @@ import (
 	"io"
 	"fmt"
 	"encoding/csv"
+
+	"github.com/olekukonko/tablewriter"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,6 +110,16 @@ func (this *Table) CSV(io io.Writer) error {
 	}
 	w.Flush()
 	return w.Error()
+}
+
+func (this *Table) ASCII(io io.Writer) error {
+	w := tablewriter.NewWriter(io)
+	w.SetHeader(this.colkey)
+	for _,row := range(this.rows) {
+		w.Append(row.asStringArray(this))
+	}
+	w.Render()
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -8,9 +8,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
+	"errors"
 	"os/user"
 	"path/filepath"
-	"strings"
 
 	"github.com/djthorpe/ytapi/ytcommands"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -18,13 +19,20 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////
 
+type Operation struct {
+	setup func(*ytservice.Params, *ytservice.Table) error
+	do    func(*ytservice.Service, *ytservice.Params, *ytservice.Table) error
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 var (
-	operations = map[string]func(*ytservice.Service, *ytservice.Params, *ytservice.Table) error {
-		"Authenticate":   Authenticate,
-		"ListVideos":     ytcommands.ListVideos,     // --channel=<id> --maxresults=<n>
-		"ListChannels":   ytcommands.ListChannels,   // --channel=<id> --maxresults=<n>
-		"ListPlaylists":  ytcommands.ListPlaylists,  // --channel=<id> --maxresults=<n>
-		"Search":         ytcommands.Search,         // --channel=<id> --maxresults=<n>
+	operations = map[string]Operation {
+		"Authenticate":  Operation{ NoOp, Authenticate},
+		"ListVideos":    Operation{ NoOp, ytcommands.ListVideos },    // --channel=<id> --maxresults=<n>
+		"ListChannels":  Operation{ NoOp, ytcommands.ListChannels },  // --channel=<id> --maxresults=<n>
+		"ListPlaylists": Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists }, // --channel=<id> --maxresults=<n>
+		"Search":        Operation{ NoOp, ytcommands.Search },        // --q=<string> --maxresults=<n>
 	}
 )
 
@@ -35,10 +43,12 @@ var (
 	defaultsFilename       = flag.String("defaults", "defaults.json", "Defaults filename")
 	tokenFilename          = flag.String("authtoken", "oauth_token", "OAuth token filename")
 
-	flagDebug        = flag.Bool("debug", false, "Debug flag")
+	flagDebug        = flag.Bool("debug", false, "Show API requests and responses on stderr")
 	flagChannel      = flag.String("channel", "", "Channel ID")
 	flagContentOwner = flag.String("contentowner", "", "Content Owner ID")
-	flagMaxResults   = flag.Uint64("maxresults", 0, "Maximum results to return (or 0)")
+	flagMaxResults   = flag.Int64("maxresults", 0, "Maximum results to return (or 0)")
+	flagOutput       = flag.String("output","ascii","Output type (csv or ascii)")
+	flagQuery        = flag.String("q","","Search Query")
 )
 
 const (
@@ -70,21 +80,39 @@ func NewParamsFromFile(filename string) (*ytservice.Params, error) {
 	return params,nil
 }
 
-func CombineParamsWthFlags(params *ytservice.Params) *ytservice.Params {
+func CombineParamsWthFlags(params *ytservice.Params) (*ytservice.Params,error) {
 	copy := params.Copy()
 
-	// set up parameters
+	// copy --contentowner
 	if len(*flagContentOwner) > 0 {
 		copy.ContentOwner = flagContentOwner
+		if copy.IsValidContentOwner() == false {
+			return nil,errors.New("Invalid --contentowner flag")
+		}
 	}
+
+	// copy --channel
 	if len(*flagChannel) > 0 {
 		copy.Channel = flagChannel
+		if copy.IsValidChannel() == false {
+			return nil,errors.New("Invalid --channel flag")
+		}
+	}
+
+	// copy --maxresults
+	if *flagMaxResults < 0 {
+		return nil,errors.New("Invalid --maxresults flag")
 	}
 	if *flagMaxResults > 0 {
 		copy.MaxResults = *flagMaxResults
 	}
 
-	return copy
+	// copy --q
+	if len(*flagQuery) > 0 {
+		copy.Query = flagQuery
+	}
+
+	return copy,nil
 }
 
 func Authenticate(service *ytservice.Service, params *ytservice.Params,output *ytservice.Table) error {
@@ -102,6 +130,11 @@ func Authenticate(service *ytservice.Service, params *ytservice.Params,output *y
 	}
 
 	// success
+	return nil
+}
+
+func NoOp(params *ytservice.Params,table *ytservice.Table) error {
+	// Do Nothing
 	return nil
 }
 
@@ -202,7 +235,11 @@ func main() {
 	defaults.Save(defaultsPath,crdentialsFileMode)
 
 	// Combine defaults with command-line flags to make parameters
-	params := CombineParamsWthFlags(defaults)
+	params, err := CombineParamsWthFlags(defaults)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	// Print out parameters
 	if *flagDebug {
@@ -212,14 +249,27 @@ func main() {
 	// Create a table object
 	output := ytservice.NewTable([]string{})
 
-	// Run command
-	err = operations[opname](api, params, output)
+	// Setup
+	err = operations[opname].setup(params, output)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	err = output.CSV(os.Stdout)
+	// Execute
+	err = operations[opname].do(api, params, output)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	if *flagOutput == "ascii" {
+		err = output.ASCII(os.Stdout)
+	} else if *flagOutput == "csv" {
+		err = output.CSV(os.Stdout)
+	} else {
+		err = errors.New("Invalid --output flag")
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

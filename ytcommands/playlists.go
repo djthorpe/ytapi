@@ -10,28 +10,12 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
-/*
-    field name, field description, field path, field type, snippet
-	"id" : {
-		{ "playlist": "Id",TYPE_STRING }
-	}
-	"snippet": {
-
-	}
-	"id": "playlist","Id","string","id"
-	"title": "title","Snippet/Title","string","snippet"
-	"publishedAt": "Snippet/PublishedAt","Snippet/PublishedAt","datetime","snippet"
-	"channel": "publishedAt","Snippet/PublishedAt","datetime","snippet"
-
-*/
-
 ////////////////////////////////////////////////////////////////////////////////
 // Register playlist output
 
-func RegisterPlaylistFormat(table *ytservice.Table) {
+func RegisterPlaylistFormat(params *ytservice.Params,table *ytservice.Table) error {
 
-	table.SetColumns([]string{ "id","title","description","kind" })
-
+	// register parts
 	table.RegisterPart("id",[]ytservice.FieldSpec{
 		ytservice.FieldSpec{ "id","Id",ytservice.FIELD_STRING },
 		ytservice.FieldSpec{ "kind","Kind",ytservice.FIELD_STRING },
@@ -40,6 +24,12 @@ func RegisterPlaylistFormat(table *ytservice.Table) {
 		ytservice.FieldSpec{ "title","Snippet/Title",ytservice.FIELD_STRING },
 		ytservice.FieldSpec{ "description","Snippet/Description",ytservice.FIELD_STRING },
 	})
+
+	// set default columns
+	table.SetColumns([]string{ "id","title","description","kind" })
+
+	// success
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
