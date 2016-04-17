@@ -13,20 +13,20 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register playlist output
 
-func RegisterPlaylistFormat(params *ytservice.Params,table *ytservice.Table) error {
+func RegisterPlaylistFormat(params *ytservice.Params, table *ytservice.Table) error {
 
 	// register parts
-	table.RegisterPart("id",[]ytservice.FieldSpec{
-		ytservice.FieldSpec{ "id","Id",ytservice.FIELD_STRING },
-		ytservice.FieldSpec{ "kind","Kind",ytservice.FIELD_STRING },
+	table.RegisterPart("id", []ytservice.FieldSpec{
+		ytservice.FieldSpec{"id", "Id", ytservice.FIELD_STRING},
+		ytservice.FieldSpec{"kind", "Kind", ytservice.FIELD_STRING},
 	})
-	table.RegisterPart("snippet",[]ytservice.FieldSpec{
-		ytservice.FieldSpec{ "title","Snippet/Title",ytservice.FIELD_STRING },
-		ytservice.FieldSpec{ "description","Snippet/Description",ytservice.FIELD_STRING },
+	table.RegisterPart("snippet", []ytservice.FieldSpec{
+		ytservice.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
+		ytservice.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
 	})
 
 	// set default columns
-	table.SetColumns([]string{ "id","title","description","kind" })
+	table.SetColumns([]string{"id", "title", "description", "kind"})
 
 	// success
 	return nil
@@ -78,15 +78,15 @@ func ListPlaylists(service *ytservice.Service, params *ytservice.Params, output 
 	output.AddColumn("title")
 	output.AddColumn("description")
 
-	for _,item := range(items) {
+	for _, item := range items {
 		row := output.NewRow()
 
 		// id
-		row.SetString("id",item.Id)
+		row.SetString("id", item.Id)
 
 		// snippet
-		row.SetString("title",item.Snippet.Title)
-		row.SetString("description",item.Snippet.Description)
+		row.SetString("title", item.Snippet.Title)
+		row.SetString("description", item.Snippet.Description)
 	}
 
 	// success

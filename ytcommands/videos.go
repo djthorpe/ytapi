@@ -15,7 +15,7 @@ import (
 // Returns set of video items for YouTube service. Requires the channel
 // parameter in order to work
 
-func ListVideos(service *ytservice.Service,params *ytservice.Params, output *ytservice.Table) error {
+func ListVideos(service *ytservice.Service, params *ytservice.Params, output *ytservice.Table) error {
 	// create call for videos
 	call := service.API.Videos.List("id,snippet")
 
@@ -56,15 +56,15 @@ func ListVideos(service *ytservice.Service,params *ytservice.Params, output *yts
 	output.AddColumn("title")
 	output.AddColumn("description")
 
-	for _,item := range(items) {
+	for _, item := range items {
 		row := output.NewRow()
 
 		// id
-		row.SetString("id",item.Id)
+		row.SetString("id", item.Id)
 
 		// snippet
-		row.SetString("title",item.Snippet.Title)
-		row.SetString("description",item.Snippet.Description)
+		row.SetString("title", item.Snippet.Title)
+		row.SetString("description", item.Snippet.Description)
 	}
 
 	// success

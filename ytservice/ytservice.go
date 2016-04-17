@@ -31,22 +31,22 @@ const (
 ////////////////////////////////////////////////////////////////////////////////
 
 // Returns a service object given service account details
-func NewYouTubeServiceFromServiceAccountJSON(filename string,params *Params,debug bool) (*Service, error) {
+func NewYouTubeServiceFromServiceAccountJSON(filename string, params *Params, debug bool) (*Service, error) {
 	if params.IsValidContentOwner() == false {
 		return nil, ErrorMissingContentOwner
 	}
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil, NewError(ErrorInvalidServiceAccount,err)
+		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
-	sa_config, err := google.JWTConfigFromJSON(bytes,youtube.YoutubeScope,youtube.YoutubepartnerScope)
+	sa_config, err := google.JWTConfigFromJSON(bytes, youtube.YoutubeScope, youtube.YoutubepartnerScope)
 	if err != nil {
-		return nil, NewError(ErrorInvalidServiceAccount,err)
+		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
 	ctx := getContext(debug)
 	service, err := youtube.New(sa_config.Client(ctx))
 	if err != nil {
-		return nil, NewError(ErrorInvalidServiceAccount,err)
+		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
 	this := new(Service)
 	this.API = service
@@ -55,14 +55,14 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string,params *Params,debu
 }
 
 // Returns a service object given client secrets details
-func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache string,params *Params,debug bool) (*Service, error) {
+func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache string, params *Params, debug bool) (*Service, error) {
 	bytes, err := ioutil.ReadFile(clientsecrets)
 	if err != nil {
-		return nil, NewError(ErrorInvalidClientSecrets,err)
+		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
 	config, err := google.ConfigFromJSON(bytes, youtube.YoutubeScope)
 	if err != nil {
-		return nil, NewError(ErrorInvalidClientSecrets,err)
+		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
 	ctx := getContext(debug)
 
@@ -73,13 +73,13 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 		saveToken(tokencache, token)
 	}
 	if err != nil {
-		return nil, NewError(ErrorInvalidClientSecrets,err)
+		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
 
 	// create client
 	service, err := youtube.New(config.Client(ctx, token))
 	if err != nil {
-		return nil, NewError(ErrorInvalidClientSecrets,err)
+		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
 
 	this := new(Service)
@@ -91,7 +91,7 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 
 ////////////////////////////////////////////////////////////////////////////////
 
-func (this *Service) DoSearchList(call *youtube.SearchListCall,table *Table,maxresults int64) error {
+func (this *Service) DoSearchList(call *youtube.SearchListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""
 
@@ -113,10 +113,10 @@ func (this *Service) DoSearchList(call *youtube.SearchListCall,table *Table,maxr
 		}
 		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
 		if err != nil {
-			return NewError(ErrorResponse,err)
+			return NewError(ErrorResponse, err)
 		}
 		if err = table.Append(response.Items); err != nil {
-			return NewError(ErrorResponse,err)
+			return NewError(ErrorResponse, err)
 		}
 		numresults += int64(len(response.Items))
 		nextPageToken = response.NextPageToken
@@ -129,7 +129,7 @@ func (this *Service) DoSearchList(call *youtube.SearchListCall,table *Table,maxr
 	return nil
 }
 
-func (this *Service) DoChannelsList(call *youtube.ChannelsListCall,table *Table,maxresults int64) error {
+func (this *Service) DoChannelsList(call *youtube.ChannelsListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""
 
@@ -151,10 +151,10 @@ func (this *Service) DoChannelsList(call *youtube.ChannelsListCall,table *Table,
 		}
 		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
 		if err != nil {
-			return NewError(ErrorResponse,err)
+			return NewError(ErrorResponse, err)
 		}
 		if err = table.Append(response.Items); err != nil {
-			return NewError(ErrorResponse,err)
+			return NewError(ErrorResponse, err)
 		}
 		numresults += int64(len(response.Items))
 		nextPageToken = response.NextPageToken
@@ -167,8 +167,7 @@ func (this *Service) DoChannelsList(call *youtube.ChannelsListCall,table *Table,
 	return nil
 }
 
-
-func (this *Service) DoBroadcastsList(call *youtube.LiveBroadcastsListCall,table *Table,maxresults int64) error {
+func (this *Service) DoBroadcastsList(call *youtube.LiveBroadcastsListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""
 
@@ -190,10 +189,10 @@ func (this *Service) DoBroadcastsList(call *youtube.LiveBroadcastsListCall,table
 		}
 		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
 		if err != nil {
-			return NewError(ErrorResponse,err)
+			return NewError(ErrorResponse, err)
 		}
 		if err = table.Append(response.Items); err != nil {
-			return NewError(ErrorResponse,err)
+			return NewError(ErrorResponse, err)
 		}
 		numresults += int64(len(response.Items))
 		nextPageToken = response.NextPageToken
@@ -206,7 +205,7 @@ func (this *Service) DoBroadcastsList(call *youtube.LiveBroadcastsListCall,table
 	return nil
 }
 
-func (this *Service) DoStreamsList(call *youtube.LiveStreamsListCall,table *Table,maxresults int64) error {
+func (this *Service) DoStreamsList(call *youtube.LiveStreamsListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""
 
@@ -228,10 +227,10 @@ func (this *Service) DoStreamsList(call *youtube.LiveStreamsListCall,table *Tabl
 		}
 		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
 		if err != nil {
-			return NewError(ErrorResponse,err)
+			return NewError(ErrorResponse, err)
 		}
 		if err = table.Append(response.Items); err != nil {
-			return NewError(ErrorResponse,err)
+			return NewError(ErrorResponse, err)
 		}
 		numresults += int64(len(response.Items))
 		nextPageToken = response.NextPageToken
@@ -243,5 +242,3 @@ func (this *Service) DoStreamsList(call *youtube.LiveStreamsListCall,table *Tabl
 	// Success
 	return nil
 }
-
-

@@ -3,13 +3,14 @@
 
 Usage: `ytapi <flags> <command>`
 
-Or: `ytapi --help`
+Or: `ytapi -help`
 
 Flags:
 
   * `-help`               Display usage information
   * `-channel=<id>`       Set the channel
   * `-contentowner=<id>`  Set the content owner
+  * `-video=<id>`         The video or broadcast
   * `-q=<string>`         Query text used when searching
   * `-debug`              Debug API calls
   * `-output=<csv|ascii>` Output format for displaying results 
@@ -32,11 +33,11 @@ Commands for authenticating for using the YouTube API:
 	account. The channel you specify will be used as a default to operate on
 	for subsequent operations.
 
-  * `--contentowner=<id> Authenticate` Use this form when authenticating against a
+  * `-contentowner=<id> Authenticate` Use this form when authenticating against a
     service account. The content owner you specify will be used as a default to 
 	operate on for subsequent operations.
 
-  * `--contentowner=<id> --channel=<id> Authenticate` Use this form when 
+  * `-contentowner=<id> -channel=<id> Authenticate` Use this form when 
     authenticating against a service account. The content owner and channel you 
 	specify will be used as defaults for subsequent operations.
 
@@ -44,7 +45,7 @@ Commands for authenticating for using the YouTube API:
 
 Commands for performing searches of YouTube:
 
-  * `--q=<search> Search` Search videos, channels and playlists.
+  * `-q=<search> Search` Search videos, channels and playlists.
 
 ## Operations on Channels
 
@@ -55,9 +56,9 @@ Commands for accessing channels:
 
 ## Operations for Live Streams
 
- * `ListBroadcasts` Use this for listing your broadcasts
+ * `-broadcaststatus=<all|active|upcoming|completed> ListBroadcasts` Use this for listing your broadcasts
  
- * `--video=<id> DeleteBroadcast` Delete a single broadcast from your channel
+ * `-video=<id> DeleteBroadcast` Delete a single broadcast from your channel
  
  * `ListStreams` Use this for listing your streams
 
