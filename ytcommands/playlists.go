@@ -74,9 +74,9 @@ func ListPlaylists(service *ytservice.Service, params *ytservice.Params, output 
 		}
 	}
 
-	output.AppendColumn("id","id")
-	output.AppendColumn("title","Title")
-	output.AppendColumn("description","Description")
+	output.AddColumn("id")
+	output.AddColumn("title")
+	output.AddColumn("description")
 
 	for _,item := range(items) {
 		row := output.NewRow()

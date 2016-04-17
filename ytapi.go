@@ -28,11 +28,14 @@ type Operation struct {
 
 var (
 	operations = map[string]Operation {
-		"Authenticate":  Operation{ NoOp, Authenticate},
-		"ListVideos":    Operation{ NoOp, ytcommands.ListVideos },    // --channel=<id> --maxresults=<n>
-		"ListChannels":  Operation{ NoOp, ytcommands.ListChannels },  // --channel=<id> --maxresults=<n>
-		"ListPlaylists": Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists }, // --channel=<id> --maxresults=<n>
-		"Search":        Operation{ NoOp, ytcommands.Search },        // --q=<string> --maxresults=<n>
+		"Authenticate":    Operation{ NoOp, Authenticate},
+		"ListVideos":      Operation{ NoOp, ytcommands.ListVideos },    // --channel=<id> --maxresults=<n>
+		"ListChannels":    Operation{ ytcommands.RegisterChannelFormat, ytcommands.ListChannels },  // --channel=<id> --maxresults=<n>
+		"ListPlaylists":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists }, // --channel=<id> --maxresults=<n>
+		"ListBroadcasts":  Operation{ ytcommands.RegisterBroadcastFormat, ytcommands.ListBroadcasts }, // --channel=<id> --maxresults=<n>
+		"DeleteBroadcast": Operation{ NoOp, ytcommands.DeleteBroadcast }, // --video=<id>
+		"ListStreams":     Operation{ ytcommands.RegisterStreamFormat, ytcommands.ListStreams }, // --channel=<id> --maxresults=<n>
+		"Search":          Operation{ ytcommands.RegisterSearchFormat, ytcommands.Search },        // --q=<string> --maxresults=<n>
 	}
 )
 
@@ -47,6 +50,7 @@ var (
 	flagChannel      = flag.String("channel", "", "Channel ID")
 	flagContentOwner = flag.String("contentowner", "", "Content Owner ID")
 	flagMaxResults   = flag.Int64("maxresults", 0, "Maximum results to return (or 0)")
+	flagPart         = flag.String("part","","Comma-separated list of parts for response")
 	flagOutput       = flag.String("output","ascii","Output type (csv or ascii)")
 	flagQuery        = flag.String("q","","Search Query")
 )
@@ -118,8 +122,8 @@ func CombineParamsWthFlags(params *ytservice.Params) (*ytservice.Params,error) {
 func Authenticate(service *ytservice.Service, params *ytservice.Params,output *ytservice.Table) error {
 
 	// output content owner and channel information
-	output.AppendColumn("contentowner","contentowner")
-	output.AppendColumn("channel","channel")
+	output.AddColumn("contentowner")
+	output.AddColumn("channel")
 	row := output.NewRow()
 
 	if params.IsEmptyContentOwner() == false {
@@ -135,6 +139,24 @@ func Authenticate(service *ytservice.Service, params *ytservice.Params,output *y
 
 func NoOp(params *ytservice.Params,table *ytservice.Table) error {
 	// Do Nothing
+	return nil
+}
+
+func AlterColumnsForParts(parts []string,table *ytservice.Table) error {
+	for _,part := range(parts) {
+		if strings.HasPrefix(part,"-") {
+			if err := table.RemoveColumnsForPart(strings.TrimPrefix(part,"-")); err != nil {
+				return err
+			}
+		} else if strings.HasPrefix(part,"+") {
+			if err := table.AddColumnsForPart(strings.TrimPrefix(part,"+")); err != nil {
+				return err
+			}
+		} else {
+			return errors.New("part elements must be prefixed with + or -")
+		}
+	}
+	// success
 	return nil
 }
 
@@ -247,10 +269,19 @@ func main() {
 	}
 
 	// Create a table object
-	output := ytservice.NewTable([]string{})
+	output := ytservice.NewTable()
 
 	// Setup
 	err = operations[opname].setup(params, output)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Add and remove parts
+	if len(*flagPart) > 0 {
+		err = AlterColumnsForParts(strings.Split(*flagPart,","),output)
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
