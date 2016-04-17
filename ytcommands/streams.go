@@ -55,7 +55,7 @@ func RegisterStreamFormat(params *ytservice.Params, table *ytservice.Table) erro
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Search.List
+// LiveStreams.List
 
 func ListStreams(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
 
@@ -68,6 +68,35 @@ func ListStreams(service *ytservice.Service, params *ytservice.Params, table *yt
 	}
 	call = call.Mine(true)
 
-	// Perform search, and return results
+	// Perform operation, and return results
 	return service.DoStreamsList(call, table, params.MaxResults)
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// LiveStreams.Delete
+
+func DeleteStream(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+
+	// Get stream
+	if params.IsValidStream() == false {
+		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+	}
+
+	// create call
+	call := service.API.LiveStreams.Delete(*params.Stream)
+
+	// set filter parameters
+	if service.ServiceAccount && params.IsValidChannel() {
+		call = call.OnBehalfOfContentOwner(*params.ContentOwner).OnBehalfOfContentOwnerChannel(*params.Channel)
+	}
+
+	// Perform delete
+	err := call.Do()
+	if err != nil {
+		return ytservice.NewError(ytservice.ErrorResponse, err)
+	}
+
+	// success
+	return nil
 }

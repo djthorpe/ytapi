@@ -35,6 +35,7 @@ var (
 		"ListBroadcasts":  Operation{ytcommands.RegisterBroadcastFormat, ytcommands.ListBroadcasts}, // --channel=<id> --maxresults=<n>
 		"DeleteBroadcast": Operation{NoOp, ytcommands.DeleteBroadcast},                              // --video=<id>
 		"ListStreams":     Operation{ytcommands.RegisterStreamFormat, ytcommands.ListStreams},       // --channel=<id> --maxresults=<n>
+		"DeleteStream":    Operation{NoOp, ytcommands.DeleteStream},                                 // --stream=<id>
 		"Search":          Operation{ytcommands.RegisterSearchFormat, ytcommands.Search},            // --q=<string> --maxresults=<n>
 	}
 )
@@ -50,6 +51,7 @@ var (
 	flagChannel         = flag.String("channel", "", "Channel ID")
 	flagContentOwner    = flag.String("contentowner", "", "Content Owner ID")
 	flagVideo           = flag.String("video", "", "Video or Broadcast ID")
+	flagStream          = flag.String("stream", "", "Stream Key")
 	flagMaxResults      = flag.Int64("maxresults", 0, "Maximum results to return (or 0)")
 	flagPart            = flag.String("part", "", "Comma-separated list of parts for response")
 	flagOutput          = flag.String("output", "ascii", "Output type (csv, ascii)")
@@ -137,6 +139,14 @@ func CombineParamsWthFlags(params *ytservice.Params) (*ytservice.Params, error) 
 		copy.Video = flagVideo
 		if copy.IsValidVideo() == false {
 			return nil, errors.New("Invalid -video flag")
+		}
+	}
+
+	// copy -stream
+	if len(*flagStream) > 0 {
+		copy.Stream = flagStream
+		if copy.IsValidStream() == false {
+			return nil, errors.New("Invalid -stream flag")
 		}
 	}
 

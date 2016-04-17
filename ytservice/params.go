@@ -18,6 +18,7 @@ type Params struct {
 	ContentOwner    *string `json:"contentowner,omitempty"`
 	Channel         *string `json:"channel,omitempty"`
 	Video           *string `json:"video,omitempty"`
+	Stream          *string `json:"stream,omitempty"`
 	MaxResults      int64   `json:"maxresults,omitempty"`
 	Query           *string `json:"q,omitempty"`
 	BroadcastStatus *string `json:"broadcaststatus,omitempty"`
@@ -32,6 +33,7 @@ func NewParams() *Params {
 	this.ContentOwner = nil
 	this.Channel = nil
 	this.Video = nil
+	this.Stream = nil
 	this.BroadcastStatus = nil
 	this.Query = nil
 	return this
@@ -57,11 +59,13 @@ func NewParamsFromJSON(filename string) (*Params, error) {
 func (this *Params) Copy() *Params {
 	copy := NewParams()
 	copy.MaxResults = this.MaxResults
-	copy.ContentOwner = this.ContentOwner // TODO copy pointer?
-	copy.Channel = this.Channel           // TODO copy pointer?
-	copy.Video = this.Video               // TODO copy pointer?
-	copy.Query = this.Query               // TODO copy pointer?
+	copy.ContentOwner = this.ContentOwner
+	copy.Channel = this.Channel
+	copy.Video = this.Video
+	copy.Stream = this.Stream
+	copy.Query = this.Query
 	copy.BroadcastStatus = this.BroadcastStatus
+
 	return copy
 }
 
@@ -148,6 +152,28 @@ func (this *Params) IsValidVideo() bool {
 	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\-]{11})$", *this.Video)
 	return matched
 }
+
+
+// Return boolean value which indicates an empty stream parameter
+func (this *Params) IsEmptyStream() bool {
+	if this.Stream == nil {
+		return true
+	}
+	if len(*this.Stream) == 0 {
+		return true
+	}
+	return false
+}
+
+// Return boolean value which indicates a valid stream parameter
+func (this *Params) IsValidStream() bool {
+	if this.IsEmptyStream() {
+		return false
+	}
+	matched, _ := regexp.MatchString("^([a-zA-Z0-9]{4})\\-([a-zA-Z0-9]{4})\\-([a-zA-Z0-9]{4})\\-([a-zA-Z0-9]{4})$", *this.Stream)
+	return matched
+}
+
 
 // Return boolean value which indicates an empty video parameter
 func (this *Params) IsEmptyBroadcastStatus() bool {
