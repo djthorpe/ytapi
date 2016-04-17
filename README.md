@@ -1,5 +1,5 @@
-# ytapi
-YouTube API Command-Line Interface
+
+# ytapi: YouTube API Command-Line Interface
 
 Usage: `ytapi <flags> <command>`
 
@@ -13,7 +13,7 @@ Flags:
   * `--debug`             Debug API calls
   * `--maxresults=<int>`  The maximum number of results to return or 0 for unlimited
 
-== Authentication ==
+## Authentication
 
 Commands for authenticating for using the YouTube API:
 
@@ -30,14 +30,14 @@ Commands for authenticating for using the YouTube API:
     authenticating against a service account. The content owner and channel you 
 	specify will be used as defaults for subsequent operations.
 
-== Channels ==
+## Operations on Channels
 
 Commands for accessing channels:
 
   * `ListChannels` Use this for listing the channel or channels that you have
     access for.
 
-== Installation ==
+## Installation
 
 In order to use this package, you'll need to create a ".credentials" folder
 into which you need to place two files:
