@@ -30,6 +30,9 @@ Commands for authenticating for using the YouTube API:
     authenticating against a service account. The content owner and channel you 
 	specify will be used as defaults for subsequent operations.
 
+## Searching YouTube
+
+
 ## Operations on Channels
 
 Commands for accessing channels:

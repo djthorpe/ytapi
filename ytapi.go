@@ -23,11 +23,8 @@ var (
 		"Authenticate":   Authenticate,
 		"ListVideos":     ytcommands.ListVideos,     // --channel=<id> --maxresults=<n>
 		"ListChannels":   ytcommands.ListChannels,   // --channel=<id> --maxresults=<n>
-		"ListPlaylists":   ytcommands.ListPlaylists, // --channel=<id> --maxresults=<n>
-//		"broadcasts": ytcommands.Channels, // --channel=<id> --maxresults=<n> --status=<active|all|completed|upcoming>
-//		"streams":    ytcommands.Channels, // --channel=<id> --maxresults=<n>
-//		"bind":       ytcommands.Channels, // --video=<id> --stream=<key>
-//		"unbind":     ytcommands.Channels, // --video=<id>
+		"ListPlaylists":  ytcommands.ListPlaylists,  // --channel=<id> --maxresults=<n>
+		"Search":         ytcommands.Search,         // --channel=<id> --maxresults=<n>
 	}
 )
 
