@@ -17,26 +17,21 @@ import (
 type Params struct {
 	ContentOwner    *string `json:"contentowner,omitempty"`
 	Channel         *string `json:"channel,omitempty"`
-	Video           *string `json:"video,omitempty"`
-	Stream          *string `json:"stream,omitempty"`
-	MaxResults      int64   `json:"maxresults,omitempty"`
-	Query           *string `json:"q,omitempty"`
-	BroadcastStatus *string `json:"broadcaststatus,omitempty"`
+	Video           *string `json:"-"`
+	Stream          *string `json:"-"`
+	MaxResults      int64   `json:"-"`
+	Query           *string `json:"-"`
+	BroadcastStatus *string `json:"-"`
+	Language        *string `json:"-"`
+	Title           *string `json:"-"`
+	Description     *string `json:"-"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // Returns a new Params object
 func NewParams() *Params {
-	this := new(Params)
-	this.MaxResults = 0
-	this.ContentOwner = nil
-	this.Channel = nil
-	this.Video = nil
-	this.Stream = nil
-	this.BroadcastStatus = nil
-	this.Query = nil
-	return this
+	return new(Params)
 }
 
 // Returns a params object from a JSON file
@@ -65,7 +60,9 @@ func (this *Params) Copy() *Params {
 	copy.Stream = this.Stream
 	copy.Query = this.Query
 	copy.BroadcastStatus = this.BroadcastStatus
-
+	copy.Language = this.Language
+	copy.Title = this.Title
+	copy.Description = this.Description
 	return copy
 }
 
@@ -174,7 +171,6 @@ func (this *Params) IsValidStream() bool {
 	return matched
 }
 
-
 // Return boolean value which indicates an empty video parameter
 func (this *Params) IsEmptyBroadcastStatus() bool {
 	if this.BroadcastStatus == nil {
@@ -194,3 +190,58 @@ func (this *Params) IsValidBroadcastStatus() bool {
 	matched, _ := regexp.MatchString("^(all|upcoming|completed|active)$", *this.BroadcastStatus)
 	return matched
 }
+
+
+// Return boolean value which indicates an empty title parameter
+func (this *Params) IsEmptyTitle() bool {
+	if this.Title == nil {
+		return true
+	}
+	if len(*this.Title) == 0 {
+		return true
+	}
+	return false
+}
+
+// Return boolean value which indicates an empty title parameter
+func (this *Params) IsEmptyDescription() bool {
+	if this.Description == nil {
+		return true
+	}
+	if len(*this.Description) == 0 {
+		return true
+	}
+	return false
+}
+
+
+// Return boolean value which indicates an empty language parameter
+func (this *Params) IsEmptyLanguage() bool {
+	if this.Language == nil {
+		return true
+	}
+	if len(*this.Language) == 0 {
+		return true
+	}
+	return false
+}
+
+// Return boolean value which indicates a valid language parameter
+func (this *Params) IsValidLanguage() bool {
+	if this.IsEmptyLanguage() {
+		return false
+	}
+	matched, _ := regexp.MatchString("^([a-z]{2})$", *this.Language)
+	if matched {
+		return true
+	}
+	matched, _ = regexp.MatchString("^([a-z]{2})\\-([a-zA-Z0-9]+)$", *this.Language)
+	if matched {
+		return true
+	}
+	return false
+}
+
+
+
+

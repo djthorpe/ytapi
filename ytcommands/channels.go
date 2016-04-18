@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/djthorpe/ytapi/ytservice"
+	"google.golang.org/api/youtube/v3"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,4 +91,86 @@ func ListChannels(service *ytservice.Service, params *ytservice.Params, table *y
 
 	// Perform channels.list and return results
 	return service.DoChannelsList(call, table, params.MaxResults)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Set channel metadata
+
+
+func UpdateChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+
+	// Check channel parameter
+	if params.IsValidChannel() == false {
+		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+	}
+
+	// Retrieve banding settings
+	call := service.API.Channels.List("brandingSettings")
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(*params.ContentOwner)
+	}
+	response, err := call.Id(*params.Channel).Do()
+	if err != nil {
+		return ytservice.NewError(ytservice.ErrorResponse, err)
+	}
+	if len(response.Items) == 0 {
+		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+	}
+
+	// Set language, title and description in youtube.Channel
+	channel := response.Items[0]
+	if params.IsValidLanguage() {
+		channel.BrandingSettings.Channel.DefaultLanguage = *params.Language
+	}
+	if params.IsEmptyTitle() == false {
+		channel.BrandingSettings.Channel.Title = *params.Title
+	}
+	if params.IsEmptyDescription() == false {
+		channel.BrandingSettings.Channel.Description = *params.Description
+	}
+
+	// Update branding settings
+	call2 := service.API.Channels.Update("brandingSettings",channel)
+	if service.ServiceAccount {
+		call2 = call2.OnBehalfOfContentOwner(*params.ContentOwner)
+	}
+	_, err = call2.Do()
+	if err != nil {
+		return ytservice.NewError(ytservice.ErrorResponse, err)
+	}
+
+	// Retrieve channel again
+	call3 := service.API.Channels.List(strings.Join(table.Parts(), ",")).Id(*params.Channel)
+	if service.ServiceAccount {
+		call3 = call3.OnBehalfOfContentOwner(*params.ContentOwner).ManagedByMe(true)
+	}
+
+	// Perform channels.list and return results
+	return service.DoChannelsList(call3, table, 1)
+}
+
+func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+
+	// Check channel parameter
+	if params.IsValidChannel() == false {
+		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+	}
+
+	// create call
+	call := service.API.Channels.Update("localizations",&youtube.Channel{
+		Id: *params.Channel,
+	})
+
+	// set filter parameters
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(*params.ContentOwner)
+	}
+
+	_, err := call.Do()
+	if err != nil {
+		return ytservice.NewError(ytservice.ErrorResponse, err)
+	}
+
+	// success
+	return nil
 }

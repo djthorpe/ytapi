@@ -5,24 +5,21 @@ Usage: `ytapi <flags> <command>`
 
 Or: `ytapi -help`
 
-Flags:
+Here is a list of the main flags which can be used on the command line which
+affect most commands
 
   * `-help`               Display usage information
-  * `-channel=<id>`       Set the channel
+  * `-channel=<id>`       Set the channel to act on behalf of
   * `-contentowner=<id>`  Set the content owner
-  * `-video=<id>`         The video or broadcast
-  * `-q=<string>`         Query text used when searching
-  * `-debug`              Debug API calls
+  * `-debug`              Debug API calls, output API requests and responses to stderr
   * `-output=<csv|ascii>` Output format for displaying results 
-  * `-part=<+part,-part,...>` Add and/or remote parts from the output
-  * `-maxresults=<int>`   The maximum number of results to return or 0 for unlimited
+  * `-part=<+part,-part,...>` Add request parts when listing data
 
 ## Introduction
 
 This command-line utility operates on the YouTube Data API in order to list,
 update, delete and search various YouTube objects such as videos, channels,
 broadcasts, streams and playlists.
-
 
 ## Authentication
 
@@ -53,6 +50,14 @@ Commands for accessing channels:
 
   * `ListChannels` Use this for listing the channel or channels that you have
     access for
+
+  * `ListChannelLocalizedMetadata` Will list all the localized languages for
+    channel metadata (language, title and description)
+	
+Commands for updating channels:
+
+  * `-hl <language> -title <title> -description <string> UpdateChannelLocalizedMetadata` Use this
+    for adding channel localization text. 
 
 ## Operations for Live Streams
 

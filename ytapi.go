@@ -30,13 +30,17 @@ var (
 	operations = map[string]Operation{
 		"Authenticate":    Operation{NoOp, Authenticate},
 		"ListVideos":      Operation{NoOp, ytcommands.ListVideos},                                   // --channel=<id> --maxresults=<n>
-		"ListChannels":    Operation{ytcommands.RegisterChannelFormat, ytcommands.ListChannels},     // --channel=<id> --maxresults=<n>
 		"ListPlaylists":   Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists},   // --channel=<id> --maxresults=<n>
 		"ListBroadcasts":  Operation{ytcommands.RegisterBroadcastFormat, ytcommands.ListBroadcasts}, // --channel=<id> --maxresults=<n>
 		"DeleteBroadcast": Operation{NoOp, ytcommands.DeleteBroadcast},                              // --video=<id>
 		"ListStreams":     Operation{ytcommands.RegisterStreamFormat, ytcommands.ListStreams},       // --channel=<id> --maxresults=<n>
 		"DeleteStream":    Operation{NoOp, ytcommands.DeleteStream},                                 // --stream=<id>
 		"Search":          Operation{ytcommands.RegisterSearchFormat, ytcommands.Search},            // --q=<string> --maxresults=<n>
+
+		// Channels
+		"ListChannels":    Operation{ytcommands.RegisterChannelFormat, ytcommands.ListChannels},     // --channel=<id> --maxresults=<n>
+		"UpdateChannelMetadata": Operation{ytcommands.RegisterChannelFormat, ytcommands.UpdateChannelMetadata}, // -hl=<string> -title=<string> -description=<string>
+		"UpdateLocalizedChannelMetadata": Operation{ytcommands.RegisterChannelFormat, ytcommands.UpdateLocalizedChannelMetadata}, // -hl=<string> -title=<string> -description=<string>
 	}
 )
 
@@ -57,6 +61,9 @@ var (
 	flagOutput          = flag.String("output", "ascii", "Output type (csv, ascii)")
 	flagBroadcastStatus = flag.String("broadcaststatus", "all", "Broadcast Status (all,upcoming,active,completed)")
 	flagQuery           = flag.String("q", "", "Search Query")
+	flagTitle           = flag.String("title", "", "Metadata Title")
+	flagDescription     = flag.String("description", "", "Metadata Description")
+	flagLanguage        = flag.String("hl", "", "Metadata Language")
 )
 
 const (
@@ -155,6 +162,22 @@ func CombineParamsWthFlags(params *ytservice.Params) (*ytservice.Params, error) 
 		copy.BroadcastStatus = flagBroadcastStatus
 		if copy.IsValidBroadcastStatus() == false {
 			return nil, errors.New("Invalid -broadcaststatus flag")
+		}
+	}
+
+	// copy title & description
+	if len(*flagTitle) > 0 {
+		copy.Title = flagTitle
+	}
+	if len(*flagDescription) > 0 {
+		copy.Description = flagDescription
+	}
+
+	// copy language
+	if len(*flagLanguage) > 0 {
+		copy.Language = flagLanguage
+		if copy.IsValidLanguage() == false {
+			return nil, errors.New("Invalid -hl flag")
 		}
 	}
 
