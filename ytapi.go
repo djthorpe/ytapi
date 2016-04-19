@@ -38,9 +38,10 @@ var (
 		"Search":          Operation{ytcommands.RegisterSearchFormat, ytcommands.Search},            // --q=<string> --maxresults=<n>
 
 		// Channels
-		"ListChannels":    Operation{ytcommands.RegisterChannelFormat, ytcommands.ListChannels},     // --channel=<id> --maxresults=<n>
-		"UpdateChannelMetadata": Operation{ytcommands.RegisterChannelFormat, ytcommands.UpdateChannelMetadata}, // -hl=<string> -title=<string> -description=<string>
-		"UpdateLocalizedChannelMetadata": Operation{ytcommands.RegisterChannelFormat, ytcommands.UpdateLocalizedChannelMetadata}, // -hl=<string> -title=<string> -description=<string>
+		"ListChannels":                   Operation{ytcommands.RegisterChannelFormat, ytcommands.ListChannels}, // --channel=<id> --maxresults=<n>
+		"ListLocalizedChannelMetadata":   Operation{ytcommands.RegisterLocalizedChannelMetadataFormat, ytcommands.ListLocalizedChannelMetadata},
+		"UpdateChannelMetadata":          Operation{ytcommands.RegisterChannelFormat, ytcommands.UpdateChannelMetadata},          // -hl=<string> -title=<string> -description=<string>
+		"UpdateLocalizedChannelMetadata": Operation{ytcommands.RegisterLocalizedChannelMetadataFormat, ytcommands.UpdateLocalizedChannelMetadata}, // -hl=<string> -title=<string> -description=<string>
 	}
 )
 

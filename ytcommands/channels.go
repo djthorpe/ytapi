@@ -12,11 +12,18 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////////////
+
+type Localization struct {
+	Language string
+	Title string
+	Description string
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Register channel output format
 
 func RegisterChannelFormat(params *ytservice.Params, table *ytservice.Table) error {
 
-	// register parts
 	table.RegisterPart("id", []ytservice.FieldSpec{
 		ytservice.FieldSpec{"channel", "Id", ytservice.FIELD_STRING},
 	})
@@ -71,6 +78,21 @@ func RegisterChannelFormat(params *ytservice.Params, table *ytservice.Table) err
 	return nil
 }
 
+func RegisterLocalizedChannelMetadataFormat(params *ytservice.Params, table *ytservice.Table) error {
+	table.RegisterPart("localizations", []ytservice.FieldSpec{
+		ytservice.FieldSpec{"language", "Language", ytservice.FIELD_STRING},
+		ytservice.FieldSpec{"title", "Title", ytservice.FIELD_STRING},
+		ytservice.FieldSpec{"description", "Description", ytservice.FIELD_STRING},
+	})
+
+	// set default columns
+	table.SetColumns([]string{"language", "title", "description" })
+
+	// success
+	return nil
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Returns set of channel items for YouTube service. Can return several, in the
 // case of service accounts, or a single one, based on simple OAuth authentication
@@ -91,6 +113,36 @@ func ListChannels(service *ytservice.Service, params *ytservice.Params, table *y
 
 	// Perform channels.list and return results
 	return service.DoChannelsList(call, table, params.MaxResults)
+}
+
+func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+
+	// Check channel parameter
+	if params.IsValidChannel() == false {
+		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+	}
+
+	// create call
+	call := service.API.Channels.List("localizations")
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(*params.ContentOwner)
+	}
+	response, err := call.Id(*params.Channel).Do()
+	if err != nil {
+		return ytservice.NewError(ytservice.ErrorResponse, err)
+	}
+	if len(response.Items) == 0 {
+		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+	}
+
+	// Get localizations
+	localizations := response.Items[0].Localizations
+	for language,metadata := range(localizations) {
+		table.Append([]Localization{ { language, metadata.Title, metadata.Description } })
+	}
+
+	// success
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,22 +207,51 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservic
 	if params.IsValidChannel() == false {
 		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
 	}
+	// Check language parameter
+	if params.IsValidLanguage() == false {
+		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+	}
 
-	// create call
-	call := service.API.Channels.Update("localizations",&youtube.Channel{
-		Id: *params.Channel,
-	})
-
-	// set filter parameters
+	// retrieve localizations information from the channel
+	call := service.API.Channels.List("id,localizations")
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(*params.ContentOwner)
 	}
+	response, err := call.Id(*params.Channel).Do()
+	if err != nil {
+		return ytservice.NewError(ytservice.ErrorResponse, err)
+	}
+	if len(response.Items) == 0 {
+		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+	}
 
-	_, err := call.Do()
+	// edit localizations
+	localizations := response.Items[0].Localizations
+	metadata := youtube.ChannelLocalization{ }
+	if _,ok := localizations[*params.Language]; ok {
+		metadata = localizations[*params.Language]
+	}
+	if params.IsEmptyTitle() == false {
+		metadata.Title = *params.Title
+	}
+	if params.IsEmptyDescription() == false {
+		metadata.Description = *params.Description
+	}
+	localizations[*params.Language] = metadata
+
+	// update localization
+	call2 := service.API.Channels.Update("localizations",&youtube.Channel{
+		Id: *params.Channel,
+		Localizations: localizations,
+	})
+	if service.ServiceAccount {
+		call2 = call2.OnBehalfOfContentOwner(*params.ContentOwner)
+	}
+	_, err = call2.Do()
 	if err != nil {
 		return ytservice.NewError(ytservice.ErrorResponse, err)
 	}
 
-	// success
-	return nil
+	// Call list
+	return ListLocalizedChannelMetadata(service,params,table)
 }
