@@ -46,18 +46,23 @@ Commands for performing searches of YouTube:
 
 ## Operations on Channels
 
+All channel operations can include the `-channel <id>` flag to indicate which
+channel is to be operated on, which using service account authentication.
+
 Commands for accessing channels:
 
   * `ListChannels` Use this for listing the channel or channels that you have
     access for
+		
+  * `ListLocalizedChannelMetadata` List all the localized metadata (title, description) for the channel
 
-  * `ListChannelLocalizedMetadata` Will list all the localized languages for
-    channel metadata (language, title and description)
-	
 Commands for updating channels:
 
-  * `-hl <language> -title <title> -description <string> UpdateChannelLocalizedMetadata` Use this
-    for adding channel localization text. 
+  * ` -hl <language> -country <country> -title <string> -description <string> UpdateChannelMetadata` Use this to update
+    basic metadata for a channel
+
+  * ` -hl <language> -title <string> -description <string> UpdateLocalizedChannelMetadata` Update localized 
+    metadata (title, description) for the channel in a specific language	
 
 ## Operations for Live Streams
 
