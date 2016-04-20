@@ -30,7 +30,6 @@ var (
 	operations = map[string]Operation{
 		"Authenticate":    Operation{NoOp, Authenticate},
 		"ListVideos":      Operation{NoOp, ytcommands.ListVideos},                                   // --channel=<id> --maxresults=<n>
-		"ListPlaylists":   Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists},   // --channel=<id> --maxresults=<n>
 		"ListBroadcasts":  Operation{ytcommands.RegisterBroadcastFormat, ytcommands.ListBroadcasts}, // --channel=<id> --maxresults=<n>
 		"DeleteBroadcast": Operation{NoOp, ytcommands.DeleteBroadcast},                              // --video=<id>
 		"ListStreams":     Operation{ytcommands.RegisterStreamFormat, ytcommands.ListStreams},       // --channel=<id> --maxresults=<n>
@@ -42,6 +41,15 @@ var (
 		"ListLocalizedChannelMetadata":   Operation{ytcommands.RegisterLocalizedChannelMetadataFormat, ytcommands.ListLocalizedChannelMetadata},
 		"UpdateChannelMetadata":          Operation{ytcommands.RegisterChannelFormat, ytcommands.UpdateChannelMetadata},          // -hl=<string> -title=<string> -description=<string>
 		"UpdateLocalizedChannelMetadata": Operation{ytcommands.RegisterLocalizedChannelMetadataFormat, ytcommands.UpdateLocalizedChannelMetadata}, // -hl=<string> -title=<string> -description=<string>
+
+		// Playlists
+		"ListPlaylists":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },           // -maxresults=<n>
+		"ListLocalizedPlaylistMetadata":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },                   // -playlist=<id>
+		"CreatePlaylist":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },         // -hl=<string> -title=<string> -description=<string> -privacystatus=(public|private|unlisted) -tags=
+		"DeletePlaylist":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },          // -playlist=<id>
+		"UpdatePlaylistMetadata": Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },   // -playlist=<id> -hl=<string> --title=<string> --description=<string> --privacystatus=(public|private|unlisted)
+		"UpdateLocalizedPlaylistMetadata":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },                 // --playlist=<id>  -hl=<string> --title=<string> --description=<string>
+
 	}
 )
 
