@@ -242,3 +242,44 @@ func (this *Service) DoStreamsList(call *youtube.LiveStreamsListCall, table *Tab
 	// Success
 	return nil
 }
+
+
+func (this *Service) DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults int64) error {
+	var numresults int64 = 0
+	var nextPageToken string = ""
+
+	// Page through results
+	for {
+		// test to see if we have all the items we now need
+		if maxresults > 0 && numresults >= maxresults {
+			break
+		}
+
+		// determine how many items we should rerieve in this pass
+		var retrieveitems int64 = 0
+		if maxresults == 0 {
+			retrieveitems = int64(YouTubeMaxPagingResults)
+		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
+			retrieveitems = int64(YouTubeMaxPagingResults)
+		} else {
+			retrieveitems = (maxresults - numresults)
+		}
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		if err != nil {
+			return NewError(ErrorResponse, err)
+		}
+		if err = table.Append(response.Items); err != nil {
+			return NewError(ErrorResponse, err)
+		}
+		numresults += int64(len(response.Items))
+		nextPageToken = response.NextPageToken
+		if nextPageToken == "" {
+			break
+		}
+	}
+
+	// Success
+	return nil
+}
+
+

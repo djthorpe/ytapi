@@ -39,16 +39,16 @@ var (
 		// Channels
 		"ListChannels":                   Operation{ytcommands.RegisterChannelFormat, ytcommands.ListChannels}, // --channel=<id> --maxresults=<n>
 		"ListLocalizedChannelMetadata":   Operation{ytcommands.RegisterLocalizedChannelMetadataFormat, ytcommands.ListLocalizedChannelMetadata},
-		"UpdateChannelMetadata":          Operation{ytcommands.RegisterChannelFormat, ytcommands.UpdateChannelMetadata},          // -hl=<string> -title=<string> -description=<string>
+		"UpdateChannelMetadata":          Operation{ytcommands.RegisterChannelFormat, ytcommands.UpdateChannelMetadata},                           // -hl=<string> -title=<string> -description=<string>
 		"UpdateLocalizedChannelMetadata": Operation{ytcommands.RegisterLocalizedChannelMetadataFormat, ytcommands.UpdateLocalizedChannelMetadata}, // -hl=<string> -title=<string> -description=<string>
 
 		// Playlists
-		"ListPlaylists":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },           // -maxresults=<n>
-		"ListLocalizedPlaylistMetadata":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },                   // -playlist=<id>
-		"CreatePlaylist":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },         // -hl=<string> -title=<string> -description=<string> -privacystatus=(public|private|unlisted) -tags=
-		"DeletePlaylist":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },          // -playlist=<id>
-		"UpdatePlaylistMetadata": Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },   // -playlist=<id> -hl=<string> --title=<string> --description=<string> --privacystatus=(public|private|unlisted)
-		"UpdateLocalizedPlaylistMetadata":   Operation{ ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists },                 // --playlist=<id>  -hl=<string> --title=<string> --description=<string>
+		"ListPlaylists":                   Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // -maxresults=<n>
+		"ListLocalizedPlaylistMetadata":   Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // -playlist=<id>
+		"CreatePlaylist":                  Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // -hl=<string> -title=<string> -description=<string> -privacystatus=(public|private|unlisted) -tags=
+		"DeletePlaylist":                  Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // -playlist=<id>
+		"UpdatePlaylistMetadata":          Operation{ytcommands.RegisterPlaylistFormat, ytcommands.UpdatePlaylistMetadata}, // -playlist=<id> -hl=<string> --title=<string> --description=<string> --status=(public|private|unlisted)
+		"UpdateLocalizedPlaylistMetadata": Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // --playlist=<id>  -hl=<string> --title=<string> --description=<string>
 
 	}
 )

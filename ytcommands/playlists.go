@@ -6,8 +6,9 @@ package ytcommands
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/djthorpe/ytapi/ytservice"
-	"google.golang.org/api/youtube/v3"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,10 +24,14 @@ func RegisterPlaylistFormat(params *ytservice.Params, table *ytservice.Table) er
 	table.RegisterPart("snippet", []ytservice.FieldSpec{
 		ytservice.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
 		ytservice.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
+		ytservice.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
+		ytservice.FieldSpec{"defaultLanguage", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
+		ytservice.FieldSpec{"tags", "Snippet/Tags", ytservice.FIELD_STRING},
+
 	})
 
 	// set default columns
-	table.SetColumns([]string{"id", "title", "description", "kind"})
+	table.SetColumns([]string{ "id", "title", "description" })
 
 	// success
 	return nil
@@ -35,9 +40,10 @@ func RegisterPlaylistFormat(params *ytservice.Params, table *ytservice.Table) er
 ////////////////////////////////////////////////////////////////////////////////
 // Returns set of playlist items for channel
 
-func ListPlaylists(service *ytservice.Service, params *ytservice.Params, output *ytservice.Table) error {
-	// create call for channels
-	call := service.API.Playlists.List("id,snippet")
+func ListPlaylists(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+
+	// create call for fetching playlists
+	call := service.API.Playlists.List(strings.Join(table.Parts(), ","))
 
 	// set filter parameters
 	if params.IsValidChannel() == false {
@@ -51,44 +57,26 @@ func ListPlaylists(service *ytservice.Service, params *ytservice.Params, output 
 		}
 		call = call.OnBehalfOfContentOwner(*params.ContentOwner)
 	}
-
-	// Page through results
-	maxresults := params.MaxResults
-	nextPageToken := ""
-	items := make([]*youtube.Playlist, 0, maxresults)
-	for {
-		var pagingresults = int64(maxresults) - int64(len(items))
-		if pagingresults <= 0 {
-			pagingresults = ytservice.YouTubeMaxPagingResults
-		} else if pagingresults > ytservice.YouTubeMaxPagingResults {
-			pagingresults = ytservice.YouTubeMaxPagingResults
-		}
-		response, err := call.MaxResults(pagingresults).PageToken(nextPageToken).Do()
-		if err != nil {
-			return err
-		}
-		items = append(items, response.Items...)
-		nextPageToken = response.NextPageToken
-		if nextPageToken == "" {
-			break
-		}
+	if params.IsValidLanguage() {
+		call = call.Hl(*params.Language)
 	}
 
-	output.AddColumn("id")
-	output.AddColumn("title")
-	output.AddColumn("description")
+	// Perform channels.list and return results
+	return service.DoPlaylistsList(call, table, params.MaxResults)
+}
 
-	for _, item := range items {
-		row := output.NewRow()
+func UpdatePlaylistMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
 
-		// id
-		row.SetString("id", item.Id)
-
-		// snippet
-		row.SetString("title", item.Snippet.Title)
-		row.SetString("description", item.Snippet.Description)
+	// create call for fetching the playlist
+	call := service.API.Playlists.List("snippet")
+	if service.ServiceAccount {
+		if params.IsValidContentOwner() == false {
+			return errors.New("Invalid content owner parameter")
+		}
+		call = call.OnBehalfOfContentOwner(*params.ContentOwner)
 	}
 
-	// success
+	// TODO
+
 	return nil
 }
