@@ -5,13 +5,38 @@
 package ytservice
 
 import (
-	"encoding/json"
+    "os"
+    "regexp"
+    "fmt"
+    "errors"
+    "flag"
+
+    "encoding/json"
 	"io/ioutil"
-	"os"
-	"regexp"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
+
+const (
+    FLAG_REQUIRED = 0x0000
+    FLAG_OPTIONAL = 0x0001
+    FLAG_STRING   = 0x0010
+    FLAG_UINT     = 0x0020
+    FLAG_ENUM     = 0x0030
+    FLAG_VIDEO    = 0x0040
+    FLAG_CHANNEL  = 0x0050
+    FLAG_PLAYLIST = 0x0060
+    FLAG_LANGUAGE = 0x0070
+)
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Flag
+type Flag struct {
+    Name  string
+    Type  uint32
+    Extra string
+}
 
 // Params object stores all the parameters used for making API requests
 type Params struct {
@@ -25,13 +50,19 @@ type Params struct {
 	Language        *string `json:"-"`
 	Title           *string `json:"-"`
 	Description     *string `json:"-"`
+
+    commands        []string
+    SetupHook       map[string]func(*Params, *Table) error           // command -> SetupFunc
+    ExecHook        map[string]func(*Service, *Params, *Table) error // command -> ExecFunc
+    FlagSpec        map[string]map[string]Flag                       // command:flag -> Flag
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // Returns a new Params object
 func NewParams() *Params {
-	return new(Params)
+    this := new(Params)
+    return this
 }
 
 // Returns a params object from a JSON file
@@ -45,7 +76,107 @@ func NewParamsFromJSON(filename string) (*Params, error) {
 	if err != nil {
 		return nil, NewError(ErrorInvalidDefaults, err)
 	}
-	return this, nil
+
+    // Create maps used in params
+    this.commands = make([]string,0)
+    this.FlagSpec = make(map[string]map[string]Flag)
+    this.SetupHook = make(map[string]func(*Params, *Table) error)
+    this.ExecHook = make(map[string]func(*Service, *Params, *Table) error)
+
+    return this, nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Register flags and setup/do hooks
+func (this *Params) Register(command string,setup func(*Params, *Table) error,exec func(*Service, *Params, *Table) error,flags []Flag) error {
+
+    if _,exists := this.FlagSpec[command]; exists {
+        return errors.New(fmt.Sprint("Duplicate command registration: ",command))
+    }
+
+    this.commands = append(this.commands,command)
+    this.FlagSpec[command] = make(map[string]Flag)
+    for _,flag := range flags {
+        if _,exists := this.FlagSpec[command][flag.Name]; exists {
+            return errors.New(fmt.Sprint("Duplicate flag registration for command ",command,": ",flag.Name))
+        }
+        this.FlagSpec[command][flag.Name] = flag
+    }
+
+    // Save ExecHook and SetupHook
+    this.SetupHook[command] = setup
+    this.ExecHook[command] = exec
+
+    return nil
+}
+
+func (this *Params) isIgnoreFlag(name string) bool {
+    if name == "authtoken" {
+        return true
+    }
+    if name == "clientsecret" {
+        return true
+    }
+    if name == "credentials" {
+        return true
+    }
+    if name == "debug" {
+        return true
+    }
+    if name == "defaults" {
+        return true
+    }
+    if name == "httptest.serve" {
+        return true
+    }
+    if name == "output" {
+        return true
+    }
+    return false
+}
+
+// Check parameters
+func (this *Params) CheckFlags(command string) error {
+    var err error
+
+    fmt.Printf("FLAGS %+v\n",this.FlagSpec)
+
+    specs,ok := this.FlagSpec[command]
+    if !ok {
+        return errors.New(fmt.Sprint("Invalid command: ",command))
+    }
+    flag.VisitAll(func(value *flag.Flag) {
+        // if error is caught, return
+        if err != nil {
+            return
+        }
+        // ignore some flags
+        if this.isIgnoreFlag(value.Name) {
+            return
+        }
+        spec,ok := specs[value.Name]
+        if !ok {
+            err = errors.New(fmt.Sprint("Invalid flag: ",value.Name))
+            return
+        }
+        // if flag is optional and value is empty, then return
+        fmt.Println("FLAG: ",spec,value)
+    })
+
+    if err != nil {
+        return err
+    }
+    // success
+    return nil
+}
+
+func (this *Params) Commands() []string {
+    return this.commands
+}
+
+func (this* Params) Flags(command string) map[string]Flag {
+    return this.FlagSpec[command]
 }
 
 ////////////////////////////////////////////////////////////////////////////////

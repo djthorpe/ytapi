@@ -31,10 +31,7 @@ const (
 ////////////////////////////////////////////////////////////////////////////////
 
 // Returns a service object given service account details
-func NewYouTubeServiceFromServiceAccountJSON(filename string, params *Params, debug bool) (*Service, error) {
-	if params.IsValidContentOwner() == false {
-		return nil, ErrorMissingContentOwner
-	}
+func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Service, error) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
@@ -55,7 +52,7 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string, params *Params, de
 }
 
 // Returns a service object given client secrets details
-func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache string, params *Params, debug bool) (*Service, error) {
+func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache string, debug bool) (*Service, error) {
 	bytes, err := ioutil.ReadFile(clientsecrets)
 	if err != nil {
 		return nil, NewError(ErrorInvalidClientSecrets, err)

@@ -5,26 +5,77 @@
 package main
 
 import (
-	"errors"
-	"flag"
-	"fmt"
-	"os"
-	"os/user"
-	"path/filepath"
-	"strings"
+    "os"
+    "fmt"
 
-	"github.com/djthorpe/ytapi/ytcommands"
-	"github.com/djthorpe/ytapi/ytservice"
+    "github.com/djthorpe/ytapi/ytapi"
+    "github.com/djthorpe/ytapi/ytcommands"
+    "github.com/djthorpe/ytapi/ytservice"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-type Operation struct {
-	setup func(*ytservice.Params, *ytservice.Table) error
-	do    func(*ytservice.Service, *ytservice.Params, *ytservice.Table) error
+func main() {
+    // Parse command-line flags
+    command, values, err := ytapi.ParseFlags([]ytapi.RegisterFunction{
+        ytcommands.RegisterAuthenticateCommands,
+        ytcommands.RegisterBroadcastCommands,
+    })
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+    if command == nil {
+        os.Exit(2)
+    }
+
+    // Read content owner and channel from file
+    defaultsPath := ytcommands.GetDefaultsPath(values)
+    if err := values.ReadDefaultsFromFile(defaultsPath); err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+
+    // call command setup function
+    output := ytservice.NewTable()
+
+    if command.Setup != nil {
+        if err := command.Setup(values,output); err != nil {
+            fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+            os.Exit(1)
+        }
+    }
+
+    // create the service object
+    serviceAccountPath := ytcommands.GetServiceAccountPath(values)
+    clientSecretPath := ytcommands.GetClientSecretPath(values)
+    tokenPath := ytcommands.GetOAuthTokenPath(values)
+    debugFlag := values.GetBool(&ytapi.FlagDebug)
+
+    // if the content owner is set, then create an API object from service
+    // account, or else create the API object from client secrets and oauth
+    // token
+    var service *ytservice.Service
+    if values.IsSet(&ytapi.FlagContentOwner) {
+        service, err = ytservice.NewYouTubeServiceFromServiceAccountJSON(serviceAccountPath,debugFlag)
+    } else {
+        service, err = ytservice.NewYouTubeServiceFromClientSecretsJSON(clientSecretPath,tokenPath,debugFlag)
+    }
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+
+    // call command execute function
+    if command.Execute != nil {
+        if err := command.Execute(service,values,output); err != nil {
+            fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+            os.Exit(1)
+        }
+    }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+/*
 
 var (
 	operations = map[string]Operation{
@@ -52,16 +103,15 @@ var (
 
 	}
 )
-
 var (
 	credentialsFolder      = flag.String("credentials", ".credentials", "Folder containing credentials")
 	clientsecretFilename   = flag.String("clientsecret", "client_secret.json", "Client secret filename")
 	serviceAccountFilename = flag.String("serviceaccount", "service_account.json", "Service account filename")
 	defaultsFilename       = flag.String("defaults", "defaults.json", "Defaults filename")
 	tokenFilename          = flag.String("authtoken", "oauth_token", "OAuth token filename")
+	flagDebug              = flag.Bool("debug", false, "Show API requests and responses on stderr")
 
-	flagDebug           = flag.Bool("debug", false, "Show API requests and responses on stderr")
-	flagChannel         = flag.String("channel", "", "Channel ID")
+    flagChannel         = flag.String("channel", "", "Channel ID")
 	flagContentOwner    = flag.String("contentowner", "", "Content Owner ID")
 	flagVideo           = flag.String("video", "", "Video or Broadcast ID")
 	flagStream          = flag.String("stream", "", "Stream Key")
@@ -75,18 +125,7 @@ var (
 	flagLanguage        = flag.String("hl", "", "Metadata Language")
 )
 
-const (
-	credentialsPathMode = 0700
-	credentialsFileMode = 0644
-)
-
 ////////////////////////////////////////////////////////////////////////////////
-
-func userDir() (userDir string) {
-	currentUser, _ := user.Current()
-	userDir = currentUser.HomeDir
-	return
-}
 
 func NewParamsFromFile(filename string) (*ytservice.Params, error) {
 	var params *ytservice.Params
@@ -101,6 +140,7 @@ func NewParamsFromFile(filename string) (*ytservice.Params, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return params, nil
 }
 
@@ -237,36 +277,9 @@ func AlterColumnsForParts(parts []string, table *ytservice.Table) error {
 ////////////////////////////////////////////////////////////////////////////////
 
 func main() {
-	// enumerate operations
-	operation_keys := make([]string, 0, len(operations))
-	for key := range operations {
-		operation_keys = append(operation_keys, key)
-	}
+    var err error
 
-	// Set usage function
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n", filepath.Base(os.Args[0]))
-		fmt.Fprintf(os.Stderr, "\n\t%s <flags> <%v>\n\n", filepath.Base(os.Args[0]), strings.Join(operation_keys, "|"))
-		fmt.Fprintf(os.Stderr, "Where <flags> are one or more of:\n\n")
-		flag.PrintDefaults()
-	}
-
-	// Read flags, exit with no operation
-	flag.Parse()
-	if flag.NArg() == 0 {
-		flag.Usage()
-		os.Exit(1)
-	}
-
-	// Check operation
-	opname := flag.Arg(0)
-	_, ok := operations[opname]
-	if !ok {
-		fmt.Fprintf(os.Stderr, "Error: Invalid operation: %s\n", opname)
-		os.Exit(1)
-	}
-
-	// Obtain path for credentials - create if not already made
+    // Obtain path for credentials - create if not already made
 	credentialsPath := filepath.Join(userDir(), *credentialsFolder)
 	if credentialsPathInfo, err := os.Stat(credentialsPath); err != nil || !credentialsPathInfo.IsDir() {
 		// if path is missing, try and create the folder
@@ -276,18 +289,24 @@ func main() {
 		}
 	}
 
+    // Create params object
+    defaultsPath := filepath.Join(credentialsPath, *defaultsFilename)
+    params, err := NewParamsFromFile(defaultsPath)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+
+    // Check Flags
+    err = InitParamsFromCommandLine(params)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+
 	var api *ytservice.Service
-	var err error
 
-	// Create params object
-	defaultsPath := filepath.Join(credentialsPath, *defaultsFilename)
-	defaults, err := NewParamsFromFile(defaultsPath)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-
-	// if operation is to authenticate, delete existing token
+    // if operation is to authenticate, delete existing token
 	tokenPath := filepath.Join(credentialsPath, *tokenFilename)
 	if opname == "Authenticate" {
 		// Delete OAuth token
@@ -344,15 +363,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Print out parameters
-	if *flagDebug {
-		fmt.Fprintf(os.Stderr, "parameters=%+v\n", params)
-	}
+    // Check flags
+    if err := params.CheckFlags(flag.Arg(0)); err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
 
 	// Create a table object
 	output := ytservice.NewTable()
 
-	// Setup
+    // Setup
 	err = operations[opname].setup(params, output)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -375,6 +395,7 @@ func main() {
 		os.Exit(1)
 	}
 
+    // Output results
 	if *flagOutput == "ascii" {
 		err = output.ASCII(os.Stdout)
 	} else if *flagOutput == "csv" {
@@ -387,3 +408,5 @@ func main() {
 		os.Exit(1)
 	}
 }
+
+*/

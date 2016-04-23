@@ -5,17 +5,44 @@
 package ytcommands
 
 import (
-	"github.com/djthorpe/ytapi/ytservice"
-	"strings"
+    "errors"
+
+    "github.com/djthorpe/ytapi/ytapi"
+    "github.com/djthorpe/ytapi/ytservice"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register search output format
 
-func RegisterBroadcastFormat(params *ytservice.Params, table *ytservice.Table) error {
+func RegisterBroadcastCommands() []ytapi.Command {
+    return []ytapi.Command{
+        ytapi.Command{
+            Name: "ListBroadcasts",
+            Description: "List broadcasts",
+            Optional: []*ytapi.Flag{ &ytapi.FlagContentOwner,&ytapi.FlagChannel,&ytapi.FlagBroadcastStatus,&ytapi.FlagMaxResults },
+            Setup: RegisterBroadcastFormat,
+            Execute: ListBroadcasts,
+        },
+        ytapi.Command{
+            Name: "DeleteBroadcast",
+            Description: "Delete broadcast",
+            Optional: []*ytapi.Flag{ &ytapi.FlagContentOwner,&ytapi.FlagChannel },
+            Required: []*ytapi.Flag{ &ytapi.FlagVideo },
+            Execute: DeleteBroadcast,
+        },
+        ytapi.Command{
+            Name: "NewBroadcast",
+            Description: "Create a new broadcast",
+            Optional: []*ytapi.Flag{ &ytapi.FlagContentOwner,&ytapi.FlagChannel,&ytapi.FlagDescription },
+            Required: []*ytapi.Flag{ &ytapi.FlagTitle },
+            Execute: InsertBroadcast,
+        },
+    }
+}
+
+func RegisterBroadcastFormat(values *ytapi.Values, table *ytservice.Table) error {
 
 	// register parts
-
 	table.RegisterPart("id", []ytservice.FieldSpec{
 		ytservice.FieldSpec{"broadcast", "Id", ytservice.FIELD_STRING},
 	})
@@ -68,30 +95,41 @@ func RegisterBroadcastFormat(params *ytservice.Params, table *ytservice.Table) e
 ////////////////////////////////////////////////////////////////////////////////
 // List Broadcasts
 
-func ListBroadcasts(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+    // set parameters
+    maxresults := values.GetUint(&ytapi.FlagMaxResults)
+    contentowner := values.GetString(&ytapi.FlagContentOwner)
+    channel := values.GetString(&ytapi.FlagChannel)
+    status := values.GetString(&ytapi.FlagBroadcastStatus)
+    parts := "id" //strings.Join(table.Parts(), ",")
 
-	// create call
-	call := service.API.LiveBroadcasts.List(strings.Join(table.Parts(), ","))
+    // create call and set parameters
+	call := service.API.LiveBroadcasts.List(parts)
+    if service.ServiceAccount {
+        call = call.OnBehalfOfContentOwner(contentowner)
+        if channel == "" {
+            return errors.New("Invalid channel parameter")
+        } else {
+            call = call.OnBehalfOfContentOwnerChannel(channel)
+        }
+    } else if channel != "" {
+        return errors.New("Invalid channel parameter")
+    } else {
+        call = call.Mine(true)
+    }
+    if status != "" {
+        call = call.BroadcastStatus(status)
+    }
 
-	// set filter parameters
-	if service.ServiceAccount && params.IsValidChannel() {
-		call = call.OnBehalfOfContentOwner(*params.ContentOwner).OnBehalfOfContentOwnerChannel(*params.Channel)
-	}
-	if params.IsEmptyBroadcastStatus() == false {
-		call = call.BroadcastStatus(*params.BroadcastStatus)
-	} else {
-		call = call.Mine(true)
-	}
-
-	// Perform search, and return results
-	return service.DoBroadcastsList(call, table, params.MaxResults)
+    // Perform search, and return results
+	return service.DoBroadcastsList(call, table, int64(maxresults))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Delete Broadcast
 
-func DeleteBroadcast(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
-
+func DeleteBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+/*
 	// Get video
 	if params.IsValidVideo() == false {
 		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
@@ -110,7 +148,16 @@ func DeleteBroadcast(service *ytservice.Service, params *ytservice.Params, table
 	if err != nil {
 		return ytservice.NewError(ytservice.ErrorResponse, err)
 	}
-
+*/
 	// success
 	return nil
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Insert Broadcast
+
+func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+    // success
+    return nil
+}
+
