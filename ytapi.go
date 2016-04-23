@@ -38,7 +38,6 @@ func main() {
 
     // call command setup function
     output := ytservice.NewTable()
-
     if command.Setup != nil {
         if err := command.Setup(values,output); err != nil {
             fmt.Fprintf(os.Stderr, "Error: %v\n", err)
