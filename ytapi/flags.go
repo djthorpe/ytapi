@@ -29,6 +29,7 @@ const (
 	FLAG_CHANNEL
 	FLAG_PLAYLIST
 	FLAG_LANGUAGE
+	FLAG_STREAM
 	FLAG_CONTENTOWNER
 	FLAG_TIME
 )
@@ -70,7 +71,9 @@ var (
 	FlagContentOwner      = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
 	FlagChannel           = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
 	FlagVideo             = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
+	FlagStream            = Flag{Name: "stream", Description: "Stream ID or Key", Type: FLAG_STREAM}
 	FlagBroadcastStatus   = Flag{Name: "status", Description: "Broadcast Status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
+	FlagBroadcastTransition = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "complete|live|testing"}
 	FlagMaxResults        = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
 	FlagTitle             = Flag{Name: "title", Description: "Metadata Title", Type: FLAG_STRING}
 	FlagDescription       = Flag{Name: "description", Description: "Metadata Description", Type: FLAG_STRING}
@@ -85,6 +88,7 @@ var (
 	FlagClosedCaptions    = Flag{Name: "captions", Description: "Enable Closed Captions", Type: FLAG_BOOL}
     FlagMonitorStream     = Flag{Name: "monitor", Description: "Enable Monitor Stream", Type: FLAG_BOOL}
     FlagBroadcastDelay    = Flag{Name: "delay", Description: "Broadcast Stream Delay (ms)", Type: FLAG_UINT}
+	FlagLowLatency        = Flag{Name: "lowlatency", Description: "Enable Low Latency Stream", Type: FLAG_BOOL}
 )
 
 // Global variables
@@ -108,6 +112,8 @@ func (this *Flag) TypeString() string {
 		return this.Extra
 	case this.Type == FLAG_VIDEO:
 		return "video"
+	case this.Type == FLAG_STREAM:
+		return "stream"
 	case this.Type == FLAG_CHANNEL:
 		return "channel"
 	case this.Type == FLAG_PLAYLIST:
@@ -150,6 +156,14 @@ func (this *Flag) asVideo(value string) (Video, error) {
 		return "", errors.New("Malformed video value")
 	}
 	return Video(value), nil
+}
+
+func (this *Flag) asStream(value string) (Stream, error) {
+	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\-]{11})$", value)
+	if matched == false {
+		return "", errors.New("Malformed stream value")
+	}
+	return Stream(value), nil
 }
 
 func (this *Flag) asContentOwner(value string) (ContentOwner, error) {

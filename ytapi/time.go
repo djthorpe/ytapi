@@ -9,6 +9,7 @@ import (
     "regexp"
     "errors"
     "strconv"
+	"strings"
 )
 
 var (
@@ -22,46 +23,41 @@ var (
 // Parse english-language dates and times. Returns the time,
 // a boolean value indicating if the time-part is significant,
 // and an error if the time could not be parsed, or nil
-func ParseTime(value string) (time.Time,bool,error) {
+func ParseTime(value string) (time.Time,error) {
+
+	// make lowercase
+	value = strings.ToLower(value)
+
     // NOW
     if TimeNow.MatchString(value) {
-        return time.Now(),true,nil
+        return time.Now(),nil
     }
     // IN NNN HOURS
     if submatch := InHours.FindStringSubmatch(value);  len(submatch) >= 3 {
         duration,err := strconv.ParseInt(submatch[2],10,64)
         if err != nil {
-            return time.Time{},false,err
+            return time.Time{},err
         }
-        return time.Now().Add(time.Duration(duration) * time.Hour),true,nil
+        return time.Now().Add(time.Duration(duration) * time.Hour),nil
     }
     // IN NNN MINUTES
     if submatch := InMinutes.FindStringSubmatch(value);  len(submatch) >= 3 {
         duration,err := strconv.ParseInt(submatch[2],10,64)
         if err != nil {
-            return time.Time{},false,err
+            return time.Time{},err
         }
-        return time.Now().Add(time.Duration(duration) * time.Minute),true,nil
+        return time.Now().Add(time.Duration(duration) * time.Minute),nil
     }
     // IN NNN DAYS
     if submatch := InDays.FindStringSubmatch(value);  len(submatch) >= 3 {
-        duration,err := strconv.ParseInt(submatch[2],10,64)
+        duration,err := strconv.ParseInt(submatch[2],10,32)
         if err != nil {
-            return time.Time{},false,err
+            return time.Time{},err
         }
         // add days
-        return time.Now().AddDate(0,0,duration),false,nil
+        return time.Now().AddDate(0,0,int(duration)),nil
     }
 
     // error
-    return time.Time{},false,errors.New("Cannot parse time value")
-}
-
-// Parse start time. When the time isn't significant, the time is set to
-// 00:00 local time
-func ParseStartTime(value string) (time.Time,error) {
-    datetime,time_set,err := ParseTime(value)
-    if time_set == false {
-        
-    }
+    return time.Time{},errors.New("Cannot parse time value")
 }

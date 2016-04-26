@@ -32,6 +32,20 @@ func RegisterBroadcastCommands() []ytapi.Command {
 			Execute:     DeleteBroadcast,
 		},
 		ytapi.Command{
+			Name:        "TransitionBroadcast",
+			Description: "Transition broadcast to another state",
+			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagBroadcastTransition },
+			Execute:     TransitionBroadcast,
+		},
+		ytapi.Command{
+			Name:        "BindBroadcast",
+			Description: "Bind or unbind broadcast to stream",
+			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagStream },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo },
+			Execute:     TransitionBroadcast,
+		},
+		ytapi.Command{
 			Name:        "NewBroadcast",
 			Description: "Create a new broadcast",
 			Optional: []*ytapi.Flag{
@@ -40,7 +54,7 @@ func RegisterBroadcastCommands() []ytapi.Command {
 				&ytapi.FlagContentEncryption, &ytapi.FlagEmbed,
 				&ytapi.FlagRecordFromStart, &ytapi.FlagStartWithSlate,
 				&ytapi.FlagClosedCaptions, &ytapi.FlagMonitorStream,
-				&ytapi.FlagBroadcastDelay,
+				&ytapi.FlagBroadcastDelay, &ytapi.FlagLowLatency,
 			},
 			Required: []*ytapi.Flag{
 				&ytapi.FlagTitle, &ytapi.FlagStartTime, &ytapi.FlagPrivacyStatus,
@@ -168,6 +182,41 @@ func DeleteBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Transition Broadcast
+
+func TransitionBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
+	video := values.GetString(&ytapi.FlagVideo)
+	transition := values.GetString(&ytapi.FlagBroadcastTransition)
+
+	// Create call, set parameters
+	call := service.API.LiveBroadcasts.Transition(transition,video,"id,snippet,status")
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+		if channel == "" {
+			return errors.New("Invalid channel parameter")
+		} else {
+			call = call.OnBehalfOfContentOwnerChannel(channel)
+		}
+	} else if channel != "" {
+		return errors.New("Invalid channel parameter")
+	}
+
+	// Insert broadcast and get response
+	_, err := call.Do()
+	if err != nil {
+		return err
+	}
+
+	// TODO: retrieve broadcast again and print out values
+
+	// success
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Insert Broadcast
 
 func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
@@ -190,13 +239,26 @@ func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 			EnableDvr:               values.GetBool(&ytapi.FlagDvr),
 			EnableContentEncryption: values.GetBool(&ytapi.FlagContentEncryption),
 			EnableEmbed:             values.GetBool(&ytapi.FlagEmbed),
+			EnableLowLatency:        values.GetBool(&ytapi.FlagLowLatency),
 			RecordFromStart:         values.GetBool(&ytapi.FlagRecordFromStart),
 			StartWithSlate:          values.GetBool(&ytapi.FlagStartWithSlate),
 			EnableClosedCaptions:    values.GetBool(&ytapi.FlagClosedCaptions),
             MonitorStream:           &youtube.MonitorStreamInfo{
                 EnableMonitorStream:    values.GetBool(&ytapi.FlagMonitorStream),
                 BroadcastStreamDelayMs: int64(values.GetUint(&ytapi.FlagBroadcastDelay)),
+				ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
+					"EnableMonitorStream": &ytapi.FlagMonitorStream,
+				}),
             },
+			ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
+				"EnableDvr": &ytapi.FlagDvr,
+				"EnableLowLatency": &ytapi.FlagLowLatency,
+				"EnableContentEncryption": &ytapi.FlagContentEncryption,
+				"EnableEmbed": &ytapi.FlagEmbed,
+				"RecordFromStart": &ytapi.FlagRecordFromStart,
+				"StartWithSlate": &ytapi.FlagStartWithSlate,
+				"EnableClosedCaptions": &ytapi.FlagClosedCaptions,
+			}),
 		},
 	})
 	if service.ServiceAccount {

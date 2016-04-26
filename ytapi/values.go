@@ -20,6 +20,7 @@ type Video string
 type Channel string
 type Playlist string
 type Language string
+type Stream string
 type ContentOwner string
 
 // Value
@@ -28,6 +29,7 @@ type Value struct {
 	v_uint         uint64
 	v_bool         bool
 	v_video        Video
+	v_stream       Stream
 	v_channel      Channel
 	v_playlist     Playlist
 	v_language     Language
@@ -73,6 +75,9 @@ func (this *Value) Set(value string) error {
 		break
 	case this.flag.Type == FLAG_CHANNEL:
 		this.v_channel, err = this.flag.asChannel(value)
+		break
+	case this.flag.Type == FLAG_STREAM:
+		this.v_stream, err = this.flag.asStream(value)
 		break
 	case this.flag.Type == FLAG_PLAYLIST:
 		this.v_playlist, err = this.flag.asPlaylist(value)
@@ -285,3 +290,15 @@ func (this *Values) GetTimeInISOFormat(flag *Flag) string {
 		return value.Format(time.RFC3339)
 	}
 }
+
+
+func (this *Values) SetFields(fieldmap map[string]*Flag) []string {
+	fields := make([]string,len(fieldmap))
+	for k,flag := range(fieldmap) {
+		if this.IsSet(flag) {
+			fields = append(fields,k)
+		}
+	}
+	return fields
+}
+
