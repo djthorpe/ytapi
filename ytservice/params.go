@@ -5,37 +5,37 @@
 package ytservice
 
 import (
-    "os"
-    "regexp"
-    "fmt"
-    "errors"
-    "flag"
+	"errors"
+	"flag"
+	"fmt"
+	"os"
+	"regexp"
 
-    "encoding/json"
+	"encoding/json"
 	"io/ioutil"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const (
-    FLAG_REQUIRED = 0x0000
-    FLAG_OPTIONAL = 0x0001
-    FLAG_STRING   = 0x0010
-    FLAG_UINT     = 0x0020
-    FLAG_ENUM     = 0x0030
-    FLAG_VIDEO    = 0x0040
-    FLAG_CHANNEL  = 0x0050
-    FLAG_PLAYLIST = 0x0060
-    FLAG_LANGUAGE = 0x0070
+	FLAG_REQUIRED = 0x0000
+	FLAG_OPTIONAL = 0x0001
+	FLAG_STRING   = 0x0010
+	FLAG_UINT     = 0x0020
+	FLAG_ENUM     = 0x0030
+	FLAG_VIDEO    = 0x0040
+	FLAG_CHANNEL  = 0x0050
+	FLAG_PLAYLIST = 0x0060
+	FLAG_LANGUAGE = 0x0070
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // Flag
 type Flag struct {
-    Name  string
-    Type  uint32
-    Extra string
+	Name  string
+	Type  uint32
+	Extra string
 }
 
 // Params object stores all the parameters used for making API requests
@@ -51,18 +51,18 @@ type Params struct {
 	Title           *string `json:"-"`
 	Description     *string `json:"-"`
 
-    commands        []string
-    SetupHook       map[string]func(*Params, *Table) error           // command -> SetupFunc
-    ExecHook        map[string]func(*Service, *Params, *Table) error // command -> ExecFunc
-    FlagSpec        map[string]map[string]Flag                       // command:flag -> Flag
+	commands  []string
+	SetupHook map[string]func(*Params, *Table) error           // command -> SetupFunc
+	ExecHook  map[string]func(*Service, *Params, *Table) error // command -> ExecFunc
+	FlagSpec  map[string]map[string]Flag                       // command:flag -> Flag
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // Returns a new Params object
 func NewParams() *Params {
-    this := new(Params)
-    return this
+	this := new(Params)
+	return this
 }
 
 // Returns a params object from a JSON file
@@ -77,106 +77,106 @@ func NewParamsFromJSON(filename string) (*Params, error) {
 		return nil, NewError(ErrorInvalidDefaults, err)
 	}
 
-    // Create maps used in params
-    this.commands = make([]string,0)
-    this.FlagSpec = make(map[string]map[string]Flag)
-    this.SetupHook = make(map[string]func(*Params, *Table) error)
-    this.ExecHook = make(map[string]func(*Service, *Params, *Table) error)
+	// Create maps used in params
+	this.commands = make([]string, 0)
+	this.FlagSpec = make(map[string]map[string]Flag)
+	this.SetupHook = make(map[string]func(*Params, *Table) error)
+	this.ExecHook = make(map[string]func(*Service, *Params, *Table) error)
 
-    return this, nil
+	return this, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // Register flags and setup/do hooks
-func (this *Params) Register(command string,setup func(*Params, *Table) error,exec func(*Service, *Params, *Table) error,flags []Flag) error {
+func (this *Params) Register(command string, setup func(*Params, *Table) error, exec func(*Service, *Params, *Table) error, flags []Flag) error {
 
-    if _,exists := this.FlagSpec[command]; exists {
-        return errors.New(fmt.Sprint("Duplicate command registration: ",command))
-    }
+	if _, exists := this.FlagSpec[command]; exists {
+		return errors.New(fmt.Sprint("Duplicate command registration: ", command))
+	}
 
-    this.commands = append(this.commands,command)
-    this.FlagSpec[command] = make(map[string]Flag)
-    for _,flag := range flags {
-        if _,exists := this.FlagSpec[command][flag.Name]; exists {
-            return errors.New(fmt.Sprint("Duplicate flag registration for command ",command,": ",flag.Name))
-        }
-        this.FlagSpec[command][flag.Name] = flag
-    }
+	this.commands = append(this.commands, command)
+	this.FlagSpec[command] = make(map[string]Flag)
+	for _, flag := range flags {
+		if _, exists := this.FlagSpec[command][flag.Name]; exists {
+			return errors.New(fmt.Sprint("Duplicate flag registration for command ", command, ": ", flag.Name))
+		}
+		this.FlagSpec[command][flag.Name] = flag
+	}
 
-    // Save ExecHook and SetupHook
-    this.SetupHook[command] = setup
-    this.ExecHook[command] = exec
+	// Save ExecHook and SetupHook
+	this.SetupHook[command] = setup
+	this.ExecHook[command] = exec
 
-    return nil
+	return nil
 }
 
 func (this *Params) isIgnoreFlag(name string) bool {
-    if name == "authtoken" {
-        return true
-    }
-    if name == "clientsecret" {
-        return true
-    }
-    if name == "credentials" {
-        return true
-    }
-    if name == "debug" {
-        return true
-    }
-    if name == "defaults" {
-        return true
-    }
-    if name == "httptest.serve" {
-        return true
-    }
-    if name == "output" {
-        return true
-    }
-    return false
+	if name == "authtoken" {
+		return true
+	}
+	if name == "clientsecret" {
+		return true
+	}
+	if name == "credentials" {
+		return true
+	}
+	if name == "debug" {
+		return true
+	}
+	if name == "defaults" {
+		return true
+	}
+	if name == "httptest.serve" {
+		return true
+	}
+	if name == "output" {
+		return true
+	}
+	return false
 }
 
 // Check parameters
 func (this *Params) CheckFlags(command string) error {
-    var err error
+	var err error
 
-    fmt.Printf("FLAGS %+v\n",this.FlagSpec)
+	fmt.Printf("FLAGS %+v\n", this.FlagSpec)
 
-    specs,ok := this.FlagSpec[command]
-    if !ok {
-        return errors.New(fmt.Sprint("Invalid command: ",command))
-    }
-    flag.VisitAll(func(value *flag.Flag) {
-        // if error is caught, return
-        if err != nil {
-            return
-        }
-        // ignore some flags
-        if this.isIgnoreFlag(value.Name) {
-            return
-        }
-        spec,ok := specs[value.Name]
-        if !ok {
-            err = errors.New(fmt.Sprint("Invalid flag: ",value.Name))
-            return
-        }
-        // if flag is optional and value is empty, then return
-        fmt.Println("FLAG: ",spec,value)
-    })
+	specs, ok := this.FlagSpec[command]
+	if !ok {
+		return errors.New(fmt.Sprint("Invalid command: ", command))
+	}
+	flag.VisitAll(func(value *flag.Flag) {
+		// if error is caught, return
+		if err != nil {
+			return
+		}
+		// ignore some flags
+		if this.isIgnoreFlag(value.Name) {
+			return
+		}
+		spec, ok := specs[value.Name]
+		if !ok {
+			err = errors.New(fmt.Sprint("Invalid flag: ", value.Name))
+			return
+		}
+		// if flag is optional and value is empty, then return
+		fmt.Println("FLAG: ", spec, value)
+	})
 
-    if err != nil {
-        return err
-    }
-    // success
-    return nil
+	if err != nil {
+		return err
+	}
+	// success
+	return nil
 }
 
 func (this *Params) Commands() []string {
-    return this.commands
+	return this.commands
 }
 
-func (this* Params) Flags(command string) map[string]Flag {
-    return this.FlagSpec[command]
+func (this *Params) Flags(command string) map[string]Flag {
+	return this.FlagSpec[command]
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -281,7 +281,6 @@ func (this *Params) IsValidVideo() bool {
 	return matched
 }
 
-
 // Return boolean value which indicates an empty stream parameter
 func (this *Params) IsEmptyStream() bool {
 	if this.Stream == nil {
@@ -322,7 +321,6 @@ func (this *Params) IsValidBroadcastStatus() bool {
 	return matched
 }
 
-
 // Return boolean value which indicates an empty title parameter
 func (this *Params) IsEmptyTitle() bool {
 	if this.Title == nil {
@@ -344,7 +342,6 @@ func (this *Params) IsEmptyDescription() bool {
 	}
 	return false
 }
-
 
 // Return boolean value which indicates an empty language parameter
 func (this *Params) IsEmptyLanguage() bool {
@@ -372,7 +369,3 @@ func (this *Params) IsValidLanguage() bool {
 	}
 	return false
 }
-
-
-
-

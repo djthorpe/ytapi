@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/djthorpe/ytapi/ytservice"
 )
@@ -29,6 +30,7 @@ const (
 	FLAG_PLAYLIST
 	FLAG_LANGUAGE
 	FLAG_CONTENTOWNER
+	FLAG_TIME
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,19 +61,30 @@ type RegisterFunction func() []Command
 
 // Command-line flags
 var (
-    FlagDebug           = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
-	FlagCredentials     = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".credentials"}
-	FlagDefaults        = Flag{Name: "defaults", Description: "Defaults filename", Type: FLAG_STRING, Default: "defaults.json"}
-	FlagClientSecret    = Flag{Name: "clientsecret", Description: "Client Secret filename", Type: FLAG_STRING, Default: "client_secret.json"}
-	FlagServiceAccount  = Flag{Name: "serviceaccount", Description: "Service Account filename", Type: FLAG_STRING, Default: "service_account.json"}
-	FlagAuthToken       = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
-	FlagContentOwner    = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
-	FlagChannel         = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
-	FlagVideo           = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
-	FlagBroadcastStatus = Flag{Name: "status", Description: "Broadcast Status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
-    FlagMaxResults      = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
-	FlagTitle           = Flag{Name: "title", Description: "Metadata Title", Type: FLAG_STRING}
-	FlagDescription     = Flag{Name: "descriptioon", Description: "Metadata Description", Type: FLAG_STRING}
+	FlagDebug             = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
+	FlagCredentials       = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".credentials"}
+	FlagDefaults          = Flag{Name: "defaults", Description: "Defaults filename", Type: FLAG_STRING, Default: "defaults.json"}
+	FlagClientSecret      = Flag{Name: "clientsecret", Description: "Client Secret filename", Type: FLAG_STRING, Default: "client_secret.json"}
+	FlagServiceAccount    = Flag{Name: "serviceaccount", Description: "Service Account filename", Type: FLAG_STRING, Default: "service_account.json"}
+	FlagAuthToken         = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
+	FlagContentOwner      = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
+	FlagChannel           = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
+	FlagVideo             = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
+	FlagBroadcastStatus   = Flag{Name: "status", Description: "Broadcast Status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
+	FlagMaxResults        = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
+	FlagTitle             = Flag{Name: "title", Description: "Metadata Title", Type: FLAG_STRING}
+	FlagDescription       = Flag{Name: "description", Description: "Metadata Description", Type: FLAG_STRING}
+	FlagPrivacyStatus     = Flag{Name: "status", Description: "Privacy Status", Type: FLAG_ENUM, Extra: "private|public|unlisted"}
+	FlagStartTime         = Flag{Name: "start", Description: "Scheduled Start Time", Type: FLAG_TIME}
+	FlagEndTime           = Flag{Name: "end", Description: "Scheduled End Time", Type: FLAG_TIME}
+	FlagDvr               = Flag{Name: "dvr", Description: "Enable DVR", Type: FLAG_BOOL}
+	FlagContentEncryption = Flag{Name: "encryption", Description: "Enable Content Encryption", Type: FLAG_BOOL}
+	FlagEmbed             = Flag{Name: "embed", Description: "Enable Embedding", Type: FLAG_BOOL}
+	FlagRecordFromStart   = Flag{Name: "record", Description: "Enable Recording", Type: FLAG_BOOL}
+	FlagStartWithSlate    = Flag{Name: "slate", Description: "Start with Slate", Type: FLAG_BOOL}
+	FlagClosedCaptions    = Flag{Name: "captions", Description: "Enable Closed Captions", Type: FLAG_BOOL}
+    FlagMonitorStream     = Flag{Name: "monitor", Description: "Enable Monitor Stream", Type: FLAG_BOOL}
+    FlagBroadcastDelay    = Flag{Name: "delay", Description: "Broadcast Stream Delay (ms)", Type: FLAG_UINT}
 )
 
 // Global variables
@@ -101,8 +114,10 @@ func (this *Flag) TypeString() string {
 		return "playlist"
 	case this.Type == FLAG_LANGUAGE:
 		return "language"
-    case this.Type == FLAG_CONTENTOWNER:
-        return "contentowner"
+	case this.Type == FLAG_CONTENTOWNER:
+		return "contentowner"
+	case this.Type == FLAG_TIME:
+		return "datetime"
 	default:
 		return "other"
 	}
@@ -172,6 +187,14 @@ func (this *Flag) asLanguage(value string) (Language, error) {
 		return Language(value), nil
 	}
 	return "", errors.New("Malformed language value")
+}
+
+func (this *Flag) asTime(value string) (time.Time, error) {
+    datetime, err := ParseTime(value)
+    if err != nil {
+        return time.Time{},err
+    }
+    return datetime,nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////

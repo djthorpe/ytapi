@@ -240,7 +240,6 @@ func (this *Service) DoStreamsList(call *youtube.LiveStreamsListCall, table *Tab
 	return nil
 }
 
-
 func (this *Service) DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""
@@ -278,5 +277,3 @@ func (this *Service) DoPlaylistsList(call *youtube.PlaylistsListCall, table *Tab
 	// Success
 	return nil
 }
-
-

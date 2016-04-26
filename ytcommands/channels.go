@@ -14,8 +14,8 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 
 type Localization struct {
-	Language string
-	Title string
+	Language    string
+	Title       string
 	Description string
 }
 
@@ -72,7 +72,7 @@ func RegisterChannelFormat(params *ytservice.Params, table *ytservice.Table) err
 	})
 
 	// set default columns
-	table.SetColumns([]string{"channel", "title", "description", "publishedAt", "countrycode", "defaultLanguage" })
+	table.SetColumns([]string{"channel", "title", "description", "publishedAt", "countrycode", "defaultLanguage"})
 
 	// success
 	return nil
@@ -86,12 +86,11 @@ func RegisterLocalizedChannelMetadataFormat(params *ytservice.Params, table *yts
 	})
 
 	// set default columns
-	table.SetColumns([]string{"language", "title", "description" })
+	table.SetColumns([]string{"language", "title", "description"})
 
 	// success
 	return nil
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Returns set of channel items for YouTube service. Can return several, in the
@@ -119,7 +118,7 @@ func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.
 
 	// Check channel parameter
 	if params.IsValidChannel() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
 	}
 
 	// create call
@@ -132,13 +131,13 @@ func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.
 		return ytservice.NewError(ytservice.ErrorResponse, err)
 	}
 	if len(response.Items) == 0 {
-		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
 	}
 
 	// Get localizations
 	localizations := response.Items[0].Localizations
-	for language,metadata := range(localizations) {
-		table.Append([]Localization{ { language, metadata.Title, metadata.Description } })
+	for language, metadata := range localizations {
+		table.Append([]Localization{{language, metadata.Title, metadata.Description}})
 	}
 
 	// success
@@ -148,12 +147,11 @@ func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.
 ////////////////////////////////////////////////////////////////////////////////
 // Set channel metadata
 
-
 func UpdateChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
 
 	// Check channel parameter
 	if params.IsValidChannel() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
 	}
 
 	// Retrieve banding settings
@@ -166,7 +164,7 @@ func UpdateChannelMetadata(service *ytservice.Service, params *ytservice.Params,
 		return ytservice.NewError(ytservice.ErrorResponse, err)
 	}
 	if len(response.Items) == 0 {
-		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
 	}
 
 	// Set language, title and description in youtube.Channel
@@ -182,7 +180,7 @@ func UpdateChannelMetadata(service *ytservice.Service, params *ytservice.Params,
 	}
 
 	// Update branding settings
-	call2 := service.API.Channels.Update("brandingSettings",channel)
+	call2 := service.API.Channels.Update("brandingSettings", channel)
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(*params.ContentOwner)
 	}
@@ -205,11 +203,11 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservic
 
 	// Check channel parameter
 	if params.IsValidChannel() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
 	}
 	// Check language parameter
 	if params.IsValidLanguage() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
 	}
 
 	// retrieve localizations information from the channel
@@ -222,13 +220,13 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservic
 		return ytservice.NewError(ytservice.ErrorResponse, err)
 	}
 	if len(response.Items) == 0 {
-		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
 	}
 
 	// edit localizations
 	localizations := response.Items[0].Localizations
-	metadata := youtube.ChannelLocalization{ }
-	if _,ok := localizations[*params.Language]; ok {
+	metadata := youtube.ChannelLocalization{}
+	if _, ok := localizations[*params.Language]; ok {
 		metadata = localizations[*params.Language]
 	}
 	if params.IsEmptyTitle() == false {
@@ -240,8 +238,8 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservic
 	localizations[*params.Language] = metadata
 
 	// update localization
-	call2 := service.API.Channels.Update("localizations",&youtube.Channel{
-		Id: *params.Channel,
+	call2 := service.API.Channels.Update("localizations", &youtube.Channel{
+		Id:            *params.Channel,
 		Localizations: localizations,
 	})
 	if service.ServiceAccount {
@@ -253,5 +251,5 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservic
 	}
 
 	// Call list
-	return ListLocalizedChannelMetadata(service,params,table)
+	return ListLocalizedChannelMetadata(service, params, table)
 }

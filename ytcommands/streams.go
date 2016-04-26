@@ -72,7 +72,6 @@ func ListStreams(service *ytservice.Service, params *ytservice.Params, table *yt
 	return service.DoStreamsList(call, table, params.MaxResults)
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // LiveStreams.Delete
 
@@ -80,7 +79,7 @@ func DeleteStream(service *ytservice.Service, params *ytservice.Params, table *y
 
 	// Get stream
 	if params.IsValidStream() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
+		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
 	}
 
 	// create call

@@ -5,39 +5,49 @@
 package ytcommands
 
 import (
-    "errors"
+	"errors"
 
-    "github.com/djthorpe/ytapi/ytapi"
-    "github.com/djthorpe/ytapi/ytservice"
+	"github.com/djthorpe/ytapi/ytapi"
+	"github.com/djthorpe/ytapi/ytservice"
+	"google.golang.org/api/youtube/v3"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register search output format
 
 func RegisterBroadcastCommands() []ytapi.Command {
-    return []ytapi.Command{
-        ytapi.Command{
-            Name: "ListBroadcasts",
-            Description: "List broadcasts",
-            Optional: []*ytapi.Flag{ &ytapi.FlagContentOwner,&ytapi.FlagChannel,&ytapi.FlagBroadcastStatus,&ytapi.FlagMaxResults },
-            Setup: RegisterBroadcastFormat,
-            Execute: ListBroadcasts,
-        },
-        ytapi.Command{
-            Name: "DeleteBroadcast",
-            Description: "Delete broadcast",
-            Optional: []*ytapi.Flag{ &ytapi.FlagContentOwner,&ytapi.FlagChannel },
-            Required: []*ytapi.Flag{ &ytapi.FlagVideo },
-            Execute: DeleteBroadcast,
-        },
-        ytapi.Command{
-            Name: "NewBroadcast",
-            Description: "Create a new broadcast",
-            Optional: []*ytapi.Flag{ &ytapi.FlagContentOwner,&ytapi.FlagChannel,&ytapi.FlagDescription },
-            Required: []*ytapi.Flag{ &ytapi.FlagTitle },
-            Execute: InsertBroadcast,
-        },
-    }
+	return []ytapi.Command{
+		ytapi.Command{
+			Name:        "ListBroadcasts",
+			Description: "List broadcasts",
+			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel, &ytapi.FlagBroadcastStatus, &ytapi.FlagMaxResults},
+			Setup:       RegisterBroadcastFormat,
+			Execute:     ListBroadcasts,
+		},
+		ytapi.Command{
+			Name:        "DeleteBroadcast",
+			Description: "Delete broadcast",
+			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel},
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
+			Execute:     DeleteBroadcast,
+		},
+		ytapi.Command{
+			Name:        "NewBroadcast",
+			Description: "Create a new broadcast",
+			Optional: []*ytapi.Flag{
+				&ytapi.FlagContentOwner, &ytapi.FlagChannel,
+				&ytapi.FlagDescription, &ytapi.FlagEndTime, &ytapi.FlagDvr,
+				&ytapi.FlagContentEncryption, &ytapi.FlagEmbed,
+				&ytapi.FlagRecordFromStart, &ytapi.FlagStartWithSlate,
+				&ytapi.FlagClosedCaptions, &ytapi.FlagMonitorStream,
+				&ytapi.FlagBroadcastDelay,
+			},
+			Required: []*ytapi.Flag{
+				&ytapi.FlagTitle, &ytapi.FlagStartTime, &ytapi.FlagPrivacyStatus,
+			},
+			Execute: InsertBroadcast,
+		},
+	}
 }
 
 func RegisterBroadcastFormat(values *ytapi.Values, table *ytservice.Table) error {
@@ -96,32 +106,32 @@ func RegisterBroadcastFormat(values *ytapi.Values, table *ytservice.Table) error
 // List Broadcasts
 
 func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
-    // set parameters
-    maxresults := values.GetUint(&ytapi.FlagMaxResults)
-    contentowner := values.GetString(&ytapi.FlagContentOwner)
-    channel := values.GetString(&ytapi.FlagChannel)
-    status := values.GetString(&ytapi.FlagBroadcastStatus)
-    parts := "id" //strings.Join(table.Parts(), ",")
 
-    // create call and set parameters
+	// Get parameters
+	maxresults := values.GetUint(&ytapi.FlagMaxResults)
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
+	status := values.GetString(&ytapi.FlagBroadcastStatus)
+	parts := "id,snippet,status" //strings.Join(table.Parts(), ",")
+
+	// create call and set parameters
 	call := service.API.LiveBroadcasts.List(parts)
-    if service.ServiceAccount {
-        call = call.OnBehalfOfContentOwner(contentowner)
-        if channel == "" {
-            return errors.New("Invalid channel parameter")
-        } else {
-            call = call.OnBehalfOfContentOwnerChannel(channel)
-        }
-    } else if channel != "" {
-        return errors.New("Invalid channel parameter")
-    } else {
-        call = call.Mine(true)
-    }
-    if status != "" {
-        call = call.BroadcastStatus(status)
-    }
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+		if channel == "" {
+			return errors.New("Invalid channel parameter")
+		} else {
+			call = call.OnBehalfOfContentOwnerChannel(channel)
+		}
+	} else if channel != "" {
+		return errors.New("Invalid channel parameter")
+	} else if status != "" {
+		call = call.BroadcastStatus(status)
+	} else {
+		call = call.Mine(true)
+	}
 
-    // Perform search, and return results
+	// Perform search, and return results
 	return service.DoBroadcastsList(call, table, int64(maxresults))
 }
 
@@ -129,26 +139,30 @@ func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *yts
 // Delete Broadcast
 
 func DeleteBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
-/*
-	// Get video
-	if params.IsValidVideo() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter,nil)
-	}
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
+	video := values.GetString(&ytapi.FlagVideo)
 
-	// create call
-	call := service.API.LiveBroadcasts.Delete(*params.Video)
-
-	// set filter parameters
-	if service.ServiceAccount && params.IsValidChannel() {
-		call = call.OnBehalfOfContentOwner(*params.ContentOwner).OnBehalfOfContentOwnerChannel(*params.Channel)
+	// Create call, set parameters
+	call := service.API.LiveBroadcasts.Delete(video)
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+		if channel == "" {
+			return errors.New("Invalid channel parameter")
+		} else {
+			call = call.OnBehalfOfContentOwnerChannel(channel)
+		}
+	} else if channel != "" {
+		return errors.New("Invalid channel parameter")
 	}
 
 	// Perform search, and return results
 	err := call.Do()
 	if err != nil {
-		return ytservice.NewError(ytservice.ErrorResponse, err)
+		return err
 	}
-*/
+
 	// success
 	return nil
 }
@@ -157,7 +171,53 @@ func DeleteBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 // Insert Broadcast
 
 func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
-    // success
-    return nil
-}
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
 
+	// Create call, set parameters
+	call := service.API.LiveBroadcasts.Insert("id,snippet,status,contentDetails", &youtube.LiveBroadcast{
+		Snippet: &youtube.LiveBroadcastSnippet{
+			Title:              values.GetString(&ytapi.FlagTitle),
+			Description:        values.GetString(&ytapi.FlagDescription),
+			ScheduledStartTime: values.GetTimeInISOFormat(&ytapi.FlagStartTime),
+			ScheduledEndTime:   values.GetTimeInISOFormat(&ytapi.FlagEndTime),
+		},
+		Status: &youtube.LiveBroadcastStatus{
+			PrivacyStatus: values.GetString(&ytapi.FlagPrivacyStatus),
+		},
+		ContentDetails: &youtube.LiveBroadcastContentDetails{
+			EnableDvr:               values.GetBool(&ytapi.FlagDvr),
+			EnableContentEncryption: values.GetBool(&ytapi.FlagContentEncryption),
+			EnableEmbed:             values.GetBool(&ytapi.FlagEmbed),
+			RecordFromStart:         values.GetBool(&ytapi.FlagRecordFromStart),
+			StartWithSlate:          values.GetBool(&ytapi.FlagStartWithSlate),
+			EnableClosedCaptions:    values.GetBool(&ytapi.FlagClosedCaptions),
+            MonitorStream:           &youtube.MonitorStreamInfo{
+                EnableMonitorStream:    values.GetBool(&ytapi.FlagMonitorStream),
+                BroadcastStreamDelayMs: int64(values.GetUint(&ytapi.FlagBroadcastDelay)),
+            },
+		},
+	})
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+		if channel == "" {
+			return errors.New("Invalid channel parameter")
+		} else {
+			call = call.OnBehalfOfContentOwnerChannel(channel)
+		}
+	} else if channel != "" {
+		return errors.New("Invalid channel parameter")
+	}
+
+	// Insert broadcast and get response
+	_, err := call.Do()
+	if err != nil {
+		return err
+	}
+
+	// TODO: retrieve broadcast again and print out values
+
+	// success
+	return nil
+}

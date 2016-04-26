@@ -27,11 +27,10 @@ func RegisterPlaylistFormat(params *ytservice.Params, table *ytservice.Table) er
 		ytservice.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
 		ytservice.FieldSpec{"defaultLanguage", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
 		ytservice.FieldSpec{"tags", "Snippet/Tags", ytservice.FIELD_STRING},
-
 	})
 
 	// set default columns
-	table.SetColumns([]string{ "id", "title", "description" })
+	table.SetColumns([]string{"id", "title", "description"})
 
 	// success
 	return nil
