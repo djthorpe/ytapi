@@ -51,14 +51,13 @@ func RegisterStreamCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "ListStreams",
 			Description: "List streams",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel, &ytapi.FlagMaxResults},
+			Optional:    []*ytapi.Flag{ &ytapi.FlagMaxResults },
 			Setup:       RegisterStreamFormat,
 			Execute:     ListStreams,
 		},
 		ytapi.Command{
 			Name:        "DeleteStream",
 			Description: "Delete stream",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel},
 			Required:    []*ytapi.Flag{&ytapi.FlagStream},
 			Execute:     DeleteStream,
 		},

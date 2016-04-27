@@ -13,28 +13,26 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////////////
-// Register search output format
+// Register broadcast commands
 
 func RegisterBroadcastCommands() []ytapi.Command {
 	return []ytapi.Command{
 		ytapi.Command{
 			Name:        "ListBroadcasts",
 			Description: "List broadcasts",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel, &ytapi.FlagBroadcastStatus, &ytapi.FlagMaxResults},
+			Optional:    []*ytapi.Flag{ &ytapi.FlagBroadcastStatus, &ytapi.FlagMaxResults},
 			Setup:       RegisterBroadcastFormat,
 			Execute:     ListBroadcasts,
 		},
 		ytapi.Command{
 			Name:        "DeleteBroadcast",
 			Description: "Delete broadcast",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel},
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
 			Execute:     DeleteBroadcast,
 		},
 		ytapi.Command{
 			Name:        "TransitionBroadcast",
 			Description: "Transition broadcast to another state",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel},
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagBroadcastTransition},
 			Execute:     TransitionBroadcast,
 		},
@@ -49,7 +47,6 @@ func RegisterBroadcastCommands() []ytapi.Command {
 			Name:        "NewBroadcast",
 			Description: "Create a new broadcast",
 			Optional: []*ytapi.Flag{
-				&ytapi.FlagContentOwner, &ytapi.FlagChannel,
 				&ytapi.FlagDescription, &ytapi.FlagEndTime, &ytapi.FlagDvr,
 				&ytapi.FlagContentEncryption, &ytapi.FlagEmbed,
 				&ytapi.FlagRecordFromStart, &ytapi.FlagStartWithSlate,

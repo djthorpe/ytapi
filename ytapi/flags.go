@@ -94,7 +94,7 @@ var (
 
 // Global variables
 var (
-	globalflags = []*Flag{&FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret, &FlagServiceAccount, &FlagAuthToken}
+	globalflags = []*Flag{&FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret, &FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel }
 	flagvalues  = make(map[string]*Value, 0)
 )
 

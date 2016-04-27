@@ -70,7 +70,6 @@ func RegisterAuthenticateCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "Authenticate",
 			Description: "Authenticate against service account or channel",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel},
 			Setup:       AuthenticateSetup,
 			Execute:     AuthenticateExecute,
 		},

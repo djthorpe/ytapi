@@ -23,6 +23,7 @@ func main() {
 		ytcommands.RegisterStreamCommands,
 		ytcommands.RegisterChannelCommands,
 		ytcommands.RegisterLanguageRegionCommands,
+		ytcommands.RegisterCaptionCommands,
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)

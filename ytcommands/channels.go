@@ -29,7 +29,7 @@ func RegisterChannelCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "ListChannels",
 			Description: "List channels",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel, &ytapi.FlagLanguage, &ytapi.FlagMaxResults},
+			Optional:    []*ytapi.Flag{ &ytapi.FlagLanguage, &ytapi.FlagMaxResults },
 			Setup:       RegisterChannelFormat,
 			Execute:     ListChannels,
 		},
