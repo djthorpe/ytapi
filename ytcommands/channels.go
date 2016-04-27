@@ -7,6 +7,7 @@ package ytcommands
 import (
 	"strings"
 
+	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
 	"google.golang.org/api/youtube/v3"
 )
@@ -19,10 +20,26 @@ type Localization struct {
 	Description string
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Register channel commands
+
+func RegisterChannelCommands() []ytapi.Command {
+	return []ytapi.Command{
+		ytapi.Command{
+			Name:        "ListChannels",
+			Description: "List channels",
+			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel, &ytapi.FlagLanguage, &ytapi.FlagMaxResults},
+			Setup:       RegisterChannelFormat,
+			Execute:     ListChannels,
+		},
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Register channel output format
 
-func RegisterChannelFormat(params *ytservice.Params, table *ytservice.Table) error {
+func RegisterChannelFormat(values *ytapi.Values, table *ytservice.Table) error {
 
 	table.RegisterPart("id", []ytservice.FieldSpec{
 		ytservice.FieldSpec{"channel", "Id", ytservice.FIELD_STRING},
@@ -93,26 +110,36 @@ func RegisterLocalizedChannelMetadataFormat(params *ytservice.Params, table *yts
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Returns set of channel items for YouTube service. Can return several, in the
-// case of service accounts, or a single one, based on simple OAuth authentication
+// Channels.list
 
-func ListChannels(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
 
-	// create call
-	call := service.API.Channels.List(strings.Join(table.Parts(), ","))
+func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
 
-	// set filter parameters
+	// Get parameters
+	maxresults := values.GetUint(&ytapi.FlagMaxResults)
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
+	parts := "id,snippet,status" //strings.Join(table.Parts(), ",")
+
+	// create call and set parameters
+	call := service.API.Channels.List(parts)
 	if service.ServiceAccount {
-		call = call.OnBehalfOfContentOwner(*params.ContentOwner).ManagedByMe(true)
-	} else if params.IsValidChannel() {
-		call = call.Id(*params.Channel)
+		call = call.OnBehalfOfContentOwner(contentowner)
+		if channel == "" {
+			call = call.ManagedByMe(true)
+		} else {
+			call = call.Id(channel)
+		}
+	} else if channel != "" {
+		call = call.Id(channel)
 	} else {
 		call = call.Mine(true)
 	}
 
-	// Perform channels.list and return results
-	return service.DoChannelsList(call, table, params.MaxResults)
+	// Perform search, and return results
+	return service.DoChannelsList(call, table, int64(maxresults))
 }
+
 
 func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
 
