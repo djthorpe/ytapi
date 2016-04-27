@@ -5,14 +5,70 @@
 package ytcommands
 
 import (
+	"errors"
+	"fmt"
+
+	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
-	"strings"
 )
+
+////////////////////////////////////////////////////////////////////////////////
+
+var (
+	channelCache map[ytapi.Channel]bool // tells us we have cached keys for this channel
+	streamKeyCache map[ytapi.Stream]string // maps stream keys to id's
+)
+
+////////////////////////////////////////////////////////////////////////////////
+// Generate cache of stream key => stream id for a content-owner/channel pair
+
+func CacheStreamKeys(service *ytservice.Service) error {
+	if streamKeyCache != nil {
+		// cached
+		return nil
+	}
+
+	streamKeyCache = make(map[ytapi.Stream]string,0)
+	channelCache = make(map[ytapi.Channel]bool,0)
+
+	// TODO!!!!!
+
+	return nil
+}
+
+func StreamLookup(service *ytservice.Service,value string) (string,error) {
+	if err := CacheStreamKeys(service); err != nil {
+		return "",err
+	}
+	return "",errors.New(fmt.Sprint("Stream key not found: ",value))
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register search output format
 
-func RegisterStreamFormat(params *ytservice.Params, table *ytservice.Table) error {
+func RegisterStreamCommands() []ytapi.Command {
+	return []ytapi.Command{
+		ytapi.Command{
+			Name:        "ListStreams",
+			Description: "List streams",
+			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel, &ytapi.FlagMaxResults},
+			Setup:       RegisterStreamFormat,
+			Execute:     ListStreams,
+		},
+		ytapi.Command{
+			Name:        "DeleteStream",
+			Description: "Delete stream",
+			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel},
+			Required:    []*ytapi.Flag{&ytapi.FlagStream},
+			Execute:     DeleteStream,
+		},
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Register search output format
+
+func RegisterStreamFormat(values *ytapi.Values, table *ytservice.Table) error {
 
 	// register parts
 
@@ -31,7 +87,7 @@ func RegisterStreamFormat(params *ytservice.Params, table *ytservice.Table) erro
 	table.RegisterPart("cdn", []ytservice.FieldSpec{
 		ytservice.FieldSpec{"format", "Cdn/Format", ytservice.FIELD_STRING},
 		ytservice.FieldSpec{"ingestionType", "Cdn/IngestionType", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"streamkey", "Cdn/IngestionInfo/StreamName", ytservice.FIELD_STRING},
+		ytservice.FieldSpec{"key", "Cdn/IngestionInfo/StreamName", ytservice.FIELD_STRING},
 		ytservice.FieldSpec{"ingestionAddress", "Cdn/IngestionInfo/IngestionAddress", ytservice.FIELD_DATETIME},
 		ytservice.FieldSpec{"backupIngestionAddress", "Cdn/IngestionInfo/BackupIngestionAddress", ytservice.FIELD_BOOLEAN},
 	})
@@ -48,7 +104,7 @@ func RegisterStreamFormat(params *ytservice.Params, table *ytservice.Table) erro
 	})
 
 	// set default columns
-	table.SetColumns([]string{"streamkey", "title", "format", "isDefaultStream"})
+	table.SetColumns([]string{"key", "title", "format", "isDefaultStream"})
 
 	// success
 	return nil
@@ -57,43 +113,62 @@ func RegisterStreamFormat(params *ytservice.Params, table *ytservice.Table) erro
 ////////////////////////////////////////////////////////////////////////////////
 // LiveStreams.List
 
-func ListStreams(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+func ListStreams(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
 
-	// create call
-	call := service.API.LiveStreams.List(strings.Join(table.Parts(), ","))
+	// Get parameters
+	maxresults := values.GetUint(&ytapi.FlagMaxResults)
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
+	parts := "id,snippet,cdn,status" //strings.Join(table.Parts(), ",")
 
-	// set filter parameters
-	if service.ServiceAccount && params.IsValidChannel() {
-		call = call.OnBehalfOfContentOwner(*params.ContentOwner).OnBehalfOfContentOwnerChannel(*params.Channel)
+	// create call and set parameters
+	call := service.API.LiveStreams.List(parts)
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+		if channel == "" {
+			return errors.New("Invalid channel parameter")
+		} else {
+			call = call.OnBehalfOfContentOwnerChannel(channel)
+		}
+	} else if channel != "" {
+		return errors.New("Invalid channel parameter")
+	} else {
+		call = call.Mine(true)
 	}
-	call = call.Mine(true)
 
-	// Perform operation, and return results
-	return service.DoStreamsList(call, table, params.MaxResults)
+	// Perform search, and return results
+	return service.DoStreamsList(call, table, int64(maxresults))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // LiveStreams.Delete
 
-func DeleteStream(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
-
-	// Get stream
-	if params.IsValidStream() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
-	}
-
-	// create call
-	call := service.API.LiveStreams.Delete(*params.Stream)
-
-	// set filter parameters
-	if service.ServiceAccount && params.IsValidChannel() {
-		call = call.OnBehalfOfContentOwner(*params.ContentOwner).OnBehalfOfContentOwnerChannel(*params.Channel)
-	}
-
-	// Perform delete
-	err := call.Do()
+func DeleteStream(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
+	stream,err := StreamLookup(service,values.GetString(&ytapi.FlagStream))
 	if err != nil {
-		return ytservice.NewError(ytservice.ErrorResponse, err)
+		return err
+	}
+
+	// Create call, set parameters
+	call := service.API.LiveStreams.Delete(stream)
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+		if channel == "" {
+			return errors.New("Invalid channel parameter")
+		} else {
+			call = call.OnBehalfOfContentOwnerChannel(channel)
+		}
+	} else if channel != "" {
+		return errors.New("Invalid channel parameter")
+	}
+
+	// Perform search, and return results
+	err = call.Do()
+	if err != nil {
+		return err
 	}
 
 	// success

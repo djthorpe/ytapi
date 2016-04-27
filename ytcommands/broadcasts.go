@@ -34,15 +34,15 @@ func RegisterBroadcastCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "TransitionBroadcast",
 			Description: "Transition broadcast to another state",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel },
-			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagBroadcastTransition },
+			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagChannel},
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagBroadcastTransition},
 			Execute:     TransitionBroadcast,
 		},
 		ytapi.Command{
 			Name:        "BindBroadcast",
 			Description: "Bind or unbind broadcast to stream",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagStream },
-			Required:    []*ytapi.Flag{&ytapi.FlagVideo },
+			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagStream},
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
 			Execute:     TransitionBroadcast,
 		},
 		ytapi.Command{
@@ -192,7 +192,7 @@ func TransitionBroadcast(service *ytservice.Service, values *ytapi.Values, table
 	transition := values.GetString(&ytapi.FlagBroadcastTransition)
 
 	// Create call, set parameters
-	call := service.API.LiveBroadcasts.Transition(transition,video,"id,snippet,status")
+	call := service.API.LiveBroadcasts.Transition(transition, video, "id,snippet,status")
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(contentowner)
 		if channel == "" {
@@ -243,21 +243,21 @@ func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 			RecordFromStart:         values.GetBool(&ytapi.FlagRecordFromStart),
 			StartWithSlate:          values.GetBool(&ytapi.FlagStartWithSlate),
 			EnableClosedCaptions:    values.GetBool(&ytapi.FlagClosedCaptions),
-            MonitorStream:           &youtube.MonitorStreamInfo{
-                EnableMonitorStream:    values.GetBool(&ytapi.FlagMonitorStream),
-                BroadcastStreamDelayMs: int64(values.GetUint(&ytapi.FlagBroadcastDelay)),
+			MonitorStream: &youtube.MonitorStreamInfo{
+				EnableMonitorStream:    values.GetBool(&ytapi.FlagMonitorStream),
+				BroadcastStreamDelayMs: int64(values.GetUint(&ytapi.FlagBroadcastDelay)),
 				ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
 					"EnableMonitorStream": &ytapi.FlagMonitorStream,
 				}),
-            },
+			},
 			ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
-				"EnableDvr": &ytapi.FlagDvr,
-				"EnableLowLatency": &ytapi.FlagLowLatency,
+				"EnableDvr":               &ytapi.FlagDvr,
+				"EnableLowLatency":        &ytapi.FlagLowLatency,
 				"EnableContentEncryption": &ytapi.FlagContentEncryption,
-				"EnableEmbed": &ytapi.FlagEmbed,
-				"RecordFromStart": &ytapi.FlagRecordFromStart,
-				"StartWithSlate": &ytapi.FlagStartWithSlate,
-				"EnableClosedCaptions": &ytapi.FlagClosedCaptions,
+				"EnableEmbed":             &ytapi.FlagEmbed,
+				"RecordFromStart":         &ytapi.FlagRecordFromStart,
+				"StartWithSlate":          &ytapi.FlagStartWithSlate,
+				"EnableClosedCaptions":    &ytapi.FlagClosedCaptions,
 			}),
 		},
 	})

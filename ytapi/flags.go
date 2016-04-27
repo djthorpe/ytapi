@@ -159,7 +159,7 @@ func (this *Flag) asVideo(value string) (Video, error) {
 }
 
 func (this *Flag) asStream(value string) (Stream, error) {
-	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\-]{11})$", value)
+	matched, _ := regexp.MatchString("^([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})$", value)
 	if matched == false {
 		return "", errors.New("Malformed stream value")
 	}

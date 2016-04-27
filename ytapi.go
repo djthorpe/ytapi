@@ -20,6 +20,7 @@ func main() {
 	command, values, err := ytapi.ParseFlags([]ytapi.RegisterFunction{
 		ytcommands.RegisterAuthenticateCommands,
 		ytcommands.RegisterBroadcastCommands,
+		ytcommands.RegisterStreamCommands,
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
