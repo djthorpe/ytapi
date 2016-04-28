@@ -29,6 +29,7 @@ const (
 	FLAG_CHANNEL
 	FLAG_PLAYLIST
 	FLAG_LANGUAGE
+	FLAG_REGION
 	FLAG_STREAM
 	FLAG_CONTENTOWNER
 	FLAG_TIME
@@ -73,6 +74,7 @@ var (
 	FlagVideo             = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
 	FlagStream            = Flag{Name: "stream", Description: "Stream ID or Key", Type: FLAG_STREAM}
 	FlagLanguage          = Flag{Name: "language", Description: "Localized language", Type: FLAG_LANGUAGE}
+	FlagRegion            = Flag{Name: "region", Description: "Country region code", Type: FLAG_REGION}
 	FlagBroadcastStatus   = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
 	FlagBroadcastTransition = Flag{Name: "status", Description: "Broadcast transition", Type: FLAG_ENUM, Extra: "complete|live|testing"}
 	FlagMaxResults        = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
@@ -90,6 +92,7 @@ var (
     FlagMonitorStream     = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
     FlagBroadcastDelay    = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
 	FlagLowLatency        = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
+	FlagVideoFilter       = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike"}
 )
 
 // Global variables
@@ -121,6 +124,8 @@ func (this *Flag) TypeString() string {
 		return "playlist"
 	case this.Type == FLAG_LANGUAGE:
 		return "language"
+	case this.Type == FLAG_REGION:
+		return "region"
 	case this.Type == FLAG_CONTENTOWNER:
 		return "contentowner"
 	case this.Type == FLAG_TIME:
@@ -202,6 +207,14 @@ func (this *Flag) asLanguage(value string) (Language, error) {
 		return Language(value), nil
 	}
 	return "", errors.New("Malformed language value")
+}
+
+func (this *Flag) asRegion(value string) (Region, error) {
+	matched, _ := regexp.MatchString("^([A-Z]{2})$", value)
+	if matched {
+		return Region(value), nil
+	}
+	return "", errors.New("Malformed region value")
 }
 
 func (this *Flag) asTime(value string) (time.Time, error) {

@@ -20,6 +20,7 @@ type Video string
 type Channel string
 type Playlist string
 type Language string
+type Region string
 type Stream string
 type ContentOwner string
 
@@ -33,6 +34,7 @@ type Value struct {
 	v_channel      Channel
 	v_playlist     Playlist
 	v_language     Language
+	v_region       Region
 	v_contentowner ContentOwner
 	v_time         time.Time
 	is_set         bool
@@ -84,6 +86,9 @@ func (this *Value) Set(value string) error {
 		break
 	case this.flag.Type == FLAG_LANGUAGE:
 		this.v_language, err = this.flag.asLanguage(value)
+		break
+	case this.flag.Type == FLAG_REGION:
+		this.v_region, err = this.flag.asRegion(value)
 		break
 	case this.flag.Type == FLAG_CONTENTOWNER:
 		this.v_contentowner, err = this.flag.asContentOwner(value)

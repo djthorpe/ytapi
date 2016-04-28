@@ -9,11 +9,10 @@ Here is a list of the main flags which can be used on the command line which
 affect most commands
 
   * `-help`               Display usage information
-  * `-channel=<id>`       Set the channel to act on behalf of
-  * `-contentowner=<id>`  Set the content owner
+  * `-channel=<channel>`       Set the channel to act on behalf of
+  * `-contentowner=<contentowner>`  Set the content owner
   * `-debug`              Debug API calls, output API requests and responses to stderr
   * `-output=<csv|ascii>` Output format for displaying results 
-  * `-part=<+part,-part,...>` Add request parts when listing data
 
 ## Introduction
 
