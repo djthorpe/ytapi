@@ -52,8 +52,8 @@ type Command struct {
 	Description string
 	Optional    []*Flag
 	Required    []*Flag
-	Setup       func(*Values, *ytservice.Table) error
-	Execute     func(*ytservice.Service, *Values, *ytservice.Table) error
+	Setup       func(*Values, *Table) error
+	Execute     func(*ytservice.Service, *Values, *Table) error
 }
 
 // Registration function

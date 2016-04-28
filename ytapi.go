@@ -18,13 +18,13 @@ import (
 func main() {
 	// Parse command-line flags
 	command, values, err := ytapi.ParseFlags([]ytapi.RegisterFunction{
+		ytcommands.RegisterVideoCommands,
 		ytcommands.RegisterAuthenticateCommands,
 		ytcommands.RegisterBroadcastCommands,
 		ytcommands.RegisterStreamCommands,
 		ytcommands.RegisterChannelCommands,
 		ytcommands.RegisterLanguageRegionCommands,
 		ytcommands.RegisterCaptionCommands,
-		ytcommands.RegisterVideoCommands,
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	// call command setup function
-	output := ytservice.NewTable()
+	output := ytapi.NewTable()
 	if command.Setup != nil {
 		if err := command.Setup(values, output); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -79,11 +79,11 @@ func main() {
 	}
 
 	// output
-	err = output.ASCII(os.Stdout)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
+	//err = output.ASCII(os.Stdout)
+	//if err != nil {
+	//	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	//	os.Exit(1)
+	//}
 }
 
 /*

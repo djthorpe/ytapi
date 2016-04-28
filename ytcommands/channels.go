@@ -39,53 +39,53 @@ func RegisterChannelCommands() []ytapi.Command {
 ////////////////////////////////////////////////////////////////////////////////
 // Register channel output format
 
-func RegisterChannelFormat(values *ytapi.Values, table *ytservice.Table) error {
+func RegisterChannelFormat(values *ytapi.Values, table *ytapi.Table) error {
 
-	table.RegisterPart("id", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"channel", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"channel", "Id", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("snippet", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"countrycode", "Snippet/Country", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"defaultLanguage", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"countrycode", "Snippet/Country", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"defaultLanguage", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("contentDetails", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"playlist.likes", "ContentDetails/RelatedPlaylists/Likes", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"playlist.favorites", "ContentDetails/RelatedPlaylists/Favourites", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"playlist.uploads", "ContentDetails/RelatedPlaylists/Uploads", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"playlist.watchHistory", "ContentDetails/RelatedPlaylists/WatchHistory", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"playlist.watchLater", "ContentDetails/RelatedPlaylists/WatchLater", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"googlePlusUserId", "ContentDetails/GooglePlusUserId", ytservice.FIELD_STRING},
+	table.RegisterPart("contentDetails", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"playlist.likes", "ContentDetails/RelatedPlaylists/Likes", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"playlist.favorites", "ContentDetails/RelatedPlaylists/Favourites", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"playlist.uploads", "ContentDetails/RelatedPlaylists/Uploads", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"playlist.watchHistory", "ContentDetails/RelatedPlaylists/WatchHistory", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"playlist.watchLater", "ContentDetails/RelatedPlaylists/WatchLater", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"googlePlusUserId", "ContentDetails/GooglePlusUserId", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("statistics", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"viewCount", "Statistics/ViewCount", ytservice.FIELD_NUMBER},
-		ytservice.FieldSpec{"commentCount", "Statistics/CommentCount", ytservice.FIELD_NUMBER},
-		ytservice.FieldSpec{"subscriberCount", "Statistics/SubscriberCount", ytservice.FIELD_NUMBER},
-		ytservice.FieldSpec{"hiddenSubscriberCount", "Statistics/HiddenSubscriberCount", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"videoCount", "Statistics/VideoCount", ytservice.FIELD_NUMBER},
+	table.RegisterPart("statistics", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"viewCount", "Statistics/ViewCount", ytservice.FIELD_NUMBER},
+		ytapi.FieldSpec{"commentCount", "Statistics/CommentCount", ytservice.FIELD_NUMBER},
+		ytapi.FieldSpec{"subscriberCount", "Statistics/SubscriberCount", ytservice.FIELD_NUMBER},
+		ytapi.FieldSpec{"hiddenSubscriberCount", "Statistics/HiddenSubscriberCount", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"videoCount", "Statistics/VideoCount", ytservice.FIELD_NUMBER},
 	})
 
-	table.RegisterPart("status", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"privacyStatus", "Status/PrivacyStatus", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"isLinked", "Status/IsLinked", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"longUploadsStatus", "Status/LongUploadsStatus", ytservice.FIELD_STRING},
+	table.RegisterPart("status", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"privacyStatus", "Status/PrivacyStatus", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"isLinked", "Status/IsLinked", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"longUploadsStatus", "Status/LongUploadsStatus", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("auditDetails", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"overallGoodStanding", "AuditDetails/OverallGoodStanding", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"communityGuidelinesGoodStanding", "AuditDetails/CommunityGuidelinesGoodStanding", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"copyrightStrikesGoodStanding", "AuditDetails/CopyrightStrikesGoodStanding", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"contentIdClaimsGoodStanding", "AuditDetails/ContentIdClaimsGoodStanding", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("auditDetails", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"overallGoodStanding", "AuditDetails/OverallGoodStanding", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"communityGuidelinesGoodStanding", "AuditDetails/CommunityGuidelinesGoodStanding", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"copyrightStrikesGoodStanding", "AuditDetails/CopyrightStrikesGoodStanding", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"contentIdClaimsGoodStanding", "AuditDetails/ContentIdClaimsGoodStanding", ytservice.FIELD_BOOLEAN},
 	})
 
-	table.RegisterPart("contentOwnerDetails", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"contentowner", "ContentOwnerDetails/ContentOwner", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"timeLinked", "ContentOwnerDetails/TimeLinked", ytservice.FIELD_DATETIME},
+	table.RegisterPart("contentOwnerDetails", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"contentowner", "ContentOwnerDetails/ContentOwner", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"timeLinked", "ContentOwnerDetails/TimeLinked", ytservice.FIELD_DATETIME},
 	})
 
 	// set default columns
@@ -95,11 +95,11 @@ func RegisterChannelFormat(values *ytapi.Values, table *ytservice.Table) error {
 	return nil
 }
 
-func RegisterLocalizedChannelMetadataFormat(params *ytservice.Params, table *ytservice.Table) error {
-	table.RegisterPart("localizations", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"language", "Language", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"title", "Title", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"description", "Description", ytservice.FIELD_STRING},
+func RegisterLocalizedChannelMetadataFormat(params *ytservice.Params, table *ytapi.Table) error {
+	table.RegisterPart("localizations", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"language", "Language", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"title", "Title", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"description", "Description", ytservice.FIELD_STRING},
 	})
 
 	// set default columns
@@ -113,7 +113,7 @@ func RegisterLocalizedChannelMetadataFormat(params *ytservice.Params, table *yts
 // Channels.list
 
 
-func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
@@ -137,11 +137,11 @@ func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytser
 	}
 
 	// Perform search, and return results
-	return service.DoChannelsList(call, table, int64(maxresults))
+	return ytapi.DoChannelsList(call, table, int64(maxresults))
 }
 
 
-func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
 
 	// Check channel parameter
 	if params.IsValidChannel() == false {
@@ -174,7 +174,7 @@ func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.
 ////////////////////////////////////////////////////////////////////////////////
 // Set channel metadata
 
-func UpdateChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+func UpdateChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
 
 	// Check channel parameter
 	if params.IsValidChannel() == false {
@@ -223,10 +223,10 @@ func UpdateChannelMetadata(service *ytservice.Service, params *ytservice.Params,
 	}
 
 	// Perform channels.list and return results
-	return service.DoChannelsList(call3, table, 1)
+	return ytapi.DoChannelsList(call3, table, 1)
 }
 
-func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
 
 	// Check channel parameter
 	if params.IsValidChannel() == false {

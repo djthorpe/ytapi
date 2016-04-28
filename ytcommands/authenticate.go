@@ -79,7 +79,7 @@ func RegisterAuthenticateCommands() []ytapi.Command {
 ////////////////////////////////////////////////////////////////////////////////
 // Perform authentication
 
-func AuthenticateSetup(values *ytapi.Values, table *ytservice.Table) error {
+func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 
 	// remove existing oauth token
 	tokenPath := GetOAuthTokenPath(values)
@@ -94,7 +94,7 @@ func AuthenticateSetup(values *ytapi.Values, table *ytservice.Table) error {
 	return nil
 }
 
-func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Write defaults to file
 	err := values.WriteDefaultsToFile(GetDefaultsPath(values), credentialsFileMode)

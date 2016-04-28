@@ -24,27 +24,27 @@ func RegisterCaptionCommands() []ytapi.Command {
 	}
 }
 
-func RegisterCaptionFormat(values *ytapi.Values, table *ytservice.Table) error {
+func RegisterCaptionFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"caption", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"caption", "Id", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("snippet", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"video", "Snippet/VideoId", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"lastUpdated", "Snippet/LastUpdated", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"captiontype", "Snippet/TrackKind", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"language", "Snippet/Language", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"name", "Snippet/Name", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"audiotype", "Snippet/AudioTrackType", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"closedcaptions", "Snippet/IsCC", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"largetext", "Snippet/IsLarge", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"easyreader", "Snippet/IsEasyReader", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"draft", "Snippet/IsDraft", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"autosynced", "Snippet/IsAutoSynced", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"status", "Snippet/Status", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"error", "Snippet/FailureReason", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"video", "Snippet/VideoId", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"lastUpdated", "Snippet/LastUpdated", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"captiontype", "Snippet/TrackKind", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"language", "Snippet/Language", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"name", "Snippet/Name", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"audiotype", "Snippet/AudioTrackType", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"closedcaptions", "Snippet/IsCC", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"largetext", "Snippet/IsLarge", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"easyreader", "Snippet/IsEasyReader", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"draft", "Snippet/IsDraft", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"autosynced", "Snippet/IsAutoSynced", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"status", "Snippet/Status", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"error", "Snippet/FailureReason", ytservice.FIELD_STRING},
 	})
 
 	// set default columns
@@ -57,7 +57,7 @@ func RegisterCaptionFormat(values *ytapi.Values, table *ytservice.Table) error {
 ////////////////////////////////////////////////////////////////////////////////
 // List Captions
 
-func ListCaptions(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func ListCaptions(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)

@@ -9,24 +9,25 @@ import (
 	"strings"
 
 	"github.com/djthorpe/ytapi/ytservice"
+	"github.com/djthorpe/ytapi/ytapi"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register playlist output
 
-func RegisterPlaylistFormat(params *ytservice.Params, table *ytservice.Table) error {
+func RegisterPlaylistFormat(params *ytservice.Params, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"id", "Id", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"kind", "Kind", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"id", "Id", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"kind", "Kind", ytservice.FIELD_STRING},
 	})
-	table.RegisterPart("snippet", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"defaultLanguage", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"tags", "Snippet/Tags", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"defaultLanguage", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"tags", "Snippet/Tags", ytservice.FIELD_STRING},
 	})
 
 	// set default columns
@@ -39,7 +40,7 @@ func RegisterPlaylistFormat(params *ytservice.Params, table *ytservice.Table) er
 ////////////////////////////////////////////////////////////////////////////////
 // Returns set of playlist items for channel
 
-func ListPlaylists(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+func ListPlaylists(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
 
 	// create call for fetching playlists
 	call := service.API.Playlists.List(strings.Join(table.Parts(), ","))
@@ -61,10 +62,10 @@ func ListPlaylists(service *ytservice.Service, params *ytservice.Params, table *
 	}
 
 	// Perform channels.list and return results
-	return service.DoPlaylistsList(call, table, params.MaxResults)
+	return ytapi.DoPlaylistsList(call, table, params.MaxResults)
 }
 
-func UpdatePlaylistMetadata(service *ytservice.Service, params *ytservice.Params, table *ytservice.Table) error {
+func UpdatePlaylistMetadata(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
 
 	// create call for fetching the playlist
 	call := service.API.Playlists.List("snippet")

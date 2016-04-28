@@ -67,39 +67,39 @@ func RegisterStreamCommands() []ytapi.Command {
 ////////////////////////////////////////////////////////////////////////////////
 // Register search output format
 
-func RegisterStreamFormat(values *ytapi.Values, table *ytservice.Table) error {
+func RegisterStreamFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
 
-	table.RegisterPart("id", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"stream", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"stream", "Id", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("snippet", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"isDefaultStream", "Snippet/IsDefaultStream", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("snippet", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"isDefaultStream", "Snippet/IsDefaultStream", ytservice.FIELD_BOOLEAN},
 	})
 
-	table.RegisterPart("cdn", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"format", "Cdn/Format", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"ingestionType", "Cdn/IngestionType", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"key", "Cdn/IngestionInfo/StreamName", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"ingestionAddress", "Cdn/IngestionInfo/IngestionAddress", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"backupIngestionAddress", "Cdn/IngestionInfo/BackupIngestionAddress", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("cdn", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"format", "Cdn/Format", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"ingestionType", "Cdn/IngestionType", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"key", "Cdn/IngestionInfo/StreamName", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"ingestionAddress", "Cdn/IngestionInfo/IngestionAddress", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"backupIngestionAddress", "Cdn/IngestionInfo/BackupIngestionAddress", ytservice.FIELD_BOOLEAN},
 	})
 
-	table.RegisterPart("status", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"streamStatus", "Status/StreamStatus", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"healthStatus", "Status/HealthStatus/Status", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"lastUpdateTime", "Status/HealthStatus/LastUpdateTimeSeconds", ytservice.FIELD_NUMBER},
+	table.RegisterPart("status", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"streamStatus", "Status/StreamStatus", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"healthStatus", "Status/HealthStatus/Status", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"lastUpdateTime", "Status/HealthStatus/LastUpdateTimeSeconds", ytservice.FIELD_NUMBER},
 	})
 
-	table.RegisterPart("contentDetails", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"closedCaptionsIngestionUrl", "ContentDetails/ClosedCaptionsIngestionUrl", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"isReusable", "ContentDetails/IsReusable", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("contentDetails", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"closedCaptionsIngestionUrl", "ContentDetails/ClosedCaptionsIngestionUrl", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"isReusable", "ContentDetails/IsReusable", ytservice.FIELD_BOOLEAN},
 	})
 
 	// set default columns
@@ -112,7 +112,7 @@ func RegisterStreamFormat(values *ytapi.Values, table *ytservice.Table) error {
 ////////////////////////////////////////////////////////////////////////////////
 // LiveStreams.List
 
-func ListStreams(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func ListStreams(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
@@ -136,13 +136,13 @@ func ListStreams(service *ytservice.Service, values *ytapi.Values, table *ytserv
 	}
 
 	// Perform search, and return results
-	return service.DoStreamsList(call, table, int64(maxresults))
+	return ytapi.DoStreamsList(call, table, int64(maxresults))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // LiveStreams.Delete
 
-func DeleteStream(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func DeleteStream(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
 	channel := values.GetString(&ytapi.FlagChannel)

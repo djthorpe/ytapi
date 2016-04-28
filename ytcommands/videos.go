@@ -27,57 +27,57 @@ func RegisterVideoCommands() []ytapi.Command {
 	}
 }
 
-func RegisterVideoFormat(values *ytapi.Values, table *ytservice.Table) error {
+func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"video", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"video", "Id", ytservice.FIELD_STRING},
 	})
 
 	// snippet
-	table.RegisterPart("snippet", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"tags", "Snippet/Tags", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"category", "Snippet/CategoryId", ytservice.FIELD_NUMBER},
-		ytservice.FieldSpec{"liveBroadcastContent", "Snippet/LiveBroadcastContent", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"language", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"audioLanguage", "Snippet/DefaultAudioLanguage", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"tags", "Snippet/Tags", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"category", "Snippet/CategoryId", ytservice.FIELD_NUMBER},
+		ytapi.FieldSpec{"liveBroadcastContent", "Snippet/LiveBroadcastContent", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"language", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"audioLanguage", "Snippet/DefaultAudioLanguage", ytservice.FIELD_STRING},
 	})
 
 	// contentDetails
-	table.RegisterPart("contentDetails", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"duration", "ContentDetails/Duration", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"dimension", "ContentDetails/Dimension", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"definition", "ContentDetails/Definition", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"caption", "ContentDetails/Caption", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"licensedContent", "ContentDetails/LicensedContent", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"regionsAllowed", "ContentDetails/RegionRestriction/Allowed", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"regionsBlocked", "ContentDetails/RegionRestriction/Blocked", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"contentRating", "ContentDetails/ContentRating/YtRating", ytservice.FIELD_STRING},
+	table.RegisterPart("contentDetails", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"duration", "ContentDetails/Duration", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"dimension", "ContentDetails/Dimension", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"definition", "ContentDetails/Definition", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"caption", "ContentDetails/Caption", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"licensedContent", "ContentDetails/LicensedContent", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"regionsAllowed", "ContentDetails/RegionRestriction/Allowed", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"regionsBlocked", "ContentDetails/RegionRestriction/Blocked", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"contentRating", "ContentDetails/ContentRating/YtRating", ytservice.FIELD_STRING},
 	})
 
 	// status
-	table.RegisterPart("status", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"privacyStatus", "Status/PrivacyStatus", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"uploadStatus", "Status/UploadStatus", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"failureReason", "Status/FailureReason", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"rejectionReason", "Status/RejectionReason", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"scheduledPublishAt", "Status/PublishAt", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"license", "Status/License", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"embeddable", "Status/Embeddable", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"publicStatsViewable", "Status/PublicStatsViewable", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("status", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"privacyStatus", "Status/PrivacyStatus", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"uploadStatus", "Status/UploadStatus", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"failureReason", "Status/FailureReason", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"rejectionReason", "Status/RejectionReason", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"scheduledPublishAt", "Status/PublishAt", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"license", "Status/License", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"embeddable", "Status/Embeddable", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"publicStatsViewable", "Status/PublicStatsViewable", ytservice.FIELD_BOOLEAN},
 	})
 
 	// statistics
-	table.RegisterPart("statistics", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"viewcount", "Statistics/ViewCount", ytservice.FIELD_NUMBER},
-		ytservice.FieldSpec{"likecount", "Statistics/LikeCount", ytservice.FIELD_NUMBER},
-		ytservice.FieldSpec{"dislikecount", "Statistics/DislikeCount", ytservice.FIELD_NUMBER},
-		ytservice.FieldSpec{"favoritecount", "Statistics/FavoriteCount", ytservice.FIELD_NUMBER},
-		ytservice.FieldSpec{"commentcount", "Statistics/CommentCount", ytservice.FIELD_NUMBER},
+	table.RegisterPart("statistics", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"viewcount", "Statistics/ViewCount", ytservice.FIELD_NUMBER},
+		ytapi.FieldSpec{"likecount", "Statistics/LikeCount", ytservice.FIELD_NUMBER},
+		ytapi.FieldSpec{"dislikecount", "Statistics/DislikeCount", ytservice.FIELD_NUMBER},
+		ytapi.FieldSpec{"favoritecount", "Statistics/FavoriteCount", ytservice.FIELD_NUMBER},
+		ytapi.FieldSpec{"commentcount", "Statistics/CommentCount", ytservice.FIELD_NUMBER},
 	})
 
 	// set default columns
@@ -90,7 +90,7 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytservice.Table) error {
 ////////////////////////////////////////////////////////////////////////////////
 // Videos.list
 
-func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
@@ -121,7 +121,7 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytservi
 	// TODO: videoCategoryId
 
 	// Perform search, and return results
-	return service.DoVideosList(call, table, int64(maxresults))
+	return ytapi.DoVideosList(call, table, int64(maxresults))
 }
 
 

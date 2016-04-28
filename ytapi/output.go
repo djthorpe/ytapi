@@ -6,6 +6,8 @@ package ytapi
 
 import (
 	"fmt"
+	"reflect"
+	"errors"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +46,7 @@ func (this *Table) NewRow() *Values {
 	return row
 }
 
-// Register a part
+// Register a part & fields
 func (this *Table) RegisterPart(part string, fields []FieldSpec) {
 	for _, field := range fields {
 		_, ok := this.fields[field.Key]
@@ -55,4 +57,87 @@ func (this *Table) RegisterPart(part string, fields []FieldSpec) {
 		this.parts[field.Key] = part
 	}
 }
+
+// Set the default output columns
+func (this *Table) SetColumns(columns []string) {
+	this.colkey = columns
+	for _, key := range columns {
+		this.colmap[key] = true
+	}
+}
+
+// Return number of columns
+func (this *Table) NumberOfColumns() int {
+	return len(this.colkey)
+}
+
+// Return number of rows
+func (this *Table) NumberOfRows() int {
+	return len(this.rows)
+}
+
+// Return parts which are used in the column output
+func (this *Table) Parts() []string {
+
+	// from existing columns, determine the parts
+	var partmap = make(map[string]bool, len(this.colkey))
+	for _, key := range this.colkey {
+		value, ok := this.parts[key]
+		if ok == false {
+			panic(fmt.Sprint("Missing FieldSpec '", key, "'"))
+		}
+		partmap[value] = true
+	}
+
+	// now output part values
+	var partvalue = make([]string, 0)
+	for key, _ := range partmap {
+		partvalue = append(partvalue, key)
+	}
+
+	// return the parts
+	return partvalue
+}
+
+// Append items to the table
+func (this *Table) Append(items interface{}) error {
+	arrayType := reflect.ValueOf(items)
+	if arrayType.Kind() != reflect.Array && arrayType.Kind() != reflect.Slice {
+		return errors.New(fmt.Sprint("Append expects array type, got ", arrayType.Kind()))
+	}
+	for i := 0; i < arrayType.Len(); i++ {
+		err := this.appendItem(arrayType.Index(i))
+		if err != nil {
+			return err
+		}
+	}
+	// success
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Private implementation
+
+func (this *Table) appendItem(item reflect.Value) error {
+	// get a new row
+//	row := this.NewRow()
+	for _, key := range this.colkey {
+//		field, ok := this.fields[key]
+//		if !ok {
+//			return errors.New(fmt.Sprint("Column not specified: '", key, "'"))
+//		}
+
+		// deal with pointers to structs as well as structs
+		if item.Kind() == reflect.Ptr {
+			//row.Set(key, field.value(item.Elem()))
+			fmt.Println(key,"=>",item.Elem())
+		} else {
+			//row.Set(key, field.value(item))
+			fmt.Println(key,"=>",item)
+		}
+	}
+	// success
+	return nil
+}
+
 

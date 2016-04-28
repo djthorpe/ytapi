@@ -34,14 +34,14 @@ func RegisterLanguageRegionCommands() []ytapi.Command {
 ////////////////////////////////////////////////////////////////////////////////
 // Register output formats
 
-func RegisterLanguageFormat(values *ytapi.Values, table *ytservice.Table) error {
+func RegisterLanguageFormat(values *ytapi.Values, table *ytapi.Table) error {
 
-	table.RegisterPart("id", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"language", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"language", "Id", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("snippet", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"name", "Snippet/Name", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"name", "Snippet/Name", ytservice.FIELD_STRING},
 	})
 
 	// set default columns
@@ -52,14 +52,14 @@ func RegisterLanguageFormat(values *ytapi.Values, table *ytservice.Table) error 
 }
 
 
-func RegisterRegionFormat(values *ytapi.Values, table *ytservice.Table) error {
+func RegisterRegionFormat(values *ytapi.Values, table *ytapi.Table) error {
 
-	table.RegisterPart("id", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"country", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"country", "Id", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("snippet", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"name", "Snippet/Name", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"name", "Snippet/Name", ytservice.FIELD_STRING},
 	})
 
 	// set default columns
@@ -73,7 +73,7 @@ func RegisterRegionFormat(values *ytapi.Values, table *ytservice.Table) error {
 ////////////////////////////////////////////////////////////////////////////////
 // Languages.list
 
-func ListLanguages(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func ListLanguages(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
 	language := values.GetString(&ytapi.FlagLanguage)
@@ -102,7 +102,7 @@ func ListLanguages(service *ytservice.Service, values *ytapi.Values, table *ytse
 ////////////////////////////////////////////////////////////////////////////////
 // Regions.list
 
-func ListRegions(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func ListRegions(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
 	language := values.GetString(&ytapi.FlagLanguage)

@@ -61,49 +61,49 @@ func RegisterBroadcastCommands() []ytapi.Command {
 	}
 }
 
-func RegisterBroadcastFormat(values *ytapi.Values, table *ytservice.Table) error {
+func RegisterBroadcastFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"broadcast", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"broadcast", "Id", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("snippet", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"scheduledStartTime", "Snippet/ScheduledStartTime", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"scheduledEndTime", "Snippet/ScheduledEndTime", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"actualStartTime", "Snippet/ActualStartTime", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"actualEndTime", "Snippet/ActualEndTime", ytservice.FIELD_DATETIME},
-		ytservice.FieldSpec{"isLiveBroadcast", "Snippet/IsDefaultBroadcast", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"chat", "Snippet/LiveChatId", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"scheduledStartTime", "Snippet/ScheduledStartTime", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"scheduledEndTime", "Snippet/ScheduledEndTime", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"actualStartTime", "Snippet/ActualStartTime", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"actualEndTime", "Snippet/ActualEndTime", ytservice.FIELD_DATETIME},
+		ytapi.FieldSpec{"isLiveBroadcast", "Snippet/IsDefaultBroadcast", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"chat", "Snippet/LiveChatId", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("status", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"status", "Status/LifeCycleStatus", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"privacyStatus", "Status/PrivacyStatus", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"recordingStatus", "Status/RecordingStatus", ytservice.FIELD_STRING},
+	table.RegisterPart("status", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"status", "Status/LifeCycleStatus", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"privacyStatus", "Status/PrivacyStatus", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"recordingStatus", "Status/RecordingStatus", ytservice.FIELD_STRING},
 	})
 
-	table.RegisterPart("contentDetails", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"stream", "ContentDetails/BoundStreamId", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"enableMonitorStream", "ContentDetails/MonitorStream/EnableMonitorStream", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"broadcastStreamDelayMs", "ContentDetails/MonitorStream/BroadcastStreamDelayMs", ytservice.FIELD_NUMBER},
-		ytservice.FieldSpec{"embedHtml", "ContentDetails/MonitorStream/EmbedHtml", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"enableEmbed", "ContentDetails/EnableEmbed", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"enableDvr", "ContentDetails/EnableDvr", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"enableContentEncryption", "ContentDetails/EnableContentEncryption", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"startWithSlate", "ContentDetails/StartWithSlate", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"recordFromStart", "ContentDetails/RecordFromStart", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"enableClosedCaptions", "ContentDetails/EnableClosedCaptions", ytservice.FIELD_BOOLEAN},
-		ytservice.FieldSpec{"closedCaptionsType", "ContentDetails/ClosedCaptionsType", ytservice.FIELD_STRING},
-		ytservice.FieldSpec{"enableLowLatency", "ContentDetails/EnableLowLatency", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("contentDetails", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"stream", "ContentDetails/BoundStreamId", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"enableMonitorStream", "ContentDetails/MonitorStream/EnableMonitorStream", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"broadcastStreamDelayMs", "ContentDetails/MonitorStream/BroadcastStreamDelayMs", ytservice.FIELD_NUMBER},
+		ytapi.FieldSpec{"embedHtml", "ContentDetails/MonitorStream/EmbedHtml", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"enableEmbed", "ContentDetails/EnableEmbed", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"enableDvr", "ContentDetails/EnableDvr", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"enableContentEncryption", "ContentDetails/EnableContentEncryption", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"startWithSlate", "ContentDetails/StartWithSlate", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"recordFromStart", "ContentDetails/RecordFromStart", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"enableClosedCaptions", "ContentDetails/EnableClosedCaptions", ytservice.FIELD_BOOLEAN},
+		ytapi.FieldSpec{"closedCaptionsType", "ContentDetails/ClosedCaptionsType", ytservice.FIELD_STRING},
+		ytapi.FieldSpec{"enableLowLatency", "ContentDetails/EnableLowLatency", ytservice.FIELD_BOOLEAN},
 	})
 
-	table.RegisterPart("statistics", []ytservice.FieldSpec{
-		ytservice.FieldSpec{"chatcount", "Statistics/TotalChatCount", ytservice.FIELD_NUMBER},
+	table.RegisterPart("statistics", []ytapi.FieldSpec{
+		ytapi.FieldSpec{"chatcount", "Statistics/TotalChatCount", ytservice.FIELD_NUMBER},
 	})
 
 	// set default columns
@@ -116,7 +116,7 @@ func RegisterBroadcastFormat(values *ytapi.Values, table *ytservice.Table) error
 ////////////////////////////////////////////////////////////////////////////////
 // List Broadcasts
 
-func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
@@ -143,13 +143,13 @@ func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *yts
 	}
 
 	// Perform search, and return results
-	return service.DoBroadcastsList(call, table, int64(maxresults))
+	return ytapi.DoBroadcastsList(call, table, int64(maxresults))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Delete Broadcast
 
-func DeleteBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func DeleteBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
 	channel := values.GetString(&ytapi.FlagChannel)
@@ -181,7 +181,7 @@ func DeleteBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 ////////////////////////////////////////////////////////////////////////////////
 // Transition Broadcast
 
-func TransitionBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func TransitionBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
 	channel := values.GetString(&ytapi.FlagChannel)
@@ -216,7 +216,7 @@ func TransitionBroadcast(service *ytservice.Service, values *ytapi.Values, table
 ////////////////////////////////////////////////////////////////////////////////
 // Insert Broadcast
 
-func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytservice.Table) error {
+func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
 	channel := values.GetString(&ytapi.FlagChannel)
