@@ -79,11 +79,11 @@ func main() {
 	}
 
 	// output
-	//err = output.ASCII(os.Stdout)
-	//if err != nil {
-	//	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-	//	os.Exit(1)
-	//}
+	err = output.ASCII(os.Stdout)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 /*

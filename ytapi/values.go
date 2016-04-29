@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"time"
+	"reflect"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,15 +56,21 @@ type Defaults struct {
 ////////////////////////////////////////////////////////////////////////////////
 // Value implementation
 
-func NewValue(flag *Flag,data interface{}) (*Value,error) {
+func NewValue(flag *Flag,value reflect.Value) (*Value,error) {
 	this := new(Value)
 	this.flag = flag
 
-	fmt.Printf("%s=>%+V\n",flag.Name,data)
-
-	if err := this.Set("TEST"); err != nil {
-		return nil,err
+	switch(value.Kind()) {
+		case reflect.String:
+			if err := this.Set(value.String()); err != nil {
+				return nil,err
+			}
+		case reflect.Bool:
+			return nil,errors.New("Bool value in NewValue")
+		default:
+			return nil,errors.New("Invalid value in NewValue")
 	}
+
 	return this,nil
 }
 

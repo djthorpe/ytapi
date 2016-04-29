@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/djthorpe/ytapi/ytservice"
+	"github.com/djthorpe/ytapi/util"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -158,9 +159,9 @@ func (this *Flag) asEnum(value string) (string, error) {
 }
 
 func (this *Flag) asVideo(value string) (Video, error) {
-	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\-]{11})$", value)
+	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\-\\_]{11})$", value)
 	if matched == false {
-		return "", errors.New("Malformed video value")
+		return "", errors.New(fmt.Sprintf("Malformed video value: %s",value))
 	}
 	return Video(value), nil
 }
@@ -219,7 +220,7 @@ func (this *Flag) asRegion(value string) (Region, error) {
 }
 
 func (this *Flag) asTime(value string) (time.Time, error) {
-	datetime, err := ParseTime(value)
+	datetime, err := util.ParseTime(value)
 	if err != nil {
 		return time.Time{}, err
 	}

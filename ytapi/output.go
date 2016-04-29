@@ -7,10 +7,12 @@ package ytapi
 import (
 	"errors"
 	"fmt"
+	"io"
 	"reflect"
 	"strings"
 
 	"github.com/djthorpe/ytapi/util"
+	"github.com/olekukonko/tablewriter"	
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,6 +124,28 @@ func (this *Table) Append(items interface{}) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+func (this *Table) asStringArray(row *Values) []string {
+	values := make([]string, this.NumberOfColumns())
+	for i, key := range this.colkey {
+		field := this.fields[key]
+		values[i] = row.GetString(&field)
+	}
+	return values
+}
+
+func (this *Table) ASCII(io io.Writer) error {
+	w := tablewriter.NewWriter(io)
+	w.SetHeader(this.colkey)
+	w.SetAutoFormatHeaders(false)
+	for _, row := range this.rows {
+		w.Append(this.asStringArray(row))
+	}
+	w.Render()
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Private implementation
 
 func generatePath(parts ...string) string {
@@ -132,8 +156,22 @@ func generatePath(parts ...string) string {
 }
 
 func valueForPath(item reflect.Value,field *Flag,path []string) (*Value,error) {
-	fmt.Println("valueForPath ",field.Name,"path{",path,"}",item)
-	return NewValue(field,"01234567890")
+	value := item
+	for _, key := range path {
+		// check for invalid value
+		if value.IsValid() == false {
+			panic(fmt.Sprint("Invalid for key '", key, "' in path '",path,"', kind is ", value.Kind()))
+		}
+		if value.Kind() != reflect.Struct {
+			panic(fmt.Sprint("Non-struct for key '", key, "', kind is ", value.Kind()))
+		}
+		// Get value
+		value = value.FieldByName(key)
+		if value.Kind() == reflect.Ptr {
+			value = value.Elem()
+		}
+	}
+	return NewValue(field,value)
 }
 
 func (this *Table) appendItem(item reflect.Value) error {
