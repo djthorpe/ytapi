@@ -20,7 +20,6 @@ type Localization struct {
 	Description string
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Register channel commands
 
@@ -29,7 +28,7 @@ func RegisterChannelCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "ListChannels",
 			Description: "List channels",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagLanguage, &ytapi.FlagMaxResults },
+			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagMaxResults},
 			Setup:       RegisterChannelFormat,
 			Execute:     ListChannels,
 		},
@@ -41,51 +40,51 @@ func RegisterChannelCommands() []ytapi.Command {
 
 func RegisterChannelFormat(values *ytapi.Values, table *ytapi.Table) error {
 
-	table.RegisterPart("id", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"channel", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.Flag{
+		ytapi.Flag{Name: "channel", Path: "Id", Type: ytapi.FLAG_CHANNEL},
 	})
 
-	table.RegisterPart("snippet", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"countrycode", "Snippet/Country", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"defaultLanguage", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.Flag{
+		ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "countrycode", Path: "Snippet/Country", Type: ytapi.FLAG_REGION},
+		ytapi.Flag{Name: "defaultLanguage", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
 	})
 
-	table.RegisterPart("contentDetails", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"playlist.likes", "ContentDetails/RelatedPlaylists/Likes", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"playlist.favorites", "ContentDetails/RelatedPlaylists/Favourites", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"playlist.uploads", "ContentDetails/RelatedPlaylists/Uploads", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"playlist.watchHistory", "ContentDetails/RelatedPlaylists/WatchHistory", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"playlist.watchLater", "ContentDetails/RelatedPlaylists/WatchLater", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"googlePlusUserId", "ContentDetails/GooglePlusUserId", ytservice.FIELD_STRING},
+	table.RegisterPart("contentDetails", []ytapi.Flag{
+		ytapi.Flag{Name: "playlist.likes", Path: "ContentDetails/RelatedPlaylists/Likes", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "playlist.favorites", Path: "ContentDetails/RelatedPlaylists/Favourites", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "playlist.uploads", Path: "ContentDetails/RelatedPlaylists/Uploads", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "playlist.watchHistory", Path: "ContentDetails/RelatedPlaylists/WatchHistory", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "playlist.watchLater", Path: "ContentDetails/RelatedPlaylists/WatchLater", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "googlePlusUserId", Path: "ContentDetails/GooglePlusUserId", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("statistics", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"viewCount", "Statistics/ViewCount", ytservice.FIELD_NUMBER},
-		ytapi.FieldSpec{"commentCount", "Statistics/CommentCount", ytservice.FIELD_NUMBER},
-		ytapi.FieldSpec{"subscriberCount", "Statistics/SubscriberCount", ytservice.FIELD_NUMBER},
-		ytapi.FieldSpec{"hiddenSubscriberCount", "Statistics/HiddenSubscriberCount", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"videoCount", "Statistics/VideoCount", ytservice.FIELD_NUMBER},
+	table.RegisterPart("statistics", []ytapi.Flag{
+		ytapi.Flag{Name: "viewCount", Path: "Statistics/ViewCount", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "commentCount", Path: "Statistics/CommentCount", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "subscriberCount", Path: "Statistics/SubscriberCount", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "hiddenSubscriberCount", Path: "Statistics/HiddenSubscriberCount", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "videoCount", Path: "Statistics/VideoCount", Type: ytapi.FLAG_UINT},
 	})
 
-	table.RegisterPart("status", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"privacyStatus", "Status/PrivacyStatus", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"isLinked", "Status/IsLinked", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"longUploadsStatus", "Status/LongUploadsStatus", ytservice.FIELD_STRING},
+	table.RegisterPart("status", []ytapi.Flag{
+		ytapi.Flag{Name: "privacyStatus", Path: "Status/PrivacyStatus", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "isLinked", Path: "Status/IsLinked", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "longUploadsStatus", Path: "Status/LongUploadsStatus", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("auditDetails", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"overallGoodStanding", "AuditDetails/OverallGoodStanding", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"communityGuidelinesGoodStanding", "AuditDetails/CommunityGuidelinesGoodStanding", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"copyrightStrikesGoodStanding", "AuditDetails/CopyrightStrikesGoodStanding", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"contentIdClaimsGoodStanding", "AuditDetails/ContentIdClaimsGoodStanding", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("auditDetails", []ytapi.Flag{
+		ytapi.Flag{Name: "overallGoodStanding", Path: "AuditDetails/OverallGoodStanding", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "communityGuidelinesGoodStanding", Path: "AuditDetails/CommunityGuidelinesGoodStanding", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "copyrightStrikesGoodStanding", Path: "AuditDetails/CopyrightStrikesGoodStanding", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "contentIdClaimsGoodStanding", Path: "AuditDetails/ContentIdClaimsGoodStanding", Type: ytapi.FLAG_BOOL},
 	})
 
-	table.RegisterPart("contentOwnerDetails", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"contentowner", "ContentOwnerDetails/ContentOwner", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"timeLinked", "ContentOwnerDetails/TimeLinked", ytservice.FIELD_DATETIME},
+	table.RegisterPart("contentOwnerDetails", []ytapi.Flag{
+		ytapi.Flag{Name: "contentowner", Path: "ContentOwnerDetails/ContentOwner", Type: ytapi.FLAG_CONTENTOWNER},
+		ytapi.Flag{Name: "timeLinked", Path: "ContentOwnerDetails/TimeLinked", Type: ytapi.FLAG_TIME},
 	})
 
 	// set default columns
@@ -96,10 +95,10 @@ func RegisterChannelFormat(values *ytapi.Values, table *ytapi.Table) error {
 }
 
 func RegisterLocalizedChannelMetadataFormat(params *ytservice.Params, table *ytapi.Table) error {
-	table.RegisterPart("localizations", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"language", "Language", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"title", "Title", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"description", "Description", ytservice.FIELD_STRING},
+	table.RegisterPart("localizations", []ytapi.Flag{
+		ytapi.Flag{Name: "language", Path: "Language", Type: ytapi.FLAG_LANGUAGE},
+		ytapi.Flag{Name: "title", Path: "Title", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "description", Path: "Description", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns
@@ -111,7 +110,6 @@ func RegisterLocalizedChannelMetadataFormat(params *ytservice.Params, table *yta
 
 ////////////////////////////////////////////////////////////////////////////////
 // Channels.list
-
 
 func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
@@ -139,7 +137,6 @@ func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	// Perform search, and return results
 	return ytapi.DoChannelsList(call, table, int64(maxresults))
 }
-
 
 func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
 

@@ -19,8 +19,8 @@ func RegisterVideoCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "ListVideos",
 			Description: "List videos",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideoFilter },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideoFilter},
+			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults},
 			Setup:       RegisterVideoFormat,
 			Execute:     ListVideos,
 		},
@@ -30,58 +30,58 @@ func RegisterVideoCommands() []ytapi.Command {
 func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"video", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.Flag{
+		ytapi.Flag{Name: "video", Path: "Id", Type: ytapi.FLAG_VIDEO},
 	})
 
 	// snippet
-	table.RegisterPart("snippet", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"tags", "Snippet/Tags", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"category", "Snippet/CategoryId", ytservice.FIELD_NUMBER},
-		ytapi.FieldSpec{"liveBroadcastContent", "Snippet/LiveBroadcastContent", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"language", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"audioLanguage", "Snippet/DefaultAudioLanguage", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.Flag{
+		ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "description",Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "tags", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "category", Path: "Snippet/CategoryId", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "liveBroadcastContent", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "language", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
+		ytapi.Flag{Name: "audioLanguage", Path: "Snippet/DefaultAudioLanguage", Type: ytapi.FLAG_LANGUAGE},
 	})
 
 	// contentDetails
-	table.RegisterPart("contentDetails", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"duration", "ContentDetails/Duration", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"dimension", "ContentDetails/Dimension", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"definition", "ContentDetails/Definition", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"caption", "ContentDetails/Caption", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"licensedContent", "ContentDetails/LicensedContent", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"regionsAllowed", "ContentDetails/RegionRestriction/Allowed", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"regionsBlocked", "ContentDetails/RegionRestriction/Blocked", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"contentRating", "ContentDetails/ContentRating/YtRating", ytservice.FIELD_STRING},
+	table.RegisterPart("contentDetails", []ytapi.Flag{
+		ytapi.Flag{Name: "duration", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "dimension", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "definition", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "caption", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "licensedContent", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "regionsAllowed", Path: "ContentDetails/RegionRestriction/Allowed", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "regionsBlocked", Path: "ContentDetails/RegionRestriction/Blocked", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "contentRating", Path: "ContentDetails/ContentRating/YtRating", Type: ytapi.FLAG_STRING},
 	})
 
 	// status
-	table.RegisterPart("status", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"privacyStatus", "Status/PrivacyStatus", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"uploadStatus", "Status/UploadStatus", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"failureReason", "Status/FailureReason", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"rejectionReason", "Status/RejectionReason", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"scheduledPublishAt", "Status/PublishAt", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"license", "Status/License", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"embeddable", "Status/Embeddable", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"publicStatsViewable", "Status/PublicStatsViewable", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("status", []ytapi.Flag{
+		ytapi.Flag{Name: "privacyStatus", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "uploadStatus", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "failureReason", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "rejectionReason", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "scheduledPublishAt", Path: "Status/PublishAt", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "license", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "embeddable", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "publicStatsViewable", Type: ytapi.FLAG_BOOL},
 	})
 
 	// statistics
-	table.RegisterPart("statistics", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"viewcount", "Statistics/ViewCount", ytservice.FIELD_NUMBER},
-		ytapi.FieldSpec{"likecount", "Statistics/LikeCount", ytservice.FIELD_NUMBER},
-		ytapi.FieldSpec{"dislikecount", "Statistics/DislikeCount", ytservice.FIELD_NUMBER},
-		ytapi.FieldSpec{"favoritecount", "Statistics/FavoriteCount", ytservice.FIELD_NUMBER},
-		ytapi.FieldSpec{"commentcount", "Statistics/CommentCount", ytservice.FIELD_NUMBER},
+	table.RegisterPart("statistics", []ytapi.Flag{
+		ytapi.Flag{Name: "viewCount", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "likeCount",  Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "dislikeCount", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "favoriteCount", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "commentCount", Type: ytapi.FLAG_UINT},
 	})
 
 	// set default columns
-	table.SetColumns([]string{"video","title","privacyStatus"})
+	table.SetColumns([]string{"video", "title", "privacyStatus"})
 
 	// success
 	return nil
@@ -123,6 +123,3 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	// Perform search, and return results
 	return ytapi.DoVideosList(call, table, int64(maxresults))
 }
-
-
-

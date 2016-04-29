@@ -8,8 +8,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/djthorpe/ytapi/ytservice"
 	"github.com/djthorpe/ytapi/ytapi"
+	"github.com/djthorpe/ytapi/ytservice"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,16 +18,15 @@ import (
 func RegisterPlaylistFormat(params *ytservice.Params, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"id", "Id", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"kind", "Kind", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.Flag{
+		ytapi.Flag{Name: "id", Path: "Id", Type: ytapi.FLAG_PLAYLIST},
 	})
-	table.RegisterPart("snippet", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"defaultLanguage", "Snippet/DefaultLanguage", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"tags", "Snippet/Tags", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.Flag{
+		ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "defaultLanguage", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
+		ytapi.Flag{Name: "tags", Path: "Snippet/Tags", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns

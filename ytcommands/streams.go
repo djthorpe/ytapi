@@ -15,7 +15,7 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 
 var (
-	channelCache map[ytapi.Channel]bool // tells us we have cached keys for this channel
+	channelCache   map[ytapi.Channel]bool  // tells us we have cached keys for this channel
 	streamKeyCache map[ytapi.Stream]string // maps stream keys to id's
 )
 
@@ -28,19 +28,19 @@ func CacheStreamKeys(service *ytservice.Service) error {
 		return nil
 	}
 
-	streamKeyCache = make(map[ytapi.Stream]string,0)
-	channelCache = make(map[ytapi.Channel]bool,0)
+	streamKeyCache = make(map[ytapi.Stream]string, 0)
+	channelCache = make(map[ytapi.Channel]bool, 0)
 
 	// TODO!!!!!
 
 	return nil
 }
 
-func StreamLookup(service *ytservice.Service,value string) (string,error) {
+func StreamLookup(service *ytservice.Service, value string) (string, error) {
 	if err := CacheStreamKeys(service); err != nil {
-		return "",err
+		return "", err
 	}
-	return "",errors.New(fmt.Sprint("Stream key not found: ",value))
+	return "", errors.New(fmt.Sprint("Stream key not found: ", value))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ func RegisterStreamCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "ListStreams",
 			Description: "List streams",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagMaxResults },
+			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults},
 			Setup:       RegisterStreamFormat,
 			Execute:     ListStreams,
 		},
@@ -71,35 +71,35 @@ func RegisterStreamFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
 
-	table.RegisterPart("id", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"stream", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.Flag{
+		ytapi.Flag{Name: "stream", Path: "Id", Type: ytapi.FLAG_STREAM},
 	})
 
-	table.RegisterPart("snippet", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"isDefaultStream", "Snippet/IsDefaultStream", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("snippet", []ytapi.Flag{
+		ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "isDefaultStream", Path: "Snippet/IsDefaultStream", Type: ytapi.FLAG_BOOL},
 	})
 
-	table.RegisterPart("cdn", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"format", "Cdn/Format", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"ingestionType", "Cdn/IngestionType", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"key", "Cdn/IngestionInfo/StreamName", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"ingestionAddress", "Cdn/IngestionInfo/IngestionAddress", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"backupIngestionAddress", "Cdn/IngestionInfo/BackupIngestionAddress", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("cdn", []ytapi.Flag{
+		ytapi.Flag{Name: "format", Path: "Cdn/Format", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "ingestionType", Path: "Cdn/IngestionType", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "key", Path: "Cdn/IngestionInfo/StreamName", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "ingestionAddress", Path: "Cdn/IngestionInfo/IngestionAddress", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "backupIngestionAddress", Path: "Cdn/IngestionInfo/BackupIngestionAddress", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("status", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"streamStatus", "Status/StreamStatus", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"healthStatus", "Status/HealthStatus/Status", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"lastUpdateTime", "Status/HealthStatus/LastUpdateTimeSeconds", ytservice.FIELD_NUMBER},
+	table.RegisterPart("status", []ytapi.Flag{
+		ytapi.Flag{Name: "streamStatus", Path: "Status/StreamStatus", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "healthStatus", Path: "Status/HealthStatus/Status", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "lastUpdateTime", Path: "Status/HealthStatus/LastUpdateTimeSeconds", Type: ytapi.FLAG_UINT},
 	})
 
-	table.RegisterPart("contentDetails", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"closedCaptionsIngestionUrl", "ContentDetails/ClosedCaptionsIngestionUrl", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"isReusable", "ContentDetails/IsReusable", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("contentDetails", []ytapi.Flag{
+		ytapi.Flag{Name: "closedCaptionsIngestionUrl", Path: "ContentDetails/ClosedCaptionsIngestionUrl", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "isReusable", Path: "ContentDetails/IsReusable", Type: ytapi.FLAG_BOOL},
 	})
 
 	// set default columns
@@ -146,7 +146,7 @@ func DeleteStream(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
 	channel := values.GetString(&ytapi.FlagChannel)
-	stream,err := StreamLookup(service,values.GetString(&ytapi.FlagStream))
+	stream, err := StreamLookup(service, values.GetString(&ytapi.FlagStream))
 	if err != nil {
 		return err
 	}

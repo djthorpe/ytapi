@@ -44,6 +44,7 @@ type Flag struct {
 	Type        uint32
 	Extra       string
 	Default     string
+	Path        string
 }
 
 // Defines a command
@@ -63,41 +64,41 @@ type RegisterFunction func() []Command
 
 // Command-line flags
 var (
-	FlagDebug             = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
-	FlagCredentials       = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".credentials"}
-	FlagDefaults          = Flag{Name: "defaults", Description: "Defaults filename", Type: FLAG_STRING, Default: "defaults.json"}
-	FlagClientSecret      = Flag{Name: "clientsecret", Description: "Client secret filename", Type: FLAG_STRING, Default: "client_secret.json"}
-	FlagServiceAccount    = Flag{Name: "serviceaccount", Description: "Service account filename", Type: FLAG_STRING, Default: "service_account.json"}
-	FlagAuthToken         = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
-	FlagContentOwner      = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
-	FlagChannel           = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
-	FlagVideo             = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
-	FlagStream            = Flag{Name: "stream", Description: "Stream ID or Key", Type: FLAG_STREAM}
-	FlagLanguage          = Flag{Name: "language", Description: "Localized language", Type: FLAG_LANGUAGE}
-	FlagRegion            = Flag{Name: "region", Description: "Country region code", Type: FLAG_REGION}
-	FlagBroadcastStatus   = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
+	FlagDebug               = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
+	FlagCredentials         = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".credentials"}
+	FlagDefaults            = Flag{Name: "defaults", Description: "Defaults filename", Type: FLAG_STRING, Default: "defaults.json"}
+	FlagClientSecret        = Flag{Name: "clientsecret", Description: "Client secret filename", Type: FLAG_STRING, Default: "client_secret.json"}
+	FlagServiceAccount      = Flag{Name: "serviceaccount", Description: "Service account filename", Type: FLAG_STRING, Default: "service_account.json"}
+	FlagAuthToken           = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
+	FlagContentOwner        = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
+	FlagChannel             = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
+	FlagVideo               = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
+	FlagStream              = Flag{Name: "stream", Description: "Stream ID or Key", Type: FLAG_STREAM}
+	FlagLanguage            = Flag{Name: "language", Description: "Localized language", Type: FLAG_LANGUAGE}
+	FlagRegion              = Flag{Name: "region", Description: "Country region code", Type: FLAG_REGION}
+	FlagBroadcastStatus     = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
 	FlagBroadcastTransition = Flag{Name: "status", Description: "Broadcast transition", Type: FLAG_ENUM, Extra: "complete|live|testing"}
-	FlagMaxResults        = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
-	FlagTitle             = Flag{Name: "title", Description: "Metadata title", Type: FLAG_STRING}
-	FlagDescription       = Flag{Name: "description", Description: "Metadata description", Type: FLAG_STRING}
-	FlagPrivacyStatus     = Flag{Name: "status", Description: "Privacy status", Type: FLAG_ENUM, Extra: "private|public|unlisted"}
-	FlagStartTime         = Flag{Name: "start", Description: "Scheduled start time", Type: FLAG_TIME}
-	FlagEndTime           = Flag{Name: "end", Description: "Scheduled end time", Type: FLAG_TIME}
-	FlagDvr               = Flag{Name: "dvr", Description: "Enable DVR", Type: FLAG_BOOL}
-	FlagContentEncryption = Flag{Name: "encryption", Description: "Enable content encryption", Type: FLAG_BOOL}
-	FlagEmbed             = Flag{Name: "embed", Description: "Enable embedding", Type: FLAG_BOOL}
-	FlagRecordFromStart   = Flag{Name: "record", Description: "Enable recording", Type: FLAG_BOOL}
-	FlagStartWithSlate    = Flag{Name: "slate", Description: "Start with slate", Type: FLAG_BOOL}
-	FlagClosedCaptions    = Flag{Name: "captions", Description: "Enable closed captions", Type: FLAG_BOOL}
-    FlagMonitorStream     = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
-    FlagBroadcastDelay    = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
-	FlagLowLatency        = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
-	FlagVideoFilter       = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike"}
+	FlagMaxResults          = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
+	FlagTitle               = Flag{Name: "title", Description: "Metadata title", Type: FLAG_STRING}
+	FlagDescription         = Flag{Name: "description", Description: "Metadata description", Type: FLAG_STRING}
+	FlagPrivacyStatus       = Flag{Name: "status", Description: "Privacy status", Type: FLAG_ENUM, Extra: "private|public|unlisted"}
+	FlagStartTime           = Flag{Name: "start", Description: "Scheduled start time", Type: FLAG_TIME}
+	FlagEndTime             = Flag{Name: "end", Description: "Scheduled end time", Type: FLAG_TIME}
+	FlagDvr                 = Flag{Name: "dvr", Description: "Enable DVR", Type: FLAG_BOOL}
+	FlagContentEncryption   = Flag{Name: "encryption", Description: "Enable content encryption", Type: FLAG_BOOL}
+	FlagEmbed               = Flag{Name: "embed", Description: "Enable embedding", Type: FLAG_BOOL}
+	FlagRecordFromStart     = Flag{Name: "record", Description: "Enable recording", Type: FLAG_BOOL}
+	FlagStartWithSlate      = Flag{Name: "slate", Description: "Start with slate", Type: FLAG_BOOL}
+	FlagClosedCaptions      = Flag{Name: "captions", Description: "Enable closed captions", Type: FLAG_BOOL}
+	FlagMonitorStream       = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
+	FlagBroadcastDelay      = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
+	FlagLowLatency          = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
+	FlagVideoFilter         = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike"}
 )
 
 // Global variables
 var (
-	globalflags = []*Flag{&FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret, &FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel }
+	globalflags = []*Flag{&FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret, &FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel}
 	flagvalues  = make(map[string]*Value, 0)
 )
 
@@ -218,11 +219,11 @@ func (this *Flag) asRegion(value string) (Region, error) {
 }
 
 func (this *Flag) asTime(value string) (time.Time, error) {
-    datetime, err := ParseTime(value)
-    if err != nil {
-        return time.Time{},err
-    }
-    return datetime,nil
+	datetime, err := ParseTime(value)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return datetime, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////

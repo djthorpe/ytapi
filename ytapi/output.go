@@ -5,26 +5,22 @@
 package ytapi
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
-	"errors"
+	"strings"
+
+	"github.com/djthorpe/ytapi/util"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Field specification
-type FieldSpec struct {
-	Key  string
-	Path string
-	Type int
-}
-
-// Table object
 type Table struct {
 	colkey []string
 	colmap map[string]bool
-	fields map[string]FieldSpec
+	fields map[string]Flag
 	parts  map[string]string
+	paths  map[string][]string
 	rows   []*Values
 }
 
@@ -34,27 +30,37 @@ type Table struct {
 func NewTable() *Table {
 	this := &Table{}
 	this.colmap = make(map[string]bool)
-	this.fields = make(map[string]FieldSpec)
+	this.fields = make(map[string]Flag)
 	this.parts = make(map[string]string)
+	this.paths = make(map[string][]string)
 	return this
 }
 
 // Creates a new row object and appends it to the table
 func (this *Table) NewRow() *Values {
 	row := NewValues()
-	this.rows = append(this.rows,row)
+	this.rows = append(this.rows, row)
 	return row
 }
 
 // Register a part & fields
-func (this *Table) RegisterPart(part string, fields []FieldSpec) {
+func (this *Table) RegisterPart(part string, fields []Flag) {
 	for _, field := range fields {
-		_, ok := this.fields[field.Key]
-		if ok {
-			panic(fmt.Sprint("Duplicate key '", field.Key, "' for part '", part, "'"))
+		_, exists := this.fields[field.Name]
+		if exists {
+			panic(fmt.Sprint("Duplicate key '", field.Name, "' for part '", part, "'"))
 		}
-		this.fields[field.Key] = field
-		this.parts[field.Key] = part
+
+		// generate path if it's not defined
+		if field.Path == "" {
+			this.paths[field.Name] = strings.Split(generatePath(part,field.Name),"/")
+		} else {
+			this.paths[field.Name] = strings.Split(field.Path,"/")
+		}
+
+		// save parts
+		this.fields[field.Name] = field
+		this.parts[field.Name] = part
 	}
 }
 
@@ -84,7 +90,7 @@ func (this *Table) Parts() []string {
 	for _, key := range this.colkey {
 		value, ok := this.parts[key]
 		if ok == false {
-			panic(fmt.Sprint("Missing FieldSpec '", key, "'"))
+			panic(fmt.Sprint("Missing Flag '", key, "'"))
 		}
 		partmap[value] = true
 	}
@@ -118,26 +124,52 @@ func (this *Table) Append(items interface{}) error {
 ////////////////////////////////////////////////////////////////////////////////
 // Private implementation
 
+func generatePath(parts ...string) string {
+	for i,part := range parts {
+		parts[i] = util.UppercaseFirstLetter(part)
+	}
+	return strings.Join(parts,"/")
+}
+
+func valueForPath(item reflect.Value,field *Flag,path []string) (*Value,error) {
+	fmt.Println("valueForPath ",field.Name,"path{",path,"}",item)
+	return NewValue(field,"01234567890")
+}
+
 func (this *Table) appendItem(item reflect.Value) error {
 	// get a new row
-//	row := this.NewRow()
-	for _, key := range this.colkey {
-//		field, ok := this.fields[key]
-//		if !ok {
-//			return errors.New(fmt.Sprint("Column not specified: '", key, "'"))
-//		}
+	row := this.NewRow()
 
-		// deal with pointers to structs as well as structs
-		if item.Kind() == reflect.Ptr {
-			//row.Set(key, field.value(item.Elem()))
-			fmt.Println(key,"=>",item.Elem())
-		} else {
-			//row.Set(key, field.value(item))
-			fmt.Println(key,"=>",item)
+	// set row elements
+	for _, key := range this.colkey {
+		var value *Value
+		var err error
+
+		// get the flag for the row
+		field, exists := this.fields[key]
+		if !exists {
+			return errors.New(fmt.Sprint("Missing column: '", key, "'"))
 		}
+		path, exists := this.paths[key]
+		if !exists {
+			return errors.New(fmt.Sprint("Missing column: '", key, "'"))
+		}
+
+		// deal with pointers to items as well as items
+		if item.Kind() == reflect.Ptr {
+			value,err = valueForPath(item.Elem(),&field,path)
+		} else {
+			value,err = valueForPath(item,&field,path)
+		}
+		if err != nil {
+			return err
+		}
+
+		// set row value
+		row.Set(value)
 	}
+
 	// success
 	return nil
 }
-
 

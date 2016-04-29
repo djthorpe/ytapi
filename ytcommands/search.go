@@ -5,9 +5,9 @@
 package ytcommands
 
 import (
-	"strings"
-	"github.com/djthorpe/ytapi/ytservice"
 	"github.com/djthorpe/ytapi/ytapi"
+	"github.com/djthorpe/ytapi/ytservice"
+	"strings"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,14 +16,14 @@ import (
 func RegisterSearchFormat(params *ytservice.Params, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("snippet", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"id", "Id", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"liveBroadcastContent", "Snippet/LiveBroadcastContent", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"channel.title", "Snippet/ChannelTitle", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.Flag{
+		ytapi.Flag{Name: "id", Path: "Id", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "liveBroadcastContent", Path: "Snippet/LiveBroadcastContent", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "channel.title", Path: "Snippet/ChannelTitle", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns

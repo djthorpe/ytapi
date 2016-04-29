@@ -131,7 +131,6 @@ func DoVideosList(call *youtube.VideosListCall, table *Table, maxresults int64) 
 	return nil
 }
 
-
 func DoBroadcastsList(call *youtube.LiveBroadcastsListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""

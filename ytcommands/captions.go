@@ -27,24 +27,24 @@ func RegisterCaptionCommands() []ytapi.Command {
 func RegisterCaptionFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"caption", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.Flag{
+		ytapi.Flag{Name: "caption", Path: "Id", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("snippet", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"video", "Snippet/VideoId", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"lastUpdated", "Snippet/LastUpdated", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"captiontype", "Snippet/TrackKind", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"language", "Snippet/Language", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"name", "Snippet/Name", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"audiotype", "Snippet/AudioTrackType", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"closedcaptions", "Snippet/IsCC", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"largetext", "Snippet/IsLarge", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"easyreader", "Snippet/IsEasyReader", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"draft", "Snippet/IsDraft", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"autosynced", "Snippet/IsAutoSynced", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"status", "Snippet/Status", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"error", "Snippet/FailureReason", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.Flag{
+		ytapi.Flag{Name: "video", Path: "Snippet/VideoId", Type: ytapi.FLAG_VIDEO},
+		ytapi.Flag{Name: "lastUpdated", Path: "Snippet/LastUpdated", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "captiontype", Path: "Snippet/TrackKind", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "language", Path: "Snippet/Language", Type: ytapi.FLAG_LANGUAGE},
+		ytapi.Flag{Name: "name", Path: "Snippet/Name", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "audiotype", Path: "Snippet/AudioTrackType", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "closedcaptions", Path: "Snippet/IsCC", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "largetext", Path: "Snippet/IsLarge", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "easyreader", Path: "Snippet/IsEasyReader", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "draft", Path: "Snippet/IsDraft", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "autosynced", Path: "Snippet/IsAutoSynced", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "status", Path: "Snippet/Status", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "error", Path: "Snippet/FailureReason", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns
@@ -65,7 +65,7 @@ func ListCaptions(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	parts := "id,snippet"
 
 	// create call and set parameters
-	call := service.API.Captions.List(parts,video)
+	call := service.API.Captions.List(parts, video)
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(contentowner)
 	}

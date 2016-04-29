@@ -55,6 +55,18 @@ type Defaults struct {
 ////////////////////////////////////////////////////////////////////////////////
 // Value implementation
 
+func NewValue(flag *Flag,data interface{}) (*Value,error) {
+	this := new(Value)
+	this.flag = flag
+
+	fmt.Printf("%s=>%+V\n",flag.Name,data)
+
+	if err := this.Set("TEST"); err != nil {
+		return nil,err
+	}
+	return this,nil
+}
+
 func (this *Value) Set(value string) error {
 	var err error
 
@@ -296,14 +308,12 @@ func (this *Values) GetTimeInISOFormat(flag *Flag) string {
 	}
 }
 
-
 func (this *Values) SetFields(fieldmap map[string]*Flag) []string {
-	fields := make([]string,len(fieldmap))
-	for k,flag := range(fieldmap) {
+	fields := make([]string, len(fieldmap))
+	for k, flag := range fieldmap {
 		if this.IsSet(flag) {
-			fields = append(fields,k)
+			fields = append(fields, k)
 		}
 	}
 	return fields
 }
-

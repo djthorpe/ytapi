@@ -20,7 +20,7 @@ func RegisterBroadcastCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "ListBroadcasts",
 			Description: "List broadcasts",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagBroadcastStatus, &ytapi.FlagMaxResults},
+			Optional:    []*ytapi.Flag{&ytapi.FlagBroadcastStatus, &ytapi.FlagMaxResults},
 			Setup:       RegisterBroadcastFormat,
 			Execute:     ListBroadcasts,
 		},
@@ -63,47 +63,46 @@ func RegisterBroadcastCommands() []ytapi.Command {
 
 func RegisterBroadcastFormat(values *ytapi.Values, table *ytapi.Table) error {
 
-	// register parts
-	table.RegisterPart("id", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"broadcast", "Id", ytservice.FIELD_STRING},
+	table.RegisterPart("id", []ytapi.Flag{
+		ytapi.Flag{Name: "broadcast", Path: "Id", Type: ytapi.FLAG_VIDEO},
 	})
 
-	table.RegisterPart("snippet", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"title", "Snippet/Title", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"description", "Snippet/Description", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"channel", "Snippet/ChannelId", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"publishedAt", "Snippet/PublishedAt", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"scheduledStartTime", "Snippet/ScheduledStartTime", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"scheduledEndTime", "Snippet/ScheduledEndTime", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"actualStartTime", "Snippet/ActualStartTime", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"actualEndTime", "Snippet/ActualEndTime", ytservice.FIELD_DATETIME},
-		ytapi.FieldSpec{"isLiveBroadcast", "Snippet/IsDefaultBroadcast", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"chat", "Snippet/LiveChatId", ytservice.FIELD_STRING},
+	table.RegisterPart("snippet", []ytapi.Flag{
+		ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "scheduledStartTime", Path: "Snippet/ScheduledStartTime", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "scheduledEndTime", Path: "Snippet/ScheduledEndTime", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "actualStartTime", Path: "Snippet/ActualStartTime", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "actualEndTime", Path: "Snippet/ActualEndTime", Type: ytapi.FLAG_TIME},
+		ytapi.Flag{Name: "isLiveBroadcast", Path: "Snippet/IsDefaultBroadcast", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "chat", Path: "Snippet/LiveChatId", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("status", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"status", "Status/LifeCycleStatus", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"privacyStatus", "Status/PrivacyStatus", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"recordingStatus", "Status/RecordingStatus", ytservice.FIELD_STRING},
+	table.RegisterPart("status", []ytapi.Flag{
+		ytapi.Flag{Name: "status", Path: "Status/LifeCycleStatus", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "privacyStatus", Path: "Status/PrivacyStatus", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "recordingStatus", Path: "Status/RecordingStatus", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("contentDetails", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"stream", "ContentDetails/BoundStreamId", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"enableMonitorStream", "ContentDetails/MonitorStream/EnableMonitorStream", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"broadcastStreamDelayMs", "ContentDetails/MonitorStream/BroadcastStreamDelayMs", ytservice.FIELD_NUMBER},
-		ytapi.FieldSpec{"embedHtml", "ContentDetails/MonitorStream/EmbedHtml", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"enableEmbed", "ContentDetails/EnableEmbed", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"enableDvr", "ContentDetails/EnableDvr", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"enableContentEncryption", "ContentDetails/EnableContentEncryption", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"startWithSlate", "ContentDetails/StartWithSlate", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"recordFromStart", "ContentDetails/RecordFromStart", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"enableClosedCaptions", "ContentDetails/EnableClosedCaptions", ytservice.FIELD_BOOLEAN},
-		ytapi.FieldSpec{"closedCaptionsType", "ContentDetails/ClosedCaptionsType", ytservice.FIELD_STRING},
-		ytapi.FieldSpec{"enableLowLatency", "ContentDetails/EnableLowLatency", ytservice.FIELD_BOOLEAN},
+	table.RegisterPart("contentDetails", []ytapi.Flag{
+		ytapi.Flag{Name: "stream", Path: "ContentDetails/BoundStreamId", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "enableMonitorStream", Path: "ContentDetails/MonitorStream/EnableMonitorStream", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "broadcastStreamDelayMs", Path: "ContentDetails/MonitorStream/BroadcastStreamDelayMs", Type: ytapi.FLAG_UINT},
+		ytapi.Flag{Name: "embedHtml", Path: "ContentDetails/MonitorStream/EmbedHtml", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "enableEmbed", Path: "ContentDetails/EnableEmbed", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "enableDvr", Path: "ContentDetails/EnableDvr", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "enableContentEncryption", Path: "ContentDetails/EnableContentEncryption", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "startWithSlate", Path: "ContentDetails/StartWithSlate", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "recordFromStart", Path: "ContentDetails/RecordFromStart", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "enableClosedCaptions", Path: "ContentDetails/EnableClosedCaptions", Type: ytapi.FLAG_BOOL},
+		ytapi.Flag{Name: "closedCaptionsType", Path: "ContentDetails/ClosedCaptionsType", Type: ytapi.FLAG_STRING},
+		ytapi.Flag{Name: "enableLowLatency", Path: "ContentDetails/EnableLowLatency", Type: ytapi.FLAG_BOOL},
 	})
 
-	table.RegisterPart("statistics", []ytapi.FieldSpec{
-		ytapi.FieldSpec{"chatcount", "Statistics/TotalChatCount", ytservice.FIELD_NUMBER},
+	table.RegisterPart("statistics", []ytapi.Flag{
+		ytapi.Flag{Name: "chatcount", Path: "Statistics/TotalChatCount", Type: ytapi.FLAG_UINT},
 	})
 
 	// set default columns
