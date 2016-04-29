@@ -7,7 +7,8 @@ package main
 import (
 	"fmt"
 	"os"
-
+	"strings"
+	
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytcommands"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -52,6 +53,12 @@ func main() {
 		}
 	}
 
+	// add and remove fields from the table
+	if values.IsSet(&ytapi.FlagFields) {
+		fields := strings.Split(values.GetString(&ytapi.FlagFields),",")
+		fmt.Println("fields: ",fields)
+	}
+
 	// create the service object
 	serviceAccountPath := ytcommands.GetServiceAccountPath(values)
 	clientSecretPath := ytcommands.GetClientSecretPath(values)
@@ -81,13 +88,17 @@ func main() {
 	}
 
 	// output
-	err = output.ASCII(os.Stdout)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+	if output.NumberOfColumns() > 0 {
+		err = output.ASCII(os.Stdout)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+
+		// display usage fields
+		ytapi.UsageFields(output)
 	}
 
-	ytapi.UsageFields(output)
 }
 
 /*
