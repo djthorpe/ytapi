@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	
+	"errors"
+
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytcommands"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -56,7 +57,20 @@ func main() {
 	// add and remove fields from the table
 	if values.IsSet(&ytapi.FlagFields) {
 		fields := strings.Split(values.GetString(&ytapi.FlagFields),",")
-		fmt.Println("fields: ",fields)
+		for _,field := range(fields) {
+			var err error
+			if strings.HasPrefix(field,"+") {
+				err = output.AddColumn(field[1:])
+			} else if strings.HasPrefix(field,"-") {
+				err = output.RemoveColumn(field[1:])
+			} else {
+				err = errors.New(fmt.Sprint("Unknown field name or snippet: ",field))
+			}
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		}
 	}
 
 	// create the service object

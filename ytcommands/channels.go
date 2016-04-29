@@ -53,11 +53,11 @@ func RegisterChannelFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	table.RegisterPart("contentDetails", []*ytapi.Flag{
-		&ytapi.Flag{Name: "playlist.likes", Path: "ContentDetails/RelatedPlaylists/Likes", Type: ytapi.FLAG_UINT},
-		&ytapi.Flag{Name: "playlist.favorites", Path: "ContentDetails/RelatedPlaylists/Favourites", Type: ytapi.FLAG_UINT},
-		&ytapi.Flag{Name: "playlist.uploads", Path: "ContentDetails/RelatedPlaylists/Uploads", Type: ytapi.FLAG_UINT},
-		&ytapi.Flag{Name: "playlist.watchHistory", Path: "ContentDetails/RelatedPlaylists/WatchHistory", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "playlist.watchLater", Path: "ContentDetails/RelatedPlaylists/WatchLater", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "playlistLikes", Path: "ContentDetails/RelatedPlaylists/Likes", Type: ytapi.FLAG_PLAYLIST},
+		&ytapi.Flag{Name: "playlistFavorites", Path: "ContentDetails/RelatedPlaylists/Favourites", Type: ytapi.FLAG_PLAYLIST},
+		&ytapi.Flag{Name: "playlistUploads", Path: "ContentDetails/RelatedPlaylists/Uploads", Type: ytapi.FLAG_PLAYLIST},
+		&ytapi.Flag{Name: "playlistWatchHistory", Path: "ContentDetails/RelatedPlaylists/WatchHistory", Type: ytapi.FLAG_PLAYLIST},
+		&ytapi.Flag{Name: "playlistWatchLater", Path: "ContentDetails/RelatedPlaylists/WatchLater", Type: ytapi.FLAG_PLAYLIST},
 		&ytapi.Flag{Name: "googlePlusUserId", Path: "ContentDetails/GooglePlusUserId", Type: ytapi.FLAG_STRING},
 	})
 
@@ -117,7 +117,7 @@ func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
 	channel := values.GetString(&ytapi.FlagChannel)
-	parts := "id,snippet,status" //strings.Join(table.Parts(), ",")
+	parts := strings.Join(table.Parts(false), ",")
 
 	// create call and set parameters
 	call := service.API.Channels.List(parts)

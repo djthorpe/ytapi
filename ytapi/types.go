@@ -132,12 +132,11 @@ func (this *Flag) asChannel(value string) (Channel, error) {
 }
 
 func (this *Flag) asPlaylist(value string) (Playlist, error) {
-	// TODO: Fix this
-	matched, _ := regexp.MatchString("^PL([a-zA-Z0-9\\-]{22})$", value)
-	if matched == false {
-		return "", errors.New("Malformed playlist value")
+	matched, _ := regexp.MatchString("^(PL|UU|LL|WL|HL)([a-zA-Z0-9]{22})$", value)
+	if matched {
+		return Playlist(value), nil
 	}
-	return Playlist(value), nil
+	return "", errors.New(fmt.Sprintf("Malformed playlist value: %s",value))
 }
 
 func (this *Flag) asLanguage(value string) (Language, error) {

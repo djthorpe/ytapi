@@ -66,9 +66,16 @@ func NewValue(flag *Flag,value reflect.Value) (*Value,error) {
 				return nil,err
 			}
 		case reflect.Bool:
-			return nil,errors.New("Bool value in NewValue")
+			if err := this.Set(fmt.Sprint(value.Bool())); err != nil {
+				return nil,err
+			}
+		case reflect.Uint64:
+			// TODO FIX THIS
+			if err := this.Set(fmt.Sprint(value.Uint())); err != nil {
+				return nil,err
+			}
 		default:
-			return nil,errors.New("Invalid value in NewValue")
+			return nil,errors.New(fmt.Sprint("Invalid value kind in NewValue: ",value.Kind()))
 	}
 
 	return this,nil

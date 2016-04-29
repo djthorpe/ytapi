@@ -78,6 +78,22 @@ func (this *Table) SetColumns(columns []string) {
 	}
 }
 
+// Add a field or part to the output columns
+func (this *Table) AddColumn(name string) error {
+	_,exists := this.colmap[name]
+	if exists == false {
+		this.colkey = append(this.colkey,name)
+		this.colmap[name] = true
+	}
+	return nil
+}
+
+// Remove a field or part to the output columns
+func (this *Table) RemoveColumn(name string) error {
+	fmt.Printf("REMOVE ",name)
+	return nil
+}
+
 // Return number of columns
 func (this *Table) NumberOfColumns() int {
 	return len(this.colkey)
