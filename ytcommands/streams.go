@@ -71,35 +71,35 @@ func RegisterStreamFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
 
-	table.RegisterPart("id", []ytapi.Flag{
-		ytapi.Flag{Name: "stream", Path: "Id", Type: ytapi.FLAG_STREAM},
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "stream", Path: "Id", Type: ytapi.FLAG_STREAM},
 	})
 
-	table.RegisterPart("snippet", []ytapi.Flag{
-		ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
-		ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "isDefaultStream", Path: "Snippet/IsDefaultStream", Type: ytapi.FLAG_BOOL},
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		&ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "isDefaultStream", Path: "Snippet/IsDefaultStream", Type: ytapi.FLAG_BOOL},
 	})
 
-	table.RegisterPart("cdn", []ytapi.Flag{
-		ytapi.Flag{Name: "format", Path: "Cdn/Format", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "ingestionType", Path: "Cdn/IngestionType", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "key", Path: "Cdn/IngestionInfo/StreamName", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "ingestionAddress", Path: "Cdn/IngestionInfo/IngestionAddress", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "backupIngestionAddress", Path: "Cdn/IngestionInfo/BackupIngestionAddress", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("cdn", []*ytapi.Flag{
+		&ytapi.Flag{Name: "format", Path: "Cdn/Format", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "ingestionType", Path: "Cdn/IngestionType", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "key", Path: "Cdn/IngestionInfo/StreamName", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "ingestionAddress", Path: "Cdn/IngestionInfo/IngestionAddress", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "backupIngestionAddress", Path: "Cdn/IngestionInfo/BackupIngestionAddress", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("status", []ytapi.Flag{
-		ytapi.Flag{Name: "streamStatus", Path: "Status/StreamStatus", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "healthStatus", Path: "Status/HealthStatus/Status", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "lastUpdateTime", Path: "Status/HealthStatus/LastUpdateTimeSeconds", Type: ytapi.FLAG_UINT},
+	table.RegisterPart("status", []*ytapi.Flag{
+		&ytapi.Flag{Name: "streamStatus", Path: "Status/StreamStatus", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "healthStatus", Path: "Status/HealthStatus/Status", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "lastUpdateTime", Path: "Status/HealthStatus/LastUpdateTimeSeconds", Type: ytapi.FLAG_UINT},
 	})
 
-	table.RegisterPart("contentDetails", []ytapi.Flag{
-		ytapi.Flag{Name: "closedCaptionsIngestionUrl", Path: "ContentDetails/ClosedCaptionsIngestionUrl", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "isReusable", Path: "ContentDetails/IsReusable", Type: ytapi.FLAG_BOOL},
+	table.RegisterPart("contentDetails", []*ytapi.Flag{
+		&ytapi.Flag{Name: "closedCaptionsIngestionUrl", Path: "ContentDetails/ClosedCaptionsIngestionUrl", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "isReusable", Path: "ContentDetails/IsReusable", Type: ytapi.FLAG_BOOL},
 	})
 
 	// set default columns

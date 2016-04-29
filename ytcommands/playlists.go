@@ -18,15 +18,15 @@ import (
 func RegisterPlaylistFormat(params *ytservice.Params, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytapi.Flag{
-		ytapi.Flag{Name: "id", Path: "Id", Type: ytapi.FLAG_PLAYLIST},
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "id", Path: "Id", Type: ytapi.FLAG_PLAYLIST},
 	})
-	table.RegisterPart("snippet", []ytapi.Flag{
-		ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "defaultLanguage", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
-		ytapi.Flag{Name: "tags", Path: "Snippet/Tags", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "defaultLanguage", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
+		&ytapi.Flag{Name: "tags", Path: "Snippet/Tags", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns
@@ -42,7 +42,7 @@ func RegisterPlaylistFormat(params *ytservice.Params, table *ytapi.Table) error 
 func ListPlaylists(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
 
 	// create call for fetching playlists
-	call := service.API.Playlists.List(strings.Join(table.Parts(), ","))
+	call := service.API.Playlists.List(strings.Join(table.Parts(false), ","))
 
 	// set filter parameters
 	if params.IsValidChannel() == false {

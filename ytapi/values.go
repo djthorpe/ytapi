@@ -277,7 +277,7 @@ func (this *Values) SetDefault(flag *Flag, value string) error {
 func (this *Values) GetString(flag *Flag) string {
 	value, exists := this.values[flag]
 	if exists == false {
-		panic("Missing flag")
+		panic(fmt.Sprint("Missing flag value: ",flag.Name))
 	}
 	return value.String()
 }

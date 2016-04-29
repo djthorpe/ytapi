@@ -18,12 +18,13 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 
 type Table struct {
-	colkey []string
-	colmap map[string]bool
-	fields map[string]Flag
-	parts  map[string]string
-	paths  map[string][]string
-	rows   []*Values
+	colkey    []string
+	partorder []string
+	colmap    map[string]bool
+	fields    map[string]*Flag
+	parts     map[string]string
+	paths     map[string][]string
+	rows      []*Values
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,8 +32,9 @@ type Table struct {
 // Returns a new table object
 func NewTable() *Table {
 	this := &Table{}
+	this.partorder = make([]string,0)
 	this.colmap = make(map[string]bool)
-	this.fields = make(map[string]Flag)
+	this.fields = make(map[string]*Flag)
 	this.parts = make(map[string]string)
 	this.paths = make(map[string][]string)
 	return this
@@ -46,7 +48,7 @@ func (this *Table) NewRow() *Values {
 }
 
 // Register a part & fields
-func (this *Table) RegisterPart(part string, fields []Flag) {
+func (this *Table) RegisterPart(part string, fields []*Flag) {
 	for _, field := range fields {
 		_, exists := this.fields[field.Name]
 		if exists {
@@ -64,6 +66,8 @@ func (this *Table) RegisterPart(part string, fields []Flag) {
 		this.fields[field.Name] = field
 		this.parts[field.Name] = part
 	}
+	// append part order
+	this.partorder = append(this.partorder,part)
 }
 
 // Set the default output columns
@@ -84,8 +88,13 @@ func (this *Table) NumberOfRows() int {
 	return len(this.rows)
 }
 
-// Return parts which are used in the column output
-func (this *Table) Parts() []string {
+// Return parts which are used in the column output,
+// or if 'all' is set to true, return all parts registered in order
+func (this *Table) Parts(all bool) []string {
+	// if all parts should be returned...
+	if(all) {
+		return this.partorder
+	}
 
 	// from existing columns, determine the parts
 	var partmap = make(map[string]bool, len(this.colkey))
@@ -105,6 +114,18 @@ func (this *Table) Parts() []string {
 
 	// return the parts
 	return partvalue
+}
+
+// Return fields for a particular part
+func (this *Table) FieldsForPart(part string) []*Flag {
+	fields := make([]*Flag,0)
+	for key,value := range(this.parts) {
+		if part != value {
+			continue
+		}
+		fields = append(fields,this.fields[key])
+	}
+	return fields
 }
 
 // Append items to the table
@@ -128,8 +149,7 @@ func (this *Table) Append(items interface{}) error {
 func (this *Table) asStringArray(row *Values) []string {
 	values := make([]string, this.NumberOfColumns())
 	for i, key := range this.colkey {
-		field := this.fields[key]
-		values[i] = row.GetString(&field)
+		values[i] = row.GetString(this.fields[key])
 	}
 	return values
 }
@@ -195,9 +215,9 @@ func (this *Table) appendItem(item reflect.Value) error {
 
 		// deal with pointers to items as well as items
 		if item.Kind() == reflect.Ptr {
-			value,err = valueForPath(item.Elem(),&field,path)
+			value,err = valueForPath(item.Elem(),field,path)
 		} else {
-			value,err = valueForPath(item,&field,path)
+			value,err = valueForPath(item,field,path)
 		}
 		if err != nil {
 			return err

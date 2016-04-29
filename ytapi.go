@@ -27,11 +27,13 @@ func main() {
 		ytcommands.RegisterCaptionCommands,
 	})
 	if err != nil {
+		// Error occured in command setup
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 	if command == nil {
-		os.Exit(2)
+		// No command is to be executed, so exit
+		os.Exit(0)
 	}
 
 	// Read content owner and channel from file
@@ -84,6 +86,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+
+	ytapi.UsageFields(output)
 }
 
 /*

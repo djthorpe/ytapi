@@ -10,14 +10,16 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"fmt"
 )
 
 var (
-	TimeNow   = regexp.MustCompile("^\\s*(now)\\s*$")
-	InHours   = regexp.MustCompile("^\\s*(in)\\s+(\\d+)\\s+(h|hr|hour|hrs|hours)\\s*$")
-	InMinutes = regexp.MustCompile("^\\s*(in)\\s+(\\d+)\\s+(m|min|minute|mins|minutes)\\s*$")
-	InDays    = regexp.MustCompile("^\\s*(in)\\s+(\\d+)\\s+(d|day|day|days)\\s*$")
+	TimeNow   = regexp.MustCompile("^\\s*(NOW)\\s*$")
+	InHours   = regexp.MustCompile("^\\s*(IN)\\s+(\\d+)\\s+(H|HR|HOUR|HRS|HOURS)\\s*$")
+	InMinutes = regexp.MustCompile("^\\s*(IN)\\s+(\\d+)\\s+(M|MIN|MINUTE|MINS|MINUTES)\\s*$")
+	InDays    = regexp.MustCompile("^\\s*(IN)\\s+(\\d+)\\s+(D|DAY|DAYS)\\s*$")
 	YYYYMMDD  = regexp.MustCompile("^\\s*(\\d{4})-(\\d{2})-(\\d{2})\\s*$")
+	ISO       = time.RFC3339Nano
 )
 
 // Parse english-language dates and times. Returns the time,
@@ -26,7 +28,7 @@ var (
 func ParseTime(value string) (time.Time, error) {
 
 	// make lowercase
-	value = strings.ToLower(value)
+	value = strings.ToUpper(value)
 
 	// NOW
 	if TimeNow.MatchString(value) {
@@ -57,7 +59,12 @@ func ParseTime(value string) (time.Time, error) {
 		// add days
 		return time.Now().AddDate(0, 0, int(duration)), nil
 	}
+	// ISO format
+	t, err := time.Parse(ISO,value)
+	if err == nil {
+		return t,nil
+	}
 
 	// error
-	return time.Time{}, errors.New("Cannot parse time value")
+	return time.Time{}, errors.New(fmt.Sprint("Cannot parse time value: ",value))
 }

@@ -63,46 +63,46 @@ func RegisterBroadcastCommands() []ytapi.Command {
 
 func RegisterBroadcastFormat(values *ytapi.Values, table *ytapi.Table) error {
 
-	table.RegisterPart("id", []ytapi.Flag{
-		ytapi.Flag{Name: "broadcast", Path: "Id", Type: ytapi.FLAG_VIDEO},
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "broadcast", Path: "Id", Type: ytapi.FLAG_VIDEO},
 	})
 
-	table.RegisterPart("snippet", []ytapi.Flag{
-		ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
-		ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "scheduledStartTime", Path: "Snippet/ScheduledStartTime", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "scheduledEndTime", Path: "Snippet/ScheduledEndTime", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "actualStartTime", Path: "Snippet/ActualStartTime", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "actualEndTime", Path: "Snippet/ActualEndTime", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "isLiveBroadcast", Path: "Snippet/IsDefaultBroadcast", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "chat", Path: "Snippet/LiveChatId", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "title",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		&ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "scheduledStartTime", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "scheduledEndTime", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "actualStartTime",  Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "actualEndTime", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "defaultBroadcast", Path: "Snippet/IsDefaultBroadcast", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "chat", Path: "Snippet/LiveChatId", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("status", []ytapi.Flag{
-		ytapi.Flag{Name: "status", Path: "Status/LifeCycleStatus", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "privacyStatus", Path: "Status/PrivacyStatus", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "recordingStatus", Path: "Status/RecordingStatus", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("status", []*ytapi.Flag{
+		&ytapi.Flag{Name: "status", Path: "Status/LifeCycleStatus", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "privacyStatus", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "recordingStatus", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("contentDetails", []ytapi.Flag{
-		ytapi.Flag{Name: "stream", Path: "ContentDetails/BoundStreamId", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "enableMonitorStream", Path: "ContentDetails/MonitorStream/EnableMonitorStream", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "broadcastStreamDelayMs", Path: "ContentDetails/MonitorStream/BroadcastStreamDelayMs", Type: ytapi.FLAG_UINT},
-		ytapi.Flag{Name: "embedHtml", Path: "ContentDetails/MonitorStream/EmbedHtml", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "enableEmbed", Path: "ContentDetails/EnableEmbed", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "enableDvr", Path: "ContentDetails/EnableDvr", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "enableContentEncryption", Path: "ContentDetails/EnableContentEncryption", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "startWithSlate", Path: "ContentDetails/StartWithSlate", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "recordFromStart", Path: "ContentDetails/RecordFromStart", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "enableClosedCaptions", Path: "ContentDetails/EnableClosedCaptions", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "closedCaptionsType", Path: "ContentDetails/ClosedCaptionsType", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "enableLowLatency", Path: "ContentDetails/EnableLowLatency", Type: ytapi.FLAG_BOOL},
+	table.RegisterPart("contentDetails", []*ytapi.Flag{
+		&ytapi.Flag{Name: "stream", Path: "ContentDetails/BoundStreamId", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "enableMonitorStream", Path: "ContentDetails/MonitorStream/EnableMonitorStream", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "broadcastStreamDelayMs", Path: "ContentDetails/MonitorStream/BroadcastStreamDelayMs", Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "embedHtml", Path: "ContentDetails/MonitorStream/EmbedHtml", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "embed", Path: "ContentDetails/EnableEmbed", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "dvr", Path: "ContentDetails/EnableDvr", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "encryption", Path: "ContentDetails/EnableContentEncryption", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "slate", Path: "ContentDetails/StartWithSlate", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "record", Path: "ContentDetails/RecordFromStart", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "captions", Path: "ContentDetails/EnableClosedCaptions", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "captions.type", Path: "ContentDetails/ClosedCaptionsType", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "lowlatency", Path: "ContentDetails/EnableLowLatency", Type: ytapi.FLAG_BOOL},
 	})
 
-	table.RegisterPart("statistics", []ytapi.Flag{
-		ytapi.Flag{Name: "chatcount", Path: "Statistics/TotalChatCount", Type: ytapi.FLAG_UINT},
+	table.RegisterPart("statistics", []*ytapi.Flag{
+		&ytapi.Flag{Name: "chatcount", Path: "Statistics/TotalChatCount", Type: ytapi.FLAG_UINT},
 	})
 
 	// set default columns

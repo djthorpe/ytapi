@@ -36,12 +36,12 @@ func RegisterLanguageRegionCommands() []ytapi.Command {
 
 func RegisterLanguageFormat(values *ytapi.Values, table *ytapi.Table) error {
 
-	table.RegisterPart("id", []ytapi.Flag{
-		ytapi.Flag{Name: "language", Path: "Id", Type: ytapi.FLAG_LANGUAGE},
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "language", Path: "Id", Type: ytapi.FLAG_LANGUAGE},
 	})
 
-	table.RegisterPart("snippet", []ytapi.Flag{
-		ytapi.Flag{Name: "name", Path: "Snippet/Name", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "name", Path: "Snippet/Name", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns
@@ -53,12 +53,12 @@ func RegisterLanguageFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 func RegisterRegionFormat(values *ytapi.Values, table *ytapi.Table) error {
 
-	table.RegisterPart("id", []ytapi.Flag{
-		ytapi.Flag{Name: "country", Path: "Id", Type: ytapi.FLAG_REGION},
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "country", Path: "Id", Type: ytapi.FLAG_REGION},
 	})
 
-	table.RegisterPart("snippet", []ytapi.Flag{
-		ytapi.Flag{Name: "name", Path: "Snippet/Name", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "name", Path: "Snippet/Name", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns

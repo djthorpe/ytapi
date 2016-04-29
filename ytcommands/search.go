@@ -16,14 +16,14 @@ import (
 func RegisterSearchFormat(params *ytservice.Params, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("snippet", []ytapi.Flag{
-		ytapi.Flag{Name: "id", Path: "Id", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
-		ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "liveBroadcastContent", Path: "Snippet/LiveBroadcastContent", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "channel.title", Path: "Snippet/ChannelTitle", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "id", Path: "Id", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		&ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "liveBroadcastContent", Path: "Snippet/LiveBroadcastContent", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "channel.title", Path: "Snippet/ChannelTitle", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns
@@ -39,7 +39,7 @@ func RegisterSearchFormat(params *ytservice.Params, table *ytapi.Table) error {
 func Search(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
 
 	// create call
-	call := service.API.Search.List(strings.Join(table.Parts(), ","))
+	call := service.API.Search.List(strings.Join(table.Parts(false), ","))
 
 	// add query term
 	if params.IsEmptyQuery() == false {

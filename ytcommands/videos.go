@@ -30,54 +30,54 @@ func RegisterVideoCommands() []ytapi.Command {
 func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytapi.Flag{
-		ytapi.Flag{Name: "video", Path: "Id", Type: ytapi.FLAG_VIDEO},
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "video", Path: "Id", Type: ytapi.FLAG_VIDEO},
 	})
 
 	// snippet
-	table.RegisterPart("snippet", []ytapi.Flag{
-		ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "description",Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
-		ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "tags", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "category", Path: "Snippet/CategoryId", Type: ytapi.FLAG_UINT},
-		ytapi.Flag{Name: "liveBroadcastContent", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "language", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
-		ytapi.Flag{Name: "audioLanguage", Path: "Snippet/DefaultAudioLanguage", Type: ytapi.FLAG_LANGUAGE},
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description",Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		&ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "tags", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "category", Path: "Snippet/CategoryId", Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "liveBroadcastContent", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "language", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
+		&ytapi.Flag{Name: "audioLanguage", Path: "Snippet/DefaultAudioLanguage", Type: ytapi.FLAG_LANGUAGE},
 	})
 
 	// contentDetails
-	table.RegisterPart("contentDetails", []ytapi.Flag{
-		ytapi.Flag{Name: "duration", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "dimension", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "definition", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "caption", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "licensedContent", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "regionsAllowed", Path: "ContentDetails/RegionRestriction/Allowed", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "regionsBlocked", Path: "ContentDetails/RegionRestriction/Blocked", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "contentRating", Path: "ContentDetails/ContentRating/YtRating", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("contentDetails", []*ytapi.Flag{
+		&ytapi.Flag{Name: "duration", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "dimension", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "definition", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "caption", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "licensedContent", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "regionsAllowed", Path: "ContentDetails/RegionRestriction/Allowed", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "regionsBlocked", Path: "ContentDetails/RegionRestriction/Blocked", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "contentRating", Path: "ContentDetails/ContentRating/YtRating", Type: ytapi.FLAG_STRING},
 	})
 
 	// status
-	table.RegisterPart("status", []ytapi.Flag{
-		ytapi.Flag{Name: "privacyStatus", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "uploadStatus", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "failureReason", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "rejectionReason", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "scheduledPublishAt", Path: "Status/PublishAt", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "license", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "embeddable", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "publicStatsViewable", Type: ytapi.FLAG_BOOL},
+	table.RegisterPart("status", []*ytapi.Flag{
+		&ytapi.Flag{Name: "privacyStatus", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "uploadStatus", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "failureReason", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "rejectionReason", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "scheduledPublishAt", Path: "Status/PublishAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "license", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "embeddable", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "publicStatsViewable", Type: ytapi.FLAG_BOOL},
 	})
 
 	// statistics
-	table.RegisterPart("statistics", []ytapi.Flag{
-		ytapi.Flag{Name: "viewCount", Type: ytapi.FLAG_UINT},
-		ytapi.Flag{Name: "likeCount",  Type: ytapi.FLAG_UINT},
-		ytapi.Flag{Name: "dislikeCount", Type: ytapi.FLAG_UINT},
-		ytapi.Flag{Name: "favoriteCount", Type: ytapi.FLAG_UINT},
-		ytapi.Flag{Name: "commentCount", Type: ytapi.FLAG_UINT},
+	table.RegisterPart("statistics", []*ytapi.Flag{
+		&ytapi.Flag{Name: "viewCount", Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "likeCount",  Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "dislikeCount", Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "favoriteCount", Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "commentCount", Type: ytapi.FLAG_UINT},
 	})
 
 	// set default columns

@@ -27,24 +27,24 @@ func RegisterCaptionCommands() []ytapi.Command {
 func RegisterCaptionFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	// register parts
-	table.RegisterPart("id", []ytapi.Flag{
-		ytapi.Flag{Name: "caption", Path: "Id", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "caption", Path: "Id", Type: ytapi.FLAG_STRING},
 	})
 
-	table.RegisterPart("snippet", []ytapi.Flag{
-		ytapi.Flag{Name: "video", Path: "Snippet/VideoId", Type: ytapi.FLAG_VIDEO},
-		ytapi.Flag{Name: "lastUpdated", Path: "Snippet/LastUpdated", Type: ytapi.FLAG_TIME},
-		ytapi.Flag{Name: "captiontype", Path: "Snippet/TrackKind", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "language", Path: "Snippet/Language", Type: ytapi.FLAG_LANGUAGE},
-		ytapi.Flag{Name: "name", Path: "Snippet/Name", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "audiotype", Path: "Snippet/AudioTrackType", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "closedcaptions", Path: "Snippet/IsCC", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "largetext", Path: "Snippet/IsLarge", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "easyreader", Path: "Snippet/IsEasyReader", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "draft", Path: "Snippet/IsDraft", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "autosynced", Path: "Snippet/IsAutoSynced", Type: ytapi.FLAG_BOOL},
-		ytapi.Flag{Name: "status", Path: "Snippet/Status", Type: ytapi.FLAG_STRING},
-		ytapi.Flag{Name: "error", Path: "Snippet/FailureReason", Type: ytapi.FLAG_STRING},
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "video", Path: "Snippet/VideoId", Type: ytapi.FLAG_VIDEO},
+		&ytapi.Flag{Name: "lastUpdated",  Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "captiontype", Path: "Snippet/TrackKind", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "language", Type: ytapi.FLAG_LANGUAGE},
+		&ytapi.Flag{Name: "name", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "audiotype", Path: "Snippet/AudioTrackType", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "captions", Path: "Snippet/IsCC", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "largetext", Path: "Snippet/IsLarge", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "easyreader", Path: "Snippet/IsEasyReader", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "draft", Path: "Snippet/IsDraft", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "autosynced", Path: "Snippet/IsAutoSynced", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "status", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "error", Path: "Snippet/FailureReason", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns
