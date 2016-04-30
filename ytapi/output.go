@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"reflect"
 	"strings"
 
@@ -81,15 +82,44 @@ func (this *Table) SetColumns(columns []string) {
 // Add a field or part to the output columns
 func (this *Table) AddColumn(name string) error {
 	_,exists := this.colmap[name]
-	if exists == false {
+	if exists == true {
+		// column already exists
+		return nil
+	}
+
+	// check for column name
+	if _,exists := this.fields[name]; exists {
 		this.colkey = append(this.colkey,name)
 		this.colmap[name] = true
+		return nil
+	}
+
+	// check for snippet name
+	fields := this.FieldsForPart(name)
+	if len(fields)==0 {
+		return errors.New(fmt.Sprint("Unknown field or part name: ",name))
+	}
+
+	// add snippet columns
+	for _,field := range(fields) {
+		if err := this.RemoveColumn(field.Name); err != nil {
+			return err
+		}
+		if err := this.AddColumn(field.Name); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 // Remove a field or part to the output columns
 func (this *Table) RemoveColumn(name string) error {
+	_,exists := this.colmap[name]
+	if exists == false {
+		// column does not exist
+		return nil
+	}
+
 	fmt.Printf("REMOVE ",name)
 	return nil
 }
@@ -182,6 +212,13 @@ func (this *Table) ASCII(io io.Writer) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Logging output
+
+func (this *Table) Info(message string) {
+	fmt.Fprintln(os.Stderr,message)
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Private implementation
 
 func generatePath(parts ...string) string {
@@ -196,7 +233,7 @@ func valueForPath(item reflect.Value,field *Flag,path []string) (*Value,error) {
 	for _, key := range path {
 		// check for invalid value
 		if value.IsValid() == false {
-			panic(fmt.Sprint("Invalid for key '", key, "' in path '",path,"', kind is ", value.Kind()))
+			return nil,nil
 		}
 		if value.Kind() != reflect.Struct {
 			panic(fmt.Sprint("Non-struct for key '", key, "', kind is ", value.Kind()))
@@ -238,9 +275,9 @@ func (this *Table) appendItem(item reflect.Value) error {
 		if err != nil {
 			return err
 		}
-
-		// set row value
-		row.Set(value)
+		if value != nil {
+			row.Set(value)
+		}
 	}
 
 	// success

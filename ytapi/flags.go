@@ -27,8 +27,17 @@ type Command struct {
 	Execute     func(*ytservice.Service, *Values, *Table) error
 }
 
+// Defines a group of commands
+type Section struct {
+	Title string
+	Commands []Command
+}
+
 // Registration function
-type RegisterFunction func() []Command
+type RegisterFunction struct {
+	Title    string
+	Callback func() []Command
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +55,7 @@ var (
 	FlagChannel             = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
 
 	FlagVideo               = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
+	FlagPlaylist            = Flag{Name: "playlist", Description: "Playlist ID", Type: FLAG_PLAYLIST}
 	FlagStream              = Flag{Name: "stream", Description: "Stream ID or Key", Type: FLAG_STREAM}
 	FlagLanguage            = Flag{Name: "language", Description: "Localized language", Type: FLAG_LANGUAGE}
 	FlagRegion              = Flag{Name: "region", Description: "Country region code", Type: FLAG_REGION}
@@ -67,6 +77,14 @@ var (
 	FlagBroadcastDelay      = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
 	FlagLowLatency          = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
 	FlagVideoFilter         = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike"}
+	FlagPlaylistPosition    = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT }
+	FlagPlaylistNote        = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
+	FlagSearchQuery         = Flag{Name: "q", Description: "Search query", Type: FLAG_STRING }
+	FlagSearchOrder         = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount" }
+	FlagSearchChannelOrder  = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount|videocount" }
+	FlagSearchVideo         = Flag{Name: "video", Description: "Related video", Type: FLAG_VIDEO }
+	FlagSearchSafe          = Flag{Name: "safesearch", Description: "Restricted content filter", Type: FLAG_ENUM, Extra: "none|moderate|strict" }
+	FlagSearchBroadcastStatus = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "completed|live|upcoming" }
 )
 
 // Global variables
@@ -92,11 +110,12 @@ func usage() {
 	}
 }
 
-func usageListCommands(commands map[string]Command) {
-	fmt.Fprintf(os.Stderr, "Commands:\n\n")
-	// Output commands
-	for name, command := range commands {
-		fmt.Fprintf(os.Stderr, "\t%s\n\t\t%s\n", name, command.Description)
+func usageListCommands(sections []*Section) {
+	for _,section := range(sections) {
+		fmt.Fprintf(os.Stderr, "\n%s:\n\n", section.Title)
+		for _, command := range(section.Commands) {
+			fmt.Fprintf(os.Stderr, "\t%s\n\t\t%s\n", command.Name, command.Description)
+		}
 	}
 }
 
@@ -141,9 +160,10 @@ func addFlags(flagset *flag.FlagSet, flags []*Flag) error {
 }
 
 // Parse arguments on the command line
-func ParseFlags(funcs []RegisterFunction) (*Command, *Values, error) {
+func ParseFlags(funcs []*RegisterFunction) (*Command, *Values, error) {
 
 	commands := make(map[string]Command, 0)
+	sections := make([]*Section,0)
 	flagset := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 
 	// register global flags
@@ -153,12 +173,18 @@ func ParseFlags(funcs []RegisterFunction) (*Command, *Values, error) {
 
 	// call functions to retrieve sets of commands
 	for _, f := range funcs {
-		for _, c := range f() {
+		section := &Section{
+			Title: f.Title,
+			Commands: make([]Command,0),
+		}
+		for _, c := range f.Callback() {
 			if _, exists := commands[c.Name]; exists {
 				return nil, nil, errors.New(fmt.Sprint("Duplicate command: ", c.Name))
 			}
 			commands[c.Name] = c
+			section.Commands = append(section.Commands,commands[c.Name])
 		}
+		sections = append(sections,section)
 	}
 
 	// Retrieve last element of arguments, which is the API command
@@ -196,7 +222,7 @@ func ParseFlags(funcs []RegisterFunction) (*Command, *Values, error) {
 	// Check for -help on command line
 	if flagset.NArg() == 0 && err == flag.ErrHelp {
 		usage()
-		usageListCommands(commands)
+		usageListCommands(sections)
 		return nil, nil, nil
 	}
 

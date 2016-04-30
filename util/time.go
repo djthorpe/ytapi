@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	Empty     = regexp.MustCompile("^\\s*$")
 	TimeNow   = regexp.MustCompile("^\\s*(NOW)\\s*$")
 	InHours   = regexp.MustCompile("^\\s*(IN)\\s+(\\d+)\\s+(H|HR|HOUR|HRS|HOURS)\\s*$")
 	InMinutes = regexp.MustCompile("^\\s*(IN)\\s+(\\d+)\\s+(M|MIN|MINUTE|MINS|MINUTES)\\s*$")
@@ -25,7 +26,14 @@ var (
 // Parse english-language dates and times. Returns the time,
 // a boolean value indicating if the time-part is significant,
 // and an error if the time could not be parsed, or nil
-func ParseTime(value string) (time.Time, error) {
+// The 'notnull' boolean flag can be used to allow empty string,
+// in which case time.Time{} is returned
+func ParseTime(value string,notnull bool) (time.Time, error) {
+
+	// EMPTY
+	if (notnull==false) && Empty.MatchString(value) {
+		return time.Time{},nil
+	}
 
 	// make lowercase
 	value = strings.ToUpper(value)
@@ -66,5 +74,5 @@ func ParseTime(value string) (time.Time, error) {
 	}
 
 	// error
-	return time.Time{}, errors.New(fmt.Sprint("Cannot parse time value: ",value))
+	return time.Time{}, errors.New(fmt.Sprint("Cannot parse time value: \"",value,"\""))
 }

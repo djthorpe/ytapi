@@ -124,7 +124,7 @@ func (this *Flag) asContentOwner(value string) (ContentOwner, error) {
 }
 
 func (this *Flag) asChannel(value string) (Channel, error) {
-	matched, _ := regexp.MatchString("^UC([a-zA-Z0-9\\-]{22})$", value)
+	matched, _ := regexp.MatchString("^UC([a-zA-Z0-9\\-\\_]{22})$", value)
 	if matched == false {
 		return "", errors.New("Malformed channel value")
 	}
@@ -132,8 +132,16 @@ func (this *Flag) asChannel(value string) (Channel, error) {
 }
 
 func (this *Flag) asPlaylist(value string) (Playlist, error) {
-	matched, _ := regexp.MatchString("^(PL|UU|LL|WL|HL)([a-zA-Z0-9]{22})$", value)
+	matched, _ := regexp.MatchString("^(UU|LL|WL|HL|FL)([a-zA-Z0-9\\-]{22})$", value)
 	if matched {
+		return Playlist(value), nil
+	}
+	matched2, _ := regexp.MatchString("^PL([a-zA-Z0-9\\_\\-]{32})$", value)
+	if matched2 {
+		return Playlist(value), nil
+	}
+	matched3, _ := regexp.MatchString("^PL([A-Z0-9]{16})$", value)
+	if matched3 {
 		return Playlist(value), nil
 	}
 	return "", errors.New(fmt.Sprintf("Malformed playlist value: %s",value))
@@ -160,7 +168,7 @@ func (this *Flag) asRegion(value string) (Region, error) {
 }
 
 func (this *Flag) asTime(value string) (time.Time, error) {
-	datetime, err := util.ParseTime(value)
+	datetime, err := util.ParseTime(value,false)
 	if err != nil {
 		return time.Time{}, err
 	}

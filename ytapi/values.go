@@ -62,16 +62,23 @@ func NewValue(flag *Flag,value reflect.Value) (*Value,error) {
 
 	switch(value.Kind()) {
 		case reflect.String:
-			if err := this.Set(value.String()); err != nil {
+			if err := this.SetString(value.String()); err != nil {
 				return nil,err
 			}
 		case reflect.Bool:
-			if err := this.Set(fmt.Sprint(value.Bool())); err != nil {
+			if err := this.SetBool(value.Bool()); err != nil {
 				return nil,err
 			}
 		case reflect.Uint64:
-			// TODO FIX THIS
-			if err := this.Set(fmt.Sprint(value.Uint())); err != nil {
+			if err := this.SetUint(value.Uint()); err != nil {
+				return nil,err
+			}
+		case reflect.Int64:
+			if err := this.SetInt(value.Int()); err != nil {
+				return nil,err
+			}
+		case reflect.Slice:
+			if err := this.SetString(value.String()); err != nil {
 				return nil,err
 			}
 		default:
@@ -81,7 +88,70 @@ func NewValue(flag *Flag,value reflect.Value) (*Value,error) {
 	return this,nil
 }
 
-func (this *Value) Set(value string) error {
+func (this *Value) SetBool(value bool) error {
+	switch {
+	case this.flag.Type == FLAG_UINT:
+		if value {
+			this.v_uint = 1
+		} else {
+			this.v_uint = 0
+		}
+		break
+	case this.flag.Type == FLAG_BOOL:
+		this.v_bool = value
+		break
+	default:
+		panic("Calling SetBool with invalid type")
+	}
+	this.v_string = fmt.Sprint(value)
+	this.is_set = true
+	return nil
+}
+
+func (this *Value) SetUint(value uint64) error {
+	switch {
+	case this.flag.Type == FLAG_UINT:
+		this.v_uint = value
+		break
+	case this.flag.Type == FLAG_BOOL:
+		if value==0 {
+			this.v_bool = false
+		} else {
+			this.v_bool = true
+		}
+		break
+	default:
+		panic("Calling SetUint with invalid type")
+	}
+	this.v_string = fmt.Sprint(value)
+	this.is_set = true
+	return nil
+}
+
+func (this *Value) SetInt(value int64) error {
+	switch {
+	case this.flag.Type == FLAG_UINT:
+		if value < 0 {
+			return errors.New("SetInt: Setting negative int value in uint")
+		}
+		this.v_uint = uint64(value)
+		break
+	case this.flag.Type == FLAG_BOOL:
+		if value==0 {
+			this.v_bool = false
+		} else {
+			this.v_bool = true
+		}
+		break
+	default:
+		panic("Calling SetInt with invalid type")
+	}
+	this.v_string = fmt.Sprint(value)
+	this.is_set = true
+	return nil
+}
+
+func (this *Value) SetString(value string) error {
 	var err error
 
 	// Set string value
@@ -130,6 +200,12 @@ func (this *Value) Set(value string) error {
 
 	return err
 }
+
+// Set conforms Value to the flag interface
+func (this *Value) Set(value string) error {
+	return this.SetString(value)
+}
+
 
 func (this *Value) String() string {
 	if this.is_set {
@@ -303,6 +379,14 @@ func (this *Values) GetUint(flag *Flag) uint64 {
 		panic("Missing flag")
 	}
 	return value.Uint64()
+}
+
+func (this *Values) GetInt(flag *Flag) int64 {
+	value, exists := this.values[flag]
+	if exists == false {
+		panic("Missing flag")
+	}
+	return int64(value.Uint64())
 }
 
 func (this *Values) GetTime(flag *Flag) time.Time {

@@ -19,14 +19,18 @@ import (
 
 func main() {
 	// Parse command-line flags
-	command, values, err := ytapi.ParseFlags([]ytapi.RegisterFunction{
-		ytcommands.RegisterVideoCommands,
-		ytcommands.RegisterAuthenticateCommands,
-		ytcommands.RegisterBroadcastCommands,
-		ytcommands.RegisterStreamCommands,
-		ytcommands.RegisterChannelCommands,
-		ytcommands.RegisterLanguageRegionCommands,
-		ytcommands.RegisterCaptionCommands,
+	command, values, err := ytapi.ParseFlags([]*ytapi.RegisterFunction{
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterAuthenticateCommands, Title: "Authentication opetations" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterChannelCommands, Title: "Operations on Channels" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterChannelSectionCommands, Title: "Channel Section operations" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterVideoCommands, Title: "Operations on videos" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterBroadcastCommands, Title: "Operations on Broadcasts" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterStreamCommands, Title: "Operations on Streams" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterCaptionCommands, Title: "Operations on video captions" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterPlaylistCommands, Title: "Operations on Playlists" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterPlaylistItemCommands, Title: "Operations on PlaylistItems" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterLanguageRegionCommands, Title: "Language and Region operations" },
+		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterSearchCommands, Title: "Search operations" },
 	})
 	if err != nil {
 		// Error occured in command setup

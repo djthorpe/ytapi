@@ -6,6 +6,7 @@ package ytcommands
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -28,13 +29,9 @@ func RegisterVideoCommands() []ytapi.Command {
 }
 
 func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
-
-	// register parts
 	table.RegisterPart("id", []*ytapi.Flag{
 		&ytapi.Flag{Name: "video", Path: "Id", Type: ytapi.FLAG_VIDEO},
 	})
-
-	// snippet
 	table.RegisterPart("snippet", []*ytapi.Flag{
 		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "description",Type: ytapi.FLAG_STRING},
@@ -46,8 +43,6 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 		&ytapi.Flag{Name: "language", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
 		&ytapi.Flag{Name: "audioLanguage", Path: "Snippet/DefaultAudioLanguage", Type: ytapi.FLAG_LANGUAGE},
 	})
-
-	// contentDetails
 	table.RegisterPart("contentDetails", []*ytapi.Flag{
 		&ytapi.Flag{Name: "duration", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "dimension", Type: ytapi.FLAG_STRING},
@@ -58,8 +53,6 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 		&ytapi.Flag{Name: "regionsBlocked", Path: "ContentDetails/RegionRestriction/Blocked", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "contentRating", Path: "ContentDetails/ContentRating/YtRating", Type: ytapi.FLAG_STRING},
 	})
-
-	// status
 	table.RegisterPart("status", []*ytapi.Flag{
 		&ytapi.Flag{Name: "privacyStatus", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "uploadStatus", Type: ytapi.FLAG_STRING},
@@ -70,8 +63,6 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 		&ytapi.Flag{Name: "embeddable", Type: ytapi.FLAG_BOOL},
 		&ytapi.Flag{Name: "publicStatsViewable", Type: ytapi.FLAG_BOOL},
 	})
-
-	// statistics
 	table.RegisterPart("statistics", []*ytapi.Flag{
 		&ytapi.Flag{Name: "viewCount", Type: ytapi.FLAG_UINT},
 		&ytapi.Flag{Name: "likeCount",  Type: ytapi.FLAG_UINT},
@@ -95,7 +86,7 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	// Get parameters
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
-	parts := "id,snippet,status" //strings.Join(table.Parts(), ",")
+	parts := strings.Join(table.Parts(false), ",")
 	language := values.GetString(&ytapi.FlagLanguage)
 	region := values.GetString(&ytapi.FlagRegion)
 	filter := values.GetString(&ytapi.FlagVideoFilter)
