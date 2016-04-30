@@ -196,6 +196,7 @@ func InsertClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	}
 
 	// Handle block outside ownership
+	// TODO: always force sending the flag
 	if values.IsSet(&ytapi.FlagClaimBlockOutsideOwnership) {
 		call := service.PAPI.Claims.Patch(response.Id,&youtubepartner.Claim{
 			BlockOutsideOwnership: values.GetBool(&ytapi.FlagClaimBlockOutsideOwnership),
