@@ -53,18 +53,20 @@ var (
 	FlagFields              = Flag{Name: "fields", Description: "Comma-separated list of output fields", Type: FLAG_STRING}
 	FlagContentOwner        = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
 	FlagChannel             = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
+	FlagMaxResults          = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
 
 	FlagVideo               = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
 	FlagPlaylist            = Flag{Name: "playlist", Description: "Playlist ID", Type: FLAG_PLAYLIST}
 	FlagStream              = Flag{Name: "stream", Description: "Stream ID or Key", Type: FLAG_STREAM}
 	FlagLanguage            = Flag{Name: "language", Description: "Localized language", Type: FLAG_LANGUAGE}
 	FlagRegion              = Flag{Name: "region", Description: "Country region code", Type: FLAG_REGION}
-	FlagBroadcastStatus     = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
-	FlagBroadcastTransition = Flag{Name: "status", Description: "Broadcast transition", Type: FLAG_ENUM, Extra: "complete|live|testing"}
-	FlagMaxResults          = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
+
 	FlagTitle               = Flag{Name: "title", Description: "Metadata title", Type: FLAG_STRING}
 	FlagDescription         = Flag{Name: "description", Description: "Metadata description", Type: FLAG_STRING}
 	FlagPrivacyStatus       = Flag{Name: "status", Description: "Privacy status", Type: FLAG_ENUM, Extra: "private|public|unlisted"}
+
+	FlagBroadcastStatus     = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
+	FlagBroadcastTransition = Flag{Name: "status", Description: "Broadcast transition", Type: FLAG_ENUM, Extra: "complete|live|testing"}
 	FlagStartTime           = Flag{Name: "start", Description: "Scheduled start time", Type: FLAG_TIME}
 	FlagEndTime             = Flag{Name: "end", Description: "Scheduled end time", Type: FLAG_TIME}
 	FlagDvr                 = Flag{Name: "dvr", Description: "Enable DVR", Type: FLAG_BOOL}
@@ -76,15 +78,28 @@ var (
 	FlagMonitorStream       = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
 	FlagBroadcastDelay      = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
 	FlagLowLatency          = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
+
 	FlagVideoFilter         = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike"}
+
 	FlagPlaylistPosition    = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT }
 	FlagPlaylistNote        = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
+
 	FlagSearchQuery         = Flag{Name: "q", Description: "Search query", Type: FLAG_STRING }
 	FlagSearchOrder         = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount" }
 	FlagSearchChannelOrder  = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount|videocount" }
 	FlagSearchVideo         = Flag{Name: "video", Description: "Related video", Type: FLAG_VIDEO }
 	FlagSearchSafe          = Flag{Name: "safesearch", Description: "Restricted content filter", Type: FLAG_ENUM, Extra: "none|moderate|strict" }
 	FlagSearchBroadcastStatus = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "completed|live|upcoming" }
+
+	FlagPolicy              = Flag{Name: "policy", Description: "Policy ID", Type: FLAG_STRING }
+	FlagPolicyOrder         = Flag{Name: "order", Description: "Policy list order", Type: FLAG_ENUM, Extra: "timeUpdatedAsc|timeUpdatedDesc" }
+
+	FlagClaim               = Flag{Name: "claim", Description: "Claim ID", Type: FLAG_VIDEO }
+	FlagClaimType           = Flag{Name: "type", Description: "Claim Type: Defaults to audiovisual", Type: FLAG_ENUM, Extra: "audio|visual|audiovisual", Default: "audiovisual" }
+	FlagClaimStatus         = Flag{Name: "status", Description: "Claim Status", Type: FLAG_ENUM, Extra: "active|inactive" }
+	FlagClaimBlockOutsideOwnership = Flag{Name: "blockoutsideownership", Description: "Block viewing outside ownership regions", Type: FLAG_BOOL }
+
+	FlagAsset               = Flag{Name: "asset", Description: "Asset ID", Type: FLAG_STRING }
 )
 
 // Global variables

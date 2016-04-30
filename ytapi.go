@@ -12,6 +12,7 @@ import (
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytcommands"
+	"github.com/djthorpe/ytapi/cidcommands"
 	"github.com/djthorpe/ytapi/ytservice"
 )
 
@@ -31,6 +32,9 @@ func main() {
 		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterPlaylistItemCommands, Title: "Operations on PlaylistItems" },
 		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterLanguageRegionCommands, Title: "Language and Region operations" },
 		&ytapi.RegisterFunction{ Callback: ytcommands.RegisterSearchCommands, Title: "Search operations" },
+		&ytapi.RegisterFunction{ Callback: cidcommands.RegisterContentOwnerCommands, Title: "Content owner operations" },
+		&ytapi.RegisterFunction{ Callback: cidcommands.RegisterPolicyCommands, Title: "Policy operations" },
+		&ytapi.RegisterFunction{ Callback: cidcommands.RegisterClaimCommands, Title: "Claim operations" },
 	})
 	if err != nil {
 		// Error occured in command setup
@@ -112,40 +116,13 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+		if output.NumberOfRows() > 1 {
+			output.Info(fmt.Sprintf("%v items returned",output.NumberOfRows()))
+		}
 
-		// display usage fields
-		ytapi.UsageFields(output)
+		// TODO: display usage fields
+		//ytapi.UsageFields(output)
 	}
 
 }
 
-/*
-
-var (
-	operations = map[string]Operation{
-		"Authenticate":    Operation{NoOp, Authenticate},
-		"ListVideos":      Operation{NoOp, ytcommands.ListVideos},                                   // --channel=<id> --maxresults=<n>
-		"ListBroadcasts":  Operation{ytcommands.RegisterBroadcastFormat, ytcommands.ListBroadcasts}, // --channel=<id> --maxresults=<n>
-		"DeleteBroadcast": Operation{NoOp, ytcommands.DeleteBroadcast},                              // --video=<id>
-		"ListStreams":     Operation{ytcommands.RegisterStreamFormat, ytcommands.ListStreams},       // --channel=<id> --maxresults=<n>
-		"DeleteStream":    Operation{NoOp, ytcommands.DeleteStream},                                 // --stream=<id>
-		"Search":          Operation{ytcommands.RegisterSearchFormat, ytcommands.Search},            // --q=<string> --maxresults=<n>
-
-		// Channels
-		"ListChannels":                   Operation{ytcommands.RegisterChannelFormat, ytcommands.ListChannels}, // --channel=<id> --maxresults=<n>
-		"ListLocalizedChannelMetadata":   Operation{ytcommands.RegisterLocalizedChannelMetadataFormat, ytcommands.ListLocalizedChannelMetadata},
-		"UpdateChannelMetadata":          Operation{ytcommands.RegisterChannelFormat, ytcommands.UpdateChannelMetadata},                           // -hl=<string> -title=<string> -description=<string>
-		"UpdateLocalizedChannelMetadata": Operation{ytcommands.RegisterLocalizedChannelMetadataFormat, ytcommands.UpdateLocalizedChannelMetadata}, // -hl=<string> -title=<string> -description=<string>
-
-		// Playlists
-		"ListPlaylists":                   Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // -maxresults=<n>
-		"ListLocalizedPlaylistMetadata":   Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // -playlist=<id>
-		"CreatePlaylist":                  Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // -hl=<string> -title=<string> -description=<string> -privacystatus=(public|private|unlisted) -tags=
-		"DeletePlaylist":                  Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // -playlist=<id>
-		"UpdatePlaylistMetadata":          Operation{ytcommands.RegisterPlaylistFormat, ytcommands.UpdatePlaylistMetadata}, // -playlist=<id> -hl=<string> --title=<string> --description=<string> --status=(public|private|unlisted)
-		"UpdateLocalizedPlaylistMetadata": Operation{ytcommands.RegisterPlaylistFormat, ytcommands.ListPlaylists}, // --playlist=<id>  -hl=<string> --title=<string> --description=<string>
-
-	}
-)
-
-*/

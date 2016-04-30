@@ -10,6 +10,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/youtube/v3"
+	"github.com/djthorpe/ytapi/youtubepartner/v1"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,6 +18,7 @@ import (
 // Service object which contains the main context for calling the YouTube API
 type Service struct {
 	API            *youtube.Service
+	PAPI           *youtubepartner.Service
 	ServiceAccount bool
 	token          *oauth2.Token
 }
@@ -38,8 +40,10 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Serv
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
+	partnerservice, err := youtubepartner.New(sa_config.Client(ctx))
 	this := new(Service)
 	this.API = service
+	this.PAPI = partnerservice
 	this.ServiceAccount = true
 	return this, nil
 }
