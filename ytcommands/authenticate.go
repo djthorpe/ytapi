@@ -28,24 +28,26 @@ func userDir() string {
 	return currentUser.HomeDir
 }
 
+// TODO: Make these relative to home directory, not absolute
+
 func GetCredentialsPath(values *ytapi.Values) string {
-	return filepath.Join(userDir(), values.GetString(&ytapi.FlagCredentials))
+	return filepath.Join(userDir(),values.GetString(&ytapi.FlagCredentials))
 }
 
 func GetOAuthTokenPath(values *ytapi.Values) string {
-	return filepath.Join(GetCredentialsPath(values), values.GetString(&ytapi.FlagAuthToken))
+	return filepath.Join(GetCredentialsPath(values),values.GetString(&ytapi.FlagAuthToken))
 }
 
 func GetServiceAccountPath(values *ytapi.Values) string {
-	return filepath.Join(GetCredentialsPath(values), values.GetString(&ytapi.FlagServiceAccount))
+	return filepath.Join(GetCredentialsPath(values),values.GetString(&ytapi.FlagServiceAccount))
 }
 
 func GetClientSecretPath(values *ytapi.Values) string {
-	return filepath.Join(GetCredentialsPath(values), values.GetString(&ytapi.FlagClientSecret))
+	return filepath.Join(GetCredentialsPath(values),values.GetString(&ytapi.FlagClientSecret))
 }
 
 func GetDefaultsPath(values *ytapi.Values) string {
-	return filepath.Join(GetCredentialsPath(values), values.GetString(&ytapi.FlagDefaults))
+	return filepath.Join(GetCredentialsPath(values),values.GetString(&ytapi.FlagDefaults))
 }
 
 func GetCredentialsFolder(values *ytapi.Values) (string, error) {
