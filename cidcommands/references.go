@@ -5,8 +5,6 @@
 package cidcommands
 
 import (
-	"errors"
-	
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
 //    "github.com/djthorpe/ytapi/youtubepartner/v1"
