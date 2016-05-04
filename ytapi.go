@@ -36,6 +36,7 @@ func main() {
 		&ytapi.RegisterFunction{ Callback: cidcommands.RegisterPolicyCommands, Title: "Policy operations" },
 		&ytapi.RegisterFunction{ Callback: cidcommands.RegisterClaimCommands, Title: "Claim operations" },
         &ytapi.RegisterFunction{ Callback: cidcommands.RegisterAssetCommands, Title: "Asset operations" },
+        &ytapi.RegisterFunction{ Callback: cidcommands.RegisterReferenceCommands, Title: "Reference operations" },
 	})
 	if err != nil {
 		// Error occured in command setup
@@ -104,6 +105,11 @@ func main() {
 
 	// call command execute function
 	if command.Execute != nil {
+        // check for service account
+        if (command.ServiceAccount==true) && (service.ServiceAccount==false) {
+            fmt.Fprintf(os.Stderr, "Error: Requires a service account\n")
+            os.Exit(1)
+        }
 		if err := command.Execute(service, values, output); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)

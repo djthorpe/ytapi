@@ -21,6 +21,7 @@ import (
 type Command struct {
 	Name        string
 	Description string
+    ServiceAccount bool
 	Optional    []*Flag
 	Required    []*Flag
 	Setup       func(*Values,*Table) error
@@ -100,6 +101,7 @@ var (
 	FlagClaimBlockOutsideOwnership = Flag{Name: "blockoutsideownership", Description: "Block viewing outside ownership regions", Type: FLAG_BOOL }
 
 	FlagAsset               = Flag{Name: "asset", Description: "Asset ID", Type: FLAG_STRING }
+    FlagAssetFilter         = Flag{Name: "filter", Description: "Retrieve computed asset information or my asset information", Type: FLAG_ENUM, Extra: "none|effective|mine", Default: "none" }
 )
 
 // Global variables
@@ -144,7 +146,6 @@ func usageListCommandFlags(command Command) {
 		fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s, optional\n", f.Name, f.TypeString(), f.Description)
 	}
 }
-
 
 func UsageFields(table *Table) {
 	for _,part := range(table.Parts(true)) {

@@ -18,7 +18,8 @@ func RegisterContentOwnerCommands() []ytapi.Command {
 	return []ytapi.Command{
 		ytapi.Command{
 			Name:        "ListContentOwners",
-			Description: "List content owners",			
+			Description: "List content owners",
+            ServiceAccount: true,
 			Setup:       RegisterContentOwnerFormat,
 			Execute:     ListContentOwners,
 		},
@@ -48,12 +49,7 @@ func RegisterContentOwnerFormat(values *ytapi.Values, table *ytapi.Table) error 
 // List Content Owners
 
 func ListContentOwners(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-
-	if service.ServiceAccount == false {
-		return errors.New("Not service account authentication")
-	}
-
-	// Create call and set parameters
+    // Create call and set parameters
 	call := service.PAPI.ContentOwners.List()
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 

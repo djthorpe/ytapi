@@ -20,6 +20,7 @@ func RegisterClaimCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "Claim",
 			Description: "Create a claim between a video and asset with a defined policy",
+            ServiceAccount: true,
 			Required:    []*ytapi.Flag{ &ytapi.FlagVideo,&ytapi.FlagAsset,&ytapi.FlagPolicy },
 			Optional:    []*ytapi.Flag{ &ytapi.FlagClaimType, &ytapi.FlagClaimBlockOutsideOwnership },
 			Setup:       RegisterClaimFormat,
@@ -28,6 +29,7 @@ func RegisterClaimCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "GetClaim",
 			Description: "Get Existing claim",
+            ServiceAccount: true,
 			Required:    []*ytapi.Flag{ &ytapi.FlagClaim },
 			Setup:       RegisterClaimFormat,
 			Execute:     GetClaim,
@@ -35,6 +37,7 @@ func RegisterClaimCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "ListClaims",
 			Description: "List all claims",
+            ServiceAccount: true,
 			Optional:    []*ytapi.Flag{ &ytapi.FlagMaxResults },
 			Setup:       RegisterClaimFormat,
 			Execute:     ListClaims,
@@ -42,6 +45,7 @@ func RegisterClaimCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "ClaimHistory",
 			Description: "List history for a claim",
+            ServiceAccount: true,
 			Required:    []*ytapi.Flag{ &ytapi.FlagClaim },
 			Setup:       RegisterClaimHistoryFormat,
 			Execute:     GetClaimHistory,
@@ -49,7 +53,8 @@ func RegisterClaimCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "UpdateClaim",
 			Description: "Update an existing claim",
-			Required:    []*ytapi.Flag{ &ytapi.FlagClaim },
+            ServiceAccount: true,
+            Required:    []*ytapi.Flag{ &ytapi.FlagClaim },
 			Optional:    []*ytapi.Flag{ &ytapi.FlagClaimStatus,&ytapi.FlagPolicy,&ytapi.FlagClaimBlockOutsideOwnership },
 			Setup:       RegisterClaimFormat,
 			Execute:     PatchClaim,
@@ -112,10 +117,6 @@ func RegisterClaimHistoryFormat(values *ytapi.Values, table *ytapi.Table) error 
 // List Claims
 
 func ListClaims(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-	if service.ServiceAccount == false {
-		return errors.New("No service account authenticated")
-	}
-
 	// create call and set parameters
 	call := service.PAPI.Claims.List()
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
@@ -127,10 +128,6 @@ func ListClaims(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 // Get Claim
 
 func GetClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-	if service.ServiceAccount == false {
-		return errors.New("No service account authenticated")
-	}
-
 	// create call and set parameters
 	call := service.PAPI.Claims.Get(values.GetString(&ytapi.FlagClaim))
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
@@ -151,10 +148,6 @@ func GetClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Tab
 // Claim History
 
 func GetClaimHistory(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-	if service.ServiceAccount == false {
-		return errors.New("No service account authenticated")
-	}
-
 	// create call and set parameters
 	call := service.PAPI.ClaimHistory.Get(values.GetString(&ytapi.FlagClaim))
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
@@ -174,10 +167,6 @@ func GetClaimHistory(service *ytservice.Service, values *ytapi.Values, table *yt
 // Create Claim
 
 func InsertClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-	if service.ServiceAccount == false {
-		return errors.New("No service account authenticated")
-	}
-
 	// create call and set parameters
 	call := service.PAPI.Claims.Insert(&youtubepartner.Claim{
 		AssetId: values.GetString(&ytapi.FlagAsset),
@@ -219,11 +208,8 @@ func InsertClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 // Patch Claim
 
 func PatchClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-	if service.ServiceAccount == false {
-		return errors.New("No service account authenticated")
-	}
-
-	return nil
+    // TODO
+    return nil
 }
 
 

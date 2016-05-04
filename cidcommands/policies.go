@@ -19,6 +19,7 @@ func RegisterPolicyCommands() []ytapi.Command {
 		ytapi.Command{
 			Name:        "ListPolicies",
 			Description: "List policies",
+            ServiceAccount: true,
 			Optional:    []*ytapi.Flag{&ytapi.FlagPolicyOrder},
 			Setup:       RegisterPolicyFormat,
 			Execute:     ListPolicies,
@@ -50,11 +51,7 @@ func RegisterPolicyFormat(values *ytapi.Values, table *ytapi.Table) error {
 // List Policies
 
 func ListPolicies(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-	if service.ServiceAccount == false {
-		return errors.New("No service account authenticated")
-	}
-
-	// create call and set parameters
+    // create call and set parameters
 	call := service.PAPI.Policies.List()
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 	if values.IsSet(&ytapi.FlagPolicyOrder) {
