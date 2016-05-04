@@ -35,6 +35,7 @@ func main() {
 		&ytapi.RegisterFunction{ Callback: cidcommands.RegisterContentOwnerCommands, Title: "Content owner operations" },
 		&ytapi.RegisterFunction{ Callback: cidcommands.RegisterPolicyCommands, Title: "Policy operations" },
 		&ytapi.RegisterFunction{ Callback: cidcommands.RegisterClaimCommands, Title: "Claim operations" },
+        &ytapi.RegisterFunction{ Callback: cidcommands.RegisterAssetCommands, Title: "Asset operations" },
 	})
 	if err != nil {
 		// Error occured in command setup
