@@ -334,8 +334,13 @@ func (this *Values) WriteDefaultsToFile(filename string, perm os.FileMode) error
 	return nil
 }
 
-func (this *Values) Set(value *Value) {
+func (this *Values) Set(value *Value) (*Value) {
 	this.values[value.flag] = value
+    return value
+}
+
+func (this *Values) Get(flag *Flag) (*Value) {
+    return this.values[flag]
 }
 
 func (this *Values) IsSet(flag *Flag) bool {

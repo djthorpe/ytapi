@@ -14,30 +14,30 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register search commands
 
-func RegisterSearchCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterSearchCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "SearchVideos",
 			Description: "Search for videos based on text query or related video",
 			Optional:    []*ytapi.Flag{ &ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchOrder, &ytapi.FlagSearchVideo, &ytapi.FlagSearchSafe },
 			Setup:       RegisterVideoSearchFormat,
 			Execute:     VideoSearch,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "SearchBroadcasts",
 			Description: "Search for live broadcasts",
 			Optional:    []*ytapi.Flag{ &ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchOrder, &ytapi.FlagSearchSafe, &ytapi.FlagSearchBroadcastStatus },
 			Setup:       RegisterBroadcastSearchFormat,
 			Execute:     BroadcastSearch,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "SearchPlaylists",
 			Description: "Search for playlists based on text query",
 			Optional:    []*ytapi.Flag{ &ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchOrder, &ytapi.FlagSearchSafe },
 			Setup:       RegisterPlaylistSearchFormat,
 			Execute:     PlaylistSearch,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "SearchChannels",
 			Description: "Search for channels",
 			Optional:    []*ytapi.Flag{ &ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchChannelOrder, &ytapi.FlagSearchSafe },

@@ -23,9 +23,9 @@ type Localization struct {
 ////////////////////////////////////////////////////////////////////////////////
 // Register channel commands
 
-func RegisterChannelCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterChannelCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListChannels",
 			Description: "List channels",
 			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagMaxResults},

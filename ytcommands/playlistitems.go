@@ -18,9 +18,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register playlist item commands
 
-func RegisterPlaylistItemCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterPlaylistItemCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListPlaylistItems",
 			Description: "List playlist items for a playlist",
 			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults},
@@ -28,7 +28,7 @@ func RegisterPlaylistItemCommands() []ytapi.Command {
 			Setup:       RegisterPlaylistItemFormat,
 			Execute:     ListPlaylistItems,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "InsertVideoIntoPlaylist",
 			Description: "Inserts a video into a playlist",
 			Optional:    []*ytapi.Flag{&ytapi.FlagPlaylistPosition,&ytapi.FlagPlaylistNote},
@@ -36,7 +36,7 @@ func RegisterPlaylistItemCommands() []ytapi.Command {
 			Setup:       RegisterPlaylistItemFormat,
 			Execute:     InsertVideoIntoPlaylist,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "DeleteVideoFromPlaylist",
 			Description: "Deletes a video from a playlist",
 			Required:    []*ytapi.Flag{&ytapi.FlagPlaylist,&ytapi.FlagVideo},

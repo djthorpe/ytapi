@@ -14,9 +14,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register channel section commands
 
-func RegisterChannelSectionCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterChannelSectionCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListChannelSections",
 			Description: "List channel sections",
 			Optional:    []*ytapi.Flag{ &ytapi.FlagLanguage },

@@ -6,11 +6,11 @@ package ytcommands
 
 import (
 	"os"
-	"os/user"
 	"path/filepath"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
+    "github.com/djthorpe/ytapi/util"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,15 +23,10 @@ const (
 ////////////////////////////////////////////////////////////////////////////////
 // File methods
 
-func userDir() string {
-	currentUser, _ := user.Current()
-	return currentUser.HomeDir
-}
-
 // TODO: Make these relative to home directory, not absolute
 
 func GetCredentialsPath(values *ytapi.Values) string {
-	return filepath.Join(userDir(),values.GetString(&ytapi.FlagCredentials))
+	return filepath.Join(util.UserDir(),values.GetString(&ytapi.FlagCredentials))
 }
 
 func GetOAuthTokenPath(values *ytapi.Values) string {
@@ -67,9 +62,9 @@ func GetCredentialsFolder(values *ytapi.Values) (string, error) {
 ////////////////////////////////////////////////////////////////////////////////
 // Register search output format
 
-func RegisterAuthenticateCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterAuthenticateCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "Authenticate",
 			Description: "Authenticate against service account or channel",
 			Setup:       AuthenticateSetup,

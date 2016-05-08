@@ -12,16 +12,16 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register language commands
 
-func RegisterLanguageRegionCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterLanguageRegionCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListLanguages",
 			Description: "List languages",
 			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage},
 			Setup:       RegisterLanguageFormat,
 			Execute:     ListLanguages,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListRegions",
 			Description: "List regions",
 			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage},

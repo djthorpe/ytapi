@@ -18,16 +18,16 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register playlist commands
 
-func RegisterPlaylistCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterPlaylistCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListPlaylists",
 			Description: "List playlists for channel",
 			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagMaxResults},
 			Setup:       RegisterPlaylistFormat,
 			Execute:     ListPlaylists,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "NewPlaylist",
 			Description: "Create a new playlist",
 			Required:    []*ytapi.Flag{&ytapi.FlagTitle},
@@ -35,13 +35,13 @@ func RegisterPlaylistCommands() []ytapi.Command {
 			Setup:       RegisterPlaylistFormat,
 			Execute:     InsertPlaylist,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "DeletePlaylist",
 			Description: "Delete an existing playlist",
 			Required:    []*ytapi.Flag{&ytapi.FlagPlaylist},
 			Execute:     DeletePlaylist,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "UpdatePlaylist",
 			Description: "Update playlist metadata",
 			Required:    []*ytapi.Flag{&ytapi.FlagPlaylist},

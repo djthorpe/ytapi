@@ -13,9 +13,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register commands
 
-func RegisterClaimCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterClaimCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "Claim",
 			Description: "Create a claim between a video and asset with a defined policy",
             ServiceAccount: true,
@@ -24,7 +24,7 @@ func RegisterClaimCommands() []ytapi.Command {
 			Setup:       RegisterClaimFormat,
 			Execute:     InsertClaim,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "GetClaim",
 			Description: "Get Existing claim",
             ServiceAccount: true,
@@ -32,7 +32,7 @@ func RegisterClaimCommands() []ytapi.Command {
 			Setup:       RegisterClaimFormat,
 			Execute:     GetClaim,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListClaims",
 			Description: "List all claims",
             ServiceAccount: true,
@@ -40,7 +40,7 @@ func RegisterClaimCommands() []ytapi.Command {
 			Setup:       RegisterClaimFormat,
 			Execute:     ListClaims,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "ClaimHistory",
 			Description: "List history for a claim",
             ServiceAccount: true,
@@ -48,7 +48,7 @@ func RegisterClaimCommands() []ytapi.Command {
 			Setup:       RegisterClaimHistoryFormat,
 			Execute:     GetClaimHistory,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "UpdateClaim",
 			Description: "Update an existing claim",
             ServiceAccount: true,

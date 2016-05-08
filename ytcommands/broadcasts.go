@@ -15,35 +15,35 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register broadcast commands
 
-func RegisterBroadcastCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterBroadcastCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListBroadcasts",
 			Description: "List broadcasts",
 			Optional:    []*ytapi.Flag{&ytapi.FlagBroadcastStatus, &ytapi.FlagMaxResults},
 			Setup:       RegisterBroadcastFormat,
 			Execute:     ListBroadcasts,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "DeleteBroadcast",
 			Description: "Delete broadcast",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
 			Execute:     DeleteBroadcast,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "TransitionBroadcast",
 			Description: "Transition broadcast to another state",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagBroadcastTransition},
 			Execute:     TransitionBroadcast,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "BindBroadcast",
 			Description: "Bind or unbind broadcast to stream",
 			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagStream},
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
 			Execute:     TransitionBroadcast,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "NewBroadcast",
 			Description: "Create a new broadcast",
 			Optional: []*ytapi.Flag{

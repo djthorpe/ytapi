@@ -12,9 +12,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register commands
 
-func RegisterContentOwnerCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterContentOwnerCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListContentOwners",
 			Description: "List content owners",
             ServiceAccount: true,

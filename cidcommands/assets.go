@@ -13,9 +13,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register commands
 
-func RegisterAssetCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterAssetCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "GetAsset",
 			Description: "Get a single asset",
             ServiceAccount: true,

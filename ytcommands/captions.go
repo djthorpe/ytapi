@@ -12,9 +12,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register caption commands
 
-func RegisterCaptionCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterCaptionCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListCaptions",
 			Description: "List captions",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo},

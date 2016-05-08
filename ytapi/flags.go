@@ -10,9 +10,18 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+    "io/ioutil"
 	"strings"
 
 	"github.com/djthorpe/ytapi/ytservice"
+    "github.com/djthorpe/ytapi/util"
+)
+
+////////////////////////////////////////////////////////////////////////////////
+
+const (
+    credentialsPathMode = 0700
+    credentialsFileMode = 0644
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,20 +40,32 @@ type Command struct {
 // Defines a group of commands
 type Section struct {
 	Title string
-	Commands []Command
+	Commands []*Command
 }
 
 // Registration function
 type RegisterFunction struct {
 	Title    string
-	Callback func() []Command
+	Callback func() []*Command
+}
+
+// Set of Flags
+type FlagSet struct {
+    flagset  *flag.FlagSet
+    sections []*Section
+    Values   *Values
+    Output   *Table
+    ClientSecrets string
+    ServiceAccount string
+    AuthToken string
+    Defaults string
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // Command-line flags
 var (
-	FlagCredentials         = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".credentials"}
+	FlagCredentials         = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".ytapi"}
 	FlagDefaults            = Flag{Name: "defaults", Description: "Defaults filename", Type: FLAG_STRING, Default: "defaults.json"}
 	FlagClientSecret        = Flag{Name: "clientsecret", Description: "Client secret filename", Type: FLAG_STRING, Default: "client_secret.json"}
 	FlagServiceAccount      = Flag{Name: "serviceaccount", Description: "Service account filename", Type: FLAG_STRING, Default: "service_account.json"}
@@ -106,54 +127,279 @@ var (
 
 // Global variables
 var (
-	globalflags = []*Flag{&FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret, &FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel, &FlagFields}
-	flagvalues  = make(map[string]*Value, 0)
+	GlobalFlags = []*Flag{
+        &FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret,
+        &FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel,
+        &FlagFields,
+    }
+    ErrorUsage = errors.New("Display usage information")
+    ErrorClientSecrets = errors.New("Missing Client Secrets File")
+    ErrorServiceAccount = errors.New("Missing Service Account File and/or Content Owner")
 )
+
+////////////////////////////////////////////////////////////////////////////////
+// FlagSet implementation
+
+func NewFlagSet() (*FlagSet) {
+    this := new(FlagSet)
+    this.flagset = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+    this.flagset.SetOutput(ioutil.Discard)
+    this.sections = make([]*Section,0)
+    this.Values = NewValues()
+    this.Output = NewTable()
+    return this
+}
+
+func (this *FlagSet) AddFlag(flag *Flag) (error) {
+
+    // check for flag name clash
+    if this.flagset.Lookup(flag.Name) != nil {
+        return errors.New(fmt.Sprint("Duplicate flag: ", flag.Name))
+    }
+
+    // set flag
+    value := this.Values.Set(&Value{flag: flag})
+    this.flagset.Var(value,flag.Name,flag.Description)
+
+    // success
+    return nil
+}
+
+func (this *FlagSet) AddFlags(flags []*Flag) (error) {
+    for _,flag := range flags {
+        if err := this.AddFlag(flag); err != nil {
+            return err
+        }
+    }
+    // success
+    return nil
+}
+
+func (this *FlagSet) RegisterCommands(funcs []*RegisterFunction) (error) {
+    var commands map[string]bool = make(map[string]bool,0)
+
+    // call functions to retrieve sets of commands
+    for _, f := range funcs {
+        section := &Section{
+            Title: f.Title,
+            Commands: make([]*Command,0),
+        }
+        for _, c := range f.Callback() {
+            // check for existing command
+            if _,exists := commands[c.Name]; exists {
+                return errors.New(fmt.Sprint("Duplicate command: ", c.Name))
+            }
+            // or else add to list of sections
+            section.Commands = append(section.Commands,c)
+            commands[c.Name] = true
+        }
+        this.sections = append(this.sections,section)
+    }
+
+    // Success
+    return nil
+}
+
+func (this *FlagSet) GetCommandFromName(name string) (*Command,error) {
+    for _,section := range this.sections {
+        for _,command := range section.Commands {
+            if command.Name == name {
+                return command,nil
+            }
+        }
+    }
+    return nil,errors.New(fmt.Sprint("Invalid command: ", name))
+}
+
+func (this *FlagSet) setPaths() (error) {
+    // get credentials path, make it if it doesn't exist
+    credentialsPath,exists := util.ResolvePath(this.Values.GetString(&FlagCredentials),util.UserDir())
+    if exists == false {
+        if err := os.Mkdir(credentialsPath, credentialsPathMode); err != nil {
+            return err
+        }
+    }
+
+    // client secrets
+    clientSecretsPath,exists := util.ResolvePath(this.Values.GetString(&FlagClientSecret),credentialsPath)
+    if exists != true {
+        return ErrorClientSecrets
+    } else {
+        this.ClientSecrets = clientSecretsPath
+    }
+
+    // service account
+    serviceAccountPath,exists := util.ResolvePath(this.Values.GetString(&FlagServiceAccount),credentialsPath)
+    if exists {
+        this.ServiceAccount = serviceAccountPath
+    }
+
+    // oauth token
+    authTokenPath,exists := util.ResolvePath(this.Values.GetString(&FlagAuthToken),credentialsPath)
+    this.AuthToken = authTokenPath
+
+    // defaults file
+    defaultsPath,exists := util.ResolvePath(this.Values.GetString(&FlagDefaults),credentialsPath)
+    this.Defaults = defaultsPath
+
+    // success
+    return nil
+}
+
+func (this *FlagSet) Parse() (*Command,error) {
+    var command *Command
+    var err error
+
+
+    // Add global flags
+    if err := this.AddFlags(GlobalFlags); err != nil {
+        return nil,err
+    }
+
+    // Determine the command which will be used to add additional flags
+    if len(os.Args) < 2 {
+        return nil,ErrorUsage
+    }
+    lastarg := os.Args[len(os.Args)-1]
+    if strings.HasPrefix(lastarg,"-") == false {
+        command, err = this.GetCommandFromName(lastarg)
+        if err != nil {
+            return nil,err
+        }
+    }
+
+    // Add additional optional and required flags
+    if command != nil {
+        if err := this.AddFlags(command.Optional); err != nil {
+            return command, err
+        }
+        if err := this.AddFlags(command.Required); err != nil {
+            return command, err
+        }
+    }
+
+    // Set empty usage function
+    this.flagset.Usage = func() {}
+
+    // Set flag values
+    err = this.flagset.Parse(os.Args[1:])
+
+    // Check for -help on command line
+    if this.flagset.NArg() == 0 && err == flag.ErrHelp {
+        return nil, ErrorUsage
+    }
+    // Check for none or too many arguments
+    if this.flagset.NArg() == 0 {
+        return nil, errors.New("Missing command")
+    }
+    if this.flagset.NArg() > 1 && err == nil {
+        return nil, errors.New(fmt.Sprint("Too many arguments on command line: ", this.flagset.Args()))
+    }
+    if command == nil {
+        return nil,ErrorUsage
+    }
+
+    // Set paths for various files
+    err2 := this.setPaths()
+    if err == nil && err2 != nil {
+        err = err2
+    }
+
+    // setup output
+    if command.Setup != nil {
+        if err := command.Setup(this.Values, this.Output); err != nil {
+            return command,err
+        }
+    }
+
+    // check for -help <Command>
+    if err == flag.ErrHelp {
+        return command,ErrorUsage
+    }
+    // general caught errors
+    if err != nil {
+        return command,err
+    }
+
+    // Look for missing required flags
+    for _, flag := range command.Required {
+        if this.Values.IsSet(flag) == false {
+            return nil, errors.New(fmt.Sprint("Missing required flag: ", flag.Name))
+        }
+    }
+
+    // success
+    return command,nil
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Usage
 
-func usage() {
+func (this *FlagSet) Usage() {
 	execname := filepath.Base(os.Args[0])
 	fmt.Fprintf(os.Stderr, "Usage of %s:\n\n", execname)
 	fmt.Fprintf(os.Stderr, "\t%s -help\n", execname)
 	fmt.Fprintf(os.Stderr, "\t%s -help <command>\n", execname)
 	fmt.Fprintf(os.Stderr, "\t%s <flags> <command>\n", execname)
+}
 
+func (this *FlagSet) UsageGlobalFlags() {
 	// Output globals
 	fmt.Fprintf(os.Stderr, "\nGlobal flags:\n\n")
-	for _, f := range globalflags {
-		fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s\n", f.Name, f.TypeString(), f.Description)
+	for _, f := range GlobalFlags {
+        // skip content owner flag if no service account
+        if f == &FlagContentOwner && this.ServiceAccount == "" {
+            continue
+        }
+        // output flag description
+		fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s", f.Name, f.TypeString(), f.Description)
+        if f.Default != "" {
+            fmt.Fprintf(os.Stderr, " (default: \"%s\")",f.Default)
+        }
+        fmt.Fprint(os.Stderr, "\n")
 	}
 }
 
-func usageListCommands(sections []*Section) {
-	for _,section := range(sections) {
+func (this *FlagSet) UsageCommand(command *Command) {
+    fmt.Fprintf(os.Stderr, "\nFlags for %s:\n\n", command.Name)
+    // Output flags
+    for _, f := range command.Required {
+        fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s, required\n", f.Name, f.TypeString(), f.Description)
+    }
+    for _, f := range command.Optional {
+        fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s, optional\n", f.Name, f.TypeString(), f.Description)
+    }
+}
+
+// Output a list of possible commands, grouped by section. Will not display
+// commands which are only to be used for service accounts, if no service
+// account is installed
+func (this *FlagSet) UsageCommandList() {
+	for _,section := range(this.sections) {
+        var commands []*Command = make([]*Command,0)
+        for _, command := range(section.Commands) {
+            if command.ServiceAccount && this.ServiceAccount == "" {
+                continue
+            }
+            commands = append(commands,command)
+        }
+        if len(commands) == 0 {
+            continue
+        }
 		fmt.Fprintf(os.Stderr, "\n%s:\n\n", section.Title)
-		for _, command := range(section.Commands) {
+		for _, command := range(commands) {
 			fmt.Fprintf(os.Stderr, "\t%s\n\t\t%s\n", command.Name, command.Description)
 		}
 	}
 }
 
-func usageListCommandFlags(command Command) {
-	fmt.Fprintf(os.Stderr, "\nFlags for %s:\n\n", command.Name)
-	// Output flags
-	for _, f := range command.Required {
-		fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s, required\n", f.Name, f.TypeString(), f.Description)
-	}
-	for _, f := range command.Optional {
-		fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s, optional\n", f.Name, f.TypeString(), f.Description)
-	}
-}
-
-func UsageFields(table *Table) {
-	for _,part := range(table.Parts(true)) {
-		fields := table.FieldsForPart(part)
+func (this *FlagSet) UsageFields() {
+	for _,part := range(this.Output.Parts(true)) {
+		fields := this.Output.FieldsForPart(part)
 		if len(fields) == 0 {
 			continue
 		}
-		fmt.Fprintf(os.Stderr, "\nFields for %s:\n\n", part)
+		fmt.Fprintf(os.Stderr, "\nFields for '%s':\n\n", part)
 		for _,field := range(fields) {
 			fmt.Fprintf(os.Stderr, "\t%s (%s)\n",field.Name,field.TypeString())
 		}
@@ -161,125 +407,33 @@ func UsageFields(table *Table) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Parse Flags
+// Execute command, display output
 
-func addFlags(flagset *flag.FlagSet, flags []*Flag) error {
-	for _, f := range flags {
-		if _, exists := flagvalues[f.Name]; exists {
-			return errors.New(fmt.Sprint("Duplicate flag: ", f.Name))
-		}
-		flagvalues[f.Name] = &Value{flag: f}
-		flagset.Var(flagvalues[f.Name], f.Name, f.Description)
-	}
-	// success
-	return nil
+func (this *FlagSet) ExecuteCommand(command *Command,service *ytservice.Service) (error) {
+    // check for service account and return error if command can't be executed
+    if command.ServiceAccount && (service.ServiceAccount==false) {
+        return ErrorServiceAccount
+    }
+
+    // execute the command
+    if err := command.Execute(service, this.Values, this.Output); err != nil {
+        return err
+    }
+
+    // return success
+    return nil
 }
 
-// Parse arguments on the command line
-func ParseFlags(funcs []*RegisterFunction) (*Command, *Values, error) {
-
-	commands := make(map[string]Command, 0)
-	sections := make([]*Section,0)
-	flagset := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
-
-	// register global flags
-	if err := addFlags(flagset, globalflags); err != nil {
-		return nil, nil, err
-	}
-
-	// call functions to retrieve sets of commands
-	for _, f := range funcs {
-		section := &Section{
-			Title: f.Title,
-			Commands: make([]Command,0),
-		}
-		for _, c := range f.Callback() {
-			if _, exists := commands[c.Name]; exists {
-				return nil, nil, errors.New(fmt.Sprint("Duplicate command: ", c.Name))
-			}
-			commands[c.Name] = c
-			section.Commands = append(section.Commands,commands[c.Name])
-		}
-		sections = append(sections,section)
-	}
-
-	// Retrieve last element of arguments, which is the API command
-	if len(os.Args) < 2 {
-		usage()
-		return nil, nil, nil
-	}
-
-	var command Command
-
-	// Get command from command line
-	lastarg := os.Args[len(os.Args)-1]
-	if strings.HasPrefix(lastarg, "-") == false {
-		var exists bool
-		command, exists = commands[lastarg]
-		if exists == false {
-			return nil, nil, errors.New(fmt.Sprint("Invalid command: ", lastarg))
-		}
-
-		// Register flag values for command
-		if err := addFlags(flagset, command.Optional); err != nil {
-			return nil, nil, err
-		}
-		if err := addFlags(flagset, command.Required); err != nil {
-			return nil, nil, err
-		}
-	}
-
-	// Set empty usage function
-	flagset.Usage = func() {}
-
-	// Set flags
-	err := flagset.Parse(os.Args[1:])
-
-	// Check for -help on command line
-	if flagset.NArg() == 0 && err == flag.ErrHelp {
-		usage()
-		usageListCommands(sections)
-		return nil, nil, nil
-	}
-
-	// Check for none or too many arguments
-	if flagset.NArg() == 0 {
-		return nil, nil, errors.New("Missing command")
-	}
-	if flagset.NArg() > 1 && err == nil {
-		return nil, nil, errors.New(fmt.Sprint("Too many arguments on command line: ", flagset.Args()))
-	}
-
-	// Check for -help on command line, or any other error from the Parse() method
-	if err == flag.ErrHelp {
-		usage()
-		usageListCommandFlags(command)
-		return nil, nil, nil
-	}
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// Check for empty command
-	if command.Name == "" {
-		usage()
-		return nil, nil, nil
-	}
-
-	// Look for missing required flags
-	for _, flag := range command.Required {
-		v, exists := flagvalues[flag.Name]
-		if exists == false || v.IsSet() == false {
-			return nil, nil, errors.New(fmt.Sprint("Missing required flag: ", flag.Name))
-		}
-	}
-
-	// Copy parameters into the parameters
-	values := NewValues()
-	for _, value := range flagvalues {
-		values.Set(value)
-	}
-
-	// Return success
-	return &command, values, nil
+func (this *FlagSet) DisplayOutput() (error) {
+    if this.Output.NumberOfColumns() > 0 {
+        if err := this.Output.ASCII(os.Stdout); err != nil {
+            return err
+        }
+    }
+    if this.Output.NumberOfRows() > 1 {
+        this.Output.Info(fmt.Sprintf("%v items returned",this.Output.NumberOfRows()))
+    }
+    // success
+    return nil
 }
+

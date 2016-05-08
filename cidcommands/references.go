@@ -13,9 +13,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register commands
 
-func RegisterReferenceCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterReferenceCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListReferences",
 			Description: "Get a list of references for an asset",
             ServiceAccount: true,

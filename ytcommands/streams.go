@@ -46,16 +46,16 @@ func StreamLookup(service *ytservice.Service, value string) (string, error) {
 ////////////////////////////////////////////////////////////////////////////////
 // Register search output format
 
-func RegisterStreamCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterStreamCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListStreams",
 			Description: "List streams",
 			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults},
 			Setup:       RegisterStreamFormat,
 			Execute:     ListStreams,
 		},
-		ytapi.Command{
+		&ytapi.Command{
 			Name:        "DeleteStream",
 			Description: "Delete stream",
 			Required:    []*ytapi.Flag{&ytapi.FlagStream},

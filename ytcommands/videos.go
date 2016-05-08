@@ -15,15 +15,23 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register video commands
 
-func RegisterVideoCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterVideoCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListVideos",
 			Description: "List videos",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideoFilter},
 			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults},
 			Setup:       RegisterVideoFormat,
 			Execute:     ListVideos,
+		},
+		&ytapi.Command{
+			Name:        "GetVideo",
+			Description: "Get single video",
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
+			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagRegion },
+			Setup:       RegisterVideoFormat,
+			Execute:     GetVideo,
 		},
 	}
 }
@@ -114,3 +122,31 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	// Perform search, and return results
 	return ytapi.DoVideosList(call, table, int64(maxresults))
 }
+
+
+func GetVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	parts := strings.Join(table.Parts(false), ",")
+	language := values.GetString(&ytapi.FlagLanguage)
+	region := values.GetString(&ytapi.FlagRegion)
+    video := values.GetString(&ytapi.FlagVideo)
+
+	// create call and set parameters
+	call := service.API.Videos.List(parts).Id(video)
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+	}
+	if language != "" {
+		call = call.Hl(language)
+	}
+	if region != "" {
+		call = call.RegionCode(region)
+	}
+	// TODO: videoCategoryId
+
+	// Perform search, and return results
+	return ytapi.DoVideosList(call, table, 0)
+}
+

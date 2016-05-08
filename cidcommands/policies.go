@@ -12,9 +12,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 // Register commands
 
-func RegisterPolicyCommands() []ytapi.Command {
-	return []ytapi.Command{
-		ytapi.Command{
+func RegisterPolicyCommands() []*ytapi.Command {
+	return []*ytapi.Command{
+		&ytapi.Command{
 			Name:        "ListPolicies",
 			Description: "List policies",
             ServiceAccount: true,
