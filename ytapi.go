@@ -72,6 +72,15 @@ func main() {
         os.Exit(1)
     }
 
+	// Read content owner and channel from file
+	if err := flags.ReadDefaults(); err != nil {
+		// ignore if defaults file doesn't yet exist
+		if os.IsNotExist(err) == false {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
     // Create a service. If the content owner is set, then create an API object
     // from service account, or else create the API object from client secrets
     // and oauth token

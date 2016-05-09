@@ -5,11 +5,8 @@ Please see file LICENSE for information on distribution, etc
 package ytapi
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"time"
 	"reflect"
 )
@@ -45,12 +42,6 @@ type Value struct {
 // Values
 type Values struct {
 	values map[*Flag]*Value
-}
-
-// Defaults
-type Defaults struct {
-	ContentOwner string `json:"contentowner,omitempty"`
-	Channel      string `json:"channel,omitempty"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -281,57 +272,6 @@ func NewValues() *Values {
 	this := new(Values)
 	this.values = make(map[*Flag]*Value, 0)
 	return this
-}
-
-func (this *Values) ReadDefaultsFromFile(filename string) error {
-	var err error
-	// if a file exists, then read it
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		// file doesn't exist', so just return
-		return nil
-	}
-	// read in the file
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return err
-	}
-	defaults := &Defaults{}
-	err = json.Unmarshal(bytes, defaults)
-	if err != nil {
-		return err
-	}
-	// ContentOwner
-	if err == nil && defaults.ContentOwner != "" {
-		err = this.SetDefault(&FlagContentOwner, string(defaults.ContentOwner))
-	}
-	// Channel
-	if err == nil && defaults.Channel != "" {
-		err = this.SetDefault(&FlagChannel, string(defaults.Channel))
-	}
-	if err != nil {
-		return err
-	}
-	// success
-	return nil
-}
-
-func (this *Values) WriteDefaultsToFile(filename string, perm os.FileMode) error {
-	defaults := &Defaults{}
-	if this.IsSet(&FlagContentOwner) {
-		defaults.ContentOwner = this.GetString(&FlagContentOwner)
-	}
-	if this.IsSet(&FlagContentOwner) {
-		defaults.Channel = this.GetString(&FlagChannel)
-	}
-	json, err := json.MarshalIndent(defaults, "", "  ")
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(filename, json, perm)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (this *Values) Set(value *Value) (*Value) {

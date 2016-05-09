@@ -12,6 +12,7 @@ import (
 	"path/filepath"
     "io/ioutil"
 	"strings"
+	"encoding/json"
 
 	"github.com/djthorpe/ytapi/ytservice"
     "github.com/djthorpe/ytapi/util"
@@ -59,6 +60,12 @@ type FlagSet struct {
     ServiceAccount string
     AuthToken string
     Defaults string
+}
+
+// Default values
+type Defaults struct {
+	ContentOwner string `json:"contentowner,omitempty"`
+	Channel      string `json:"channel,omitempty"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -405,6 +412,61 @@ func (this *FlagSet) UsageFields() {
 		}
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Read and write defaults
+
+func (this *FlagSet) ReadDefaults() error {
+	var err error
+	// if a file exists, then read it
+	if _, err := os.Stat(this.Defaults); os.IsNotExist(err) {
+		// file doesn't exist, so just return
+		return err
+	}
+	// read in the file
+	bytes, err := ioutil.ReadFile(this.Defaults)
+	if err != nil {
+		return err
+	}
+	defaults := &Defaults{}
+	err = json.Unmarshal(bytes, defaults)
+	if err != nil {
+		return err
+	}
+	// ContentOwner
+	if err == nil && defaults.ContentOwner != "" {
+		err = this.Values.SetDefault(&FlagContentOwner, string(defaults.ContentOwner))
+	}
+	// Channel
+	if err == nil && defaults.Channel != "" {
+		err = this.Values.SetDefault(&FlagChannel, string(defaults.Channel))
+	}
+	if err != nil {
+		return err
+	}
+	// success
+	return nil
+}
+
+func (this *FlagSet) WriteDefaults() error {
+	defaults := &Defaults{}
+	if this.Values.IsSet(&FlagContentOwner) {
+		defaults.ContentOwner = this.Values.GetString(&FlagContentOwner)
+	}
+	if this.Values.IsSet(&FlagContentOwner) {
+		defaults.Channel = this.Values.GetString(&FlagChannel)
+	}
+	json, err := json.MarshalIndent(defaults, "", "  ")
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(this.Defaults, json, credentialsFileMode)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Execute command, display output
