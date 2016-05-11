@@ -142,6 +142,7 @@ var (
     ErrorUsage = errors.New("Display usage information")
     ErrorClientSecrets = errors.New("Missing Client Secrets File")
     ErrorServiceAccount = errors.New("Missing Service Account File and/or Content Owner")
+	ErrorWriteDefaults = errors.New("Write Defaults to file")
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -453,7 +454,7 @@ func (this *FlagSet) WriteDefaults() error {
 	if this.Values.IsSet(&FlagContentOwner) {
 		defaults.ContentOwner = this.Values.GetString(&FlagContentOwner)
 	}
-	if this.Values.IsSet(&FlagContentOwner) {
+	if this.Values.IsSet(&FlagChannel) && this.Values.IsSet(&FlagContentOwner) {
 		defaults.Channel = this.Values.GetString(&FlagChannel)
 	}
 	json, err := json.MarshalIndent(defaults, "", "  ")
@@ -467,11 +468,15 @@ func (this *FlagSet) WriteDefaults() error {
 	return nil
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Execute command, display output
 
 func (this *FlagSet) ExecuteCommand(command *Command,service *ytservice.Service) (error) {
+	// if command is nil, then return without execution
+	if command==nil {
+		return nil
+	}
+
     // check for service account and return error if command can't be executed
     if command.ServiceAccount && (service.ServiceAccount==false) {
         return ErrorServiceAccount

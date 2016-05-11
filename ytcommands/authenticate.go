@@ -116,7 +116,6 @@ func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 }
 
 func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-	fmt.Println("TODO: IMPLEMENT values.WriteDefaultsToFile")
 
 	// Display authentication settings
 	if service.ServiceAccount {
@@ -129,14 +128,12 @@ func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table
 		}
 	}
 
-	// Return channel details
-	return retrieveChannelDetails(service,values,table)
-
-/*
-	// Write defaults to file
-	err := values.WriteDefaultsToFile(GetDefaultsPath(values), credentialsFileMode)
-	if err != nil {
+	// Get channel details
+	if err := retrieveChannelDetails(service,values,table); err != nil {
 		return err
 	}
-*/
+
+	// Write defaults
+	return ytapi.ErrorWriteDefaults
 }
+

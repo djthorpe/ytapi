@@ -72,12 +72,14 @@ func main() {
         os.Exit(1)
     }
 
-	// Read content owner and channel from file
-	if err := flags.ReadDefaults(); err != nil {
-		// ignore if defaults file doesn't yet exist
-		if os.IsNotExist(err) == false {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+	// Read content owner and channel from file if command is not "Authenticate"
+	if command.Name != "Authenticate" {
+		if err := flags.ReadDefaults(); err != nil {
+			// ignore if defaults file doesn't yet exist
+			if os.IsNotExist(err) == false {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
 		}
 	}
 
@@ -96,13 +98,18 @@ func main() {
         os.Exit(1)
     }
 
-	// call command execute function
-	if command.Execute != nil {
-        if err := flags.ExecuteCommand(command,service); err != nil {
-            fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-            os.Exit(1)
-        }
-    }
+	// Execute command
+	if err := flags.ExecuteCommand(command,service); err != nil {
+		// Write defaults to file
+		if err == ytapi.ErrorWriteDefaults {
+			err = flags.WriteDefaults()
+		}
+		// Check for error
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
 
     // Display output
     err = flags.DisplayOutput()
