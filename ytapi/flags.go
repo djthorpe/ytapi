@@ -415,7 +415,7 @@ func (this *FlagSet) UsageFields() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Read and write defaults
+// Read and write Defaults
 
 func (this *FlagSet) ReadDefaults() error {
 	var err error
@@ -467,6 +467,32 @@ func (this *FlagSet) WriteDefaults() error {
 	}
 	return nil
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Add and remove fields
+
+func (this *FlagSet) SetFields(fields []string) (error) {
+	// Check fields - which should start with + or -
+	fmt.Println("TODO: SetFields ",fields)
+	return nil
+}
+
+/*
+		for _,field := range(fields) {
+			var err error
+			if strings.HasPrefix(field,"+") {
+				err = output.AddColumn(field[1:])
+			} else if strings.HasPrefix(field,"-") {
+				err = output.RemoveColumn(field[1:])
+			} else {
+				err = errors.New(fmt.Sprint("Unknown field name or snippet: ",field))
+			}
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		}
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 // Execute command, display output

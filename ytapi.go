@@ -7,8 +7,7 @@ package main
 import (
 	"fmt"
 	"os"
-//	"strings"
-//	"errors"
+	"strings"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytcommands"
@@ -23,7 +22,7 @@ func main() {
 
     // Register the commands allowed
     err := flags.RegisterCommands([]*ytapi.RegisterFunction{
-        &ytapi.RegisterFunction{ Callback: ytcommands.RegisterAuthenticateCommands, Title: "Authentication opetations" },
+        &ytapi.RegisterFunction{ Callback: ytcommands.RegisterAuthenticateCommands, Title: "Authentication operations" },
         &ytapi.RegisterFunction{ Callback: ytcommands.RegisterChannelCommands, Title: "Operations on Channels" },
         &ytapi.RegisterFunction{ Callback: ytcommands.RegisterChannelSectionCommands, Title: "Channel Section operations" },
         &ytapi.RegisterFunction{ Callback: ytcommands.RegisterVideoCommands, Title: "Operations on videos" },
@@ -72,6 +71,15 @@ func main() {
         os.Exit(1)
     }
 
+	// Add and remove fields from output
+	if flags.Values.IsSet(&ytapi.FlagFields) {
+		err := flags.SetFields(strings.Split(flags.Values.GetString(&ytapi.FlagFields),","))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
 	// Read content owner and channel from file if command is not "Authenticate"
 	if command.Name != "Authenticate" {
 		if err := flags.ReadDefaults(); err != nil {
@@ -118,28 +126,5 @@ func main() {
         os.Exit(1)
     }
 }
-
-/*
-
-	// add and remove fields from the table
-	if values.IsSet(&ytapi.FlagFields) {
-		fields := strings.Split(values.GetString(&ytapi.FlagFields),",")
-		for _,field := range(fields) {
-			var err error
-			if strings.HasPrefix(field,"+") {
-				err = output.AddColumn(field[1:])
-			} else if strings.HasPrefix(field,"-") {
-				err = output.RemoveColumn(field[1:])
-			} else {
-				err = errors.New(fmt.Sprint("Unknown field name or snippet: ",field))
-			}
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
-			}
-		}
-	}
-
-*/
 
 
