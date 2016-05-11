@@ -7,6 +7,8 @@ package ytcommands
 import (
 	"fmt"
 	"os"
+	"strings"
+	"errors"
 	"path/filepath"
 
 	"github.com/djthorpe/ytapi/ytapi"
@@ -59,9 +61,34 @@ func RegisterAuthenticateCommands() []*ytapi.Command {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Retrieve my channel details
+
+func retrieveChannelDetails(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+	call := service.API.Channels.List(strings.Join(table.Parts(false), ","))
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+	}
+	if values.IsSet(&ytapi.FlagChannel) {
+		call = call.Id(values.GetString(&ytapi.FlagChannel))
+	} else if(service.ServiceAccount) {
+		call = call.ManagedByMe(true)
+	} else {
+		call = call.Mine(true)
+	}
+
+	// Perform search, and return results
+	return ytapi.DoChannelsList(call,table,0)
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Perform authentication
 
 func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
+
+	// Disallow -channel parameter without -contentowner parameter
+	if values.IsSet(&ytapi.FlagChannel) && values.IsSet(&ytapi.FlagContentOwner)==false {
+		return errors.New("Cannot set -channel flag without -contentowner flag")
+	}
 
 	// remove existing oauth token
 	tokenPath := GetOAuthTokenPath(values)
@@ -72,12 +99,39 @@ func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 		}
 	}
 
+	// set up output format
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "channel", Path: "Id", Type: ytapi.FLAG_CHANNEL},
+	})
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
+	})
+	table.RegisterPart("contentOwnerDetails", []*ytapi.Flag{
+		&ytapi.Flag{Name: "contentowner", Path: "ContentOwnerDetails/ContentOwner", Type: ytapi.FLAG_CONTENTOWNER},
+	})
+	table.SetColumns([]string{"channel", "title" })
+
 	// success
 	return nil
 }
 
 func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 	fmt.Println("TODO: IMPLEMENT values.WriteDefaultsToFile")
+
+	// Display authentication settings
+	if service.ServiceAccount {
+		table.Info(fmt.Sprintf("Service Account: %s",service.ServiceAccountEmail))
+		if values.IsSet(&ytapi.FlagContentOwner) {
+			table.Info(fmt.Sprint("  Content Owner: ",values.GetString(&ytapi.FlagContentOwner)))
+		}
+		if values.IsSet(&ytapi.FlagChannel) {
+			table.Info(fmt.Sprint("        Channel: ",values.GetString(&ytapi.FlagChannel)))
+		}
+	}
+
+	// Return channel details
+	return retrieveChannelDetails(service,values,table)
+
 /*
 	// Write defaults to file
 	err := values.WriteDefaultsToFile(GetDefaultsPath(values), credentialsFileMode)
@@ -85,6 +139,4 @@ func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table
 		return err
 	}
 */
-	// success
-	return nil
 }

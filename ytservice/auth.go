@@ -69,13 +69,17 @@ func tokenFromWeb(config *oauth2.Config, ctx context.Context) (*oauth2.Token, er
 			ch <- code
 			return
 		}
-		http.Error(rw, "No Code", 500)
+		http.Error(rw, "Denied - You can now close this window", 500)
+		ch <- ""
 	}))
 	defer ts.Close()
 	config.RedirectURL = ts.URL
 	authURL := config.AuthCodeURL(randState)
 	go openURL(authURL)
 	code := <-ch
+	if code == "" {
+		return nil, ErrorDenied
+	}
 	token, err := config.Exchange(ctx, code)
 	if err != nil {
 		return nil, ErrorTokenExchange

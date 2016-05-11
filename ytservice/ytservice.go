@@ -20,6 +20,7 @@ type Service struct {
 	API            *youtube.Service
 	PAPI           *youtubepartner.Service
 	ServiceAccount bool
+	ServiceAccountEmail string
 	token          *oauth2.Token
 }
 
@@ -45,6 +46,7 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Serv
 	this.API = service
 	this.PAPI = partnerservice
 	this.ServiceAccount = true
+	this.ServiceAccountEmail = sa_config.Email
 	return this, nil
 }
 
@@ -64,6 +66,9 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 	token, err := tokenFromFile(tokencache)
 	if err != nil {
 		token, err = tokenFromWeb(config, ctx)
+		if err != nil {
+			return nil, err
+		}
 		saveToken(tokencache, token)
 	}
 	if err != nil {

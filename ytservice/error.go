@@ -24,6 +24,7 @@ var (
 	ErrorCacheTokenRead        = errors.New("Invalid Cache Token")
 	ErrorCacheTokenWrite       = errors.New("Unable to create cache token")
 	ErrorTokenExchange         = errors.New("Token Exchange Error")
+	ErrorDenied                = errors.New("Denied")
 	ErrorResponse              = errors.New("Bad Response")
 	ErrorBadParameter          = errors.New("Invalid Parameter")
 )
