@@ -45,7 +45,8 @@ func main() {
         os.Exit(1)
     }
 
-    // Parse command-line flags
+    // Parse command-line flags, set up output and determine paths for
+	// the configuration
     command, err := flags.Parse()
     if err == ytapi.ErrorUsage {
         flags.Usage()

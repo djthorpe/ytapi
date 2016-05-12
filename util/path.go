@@ -43,3 +43,13 @@ func ResolvePath(path string,relpath string) (string,bool) {
     // Return
     return path, exists
 }
+
+func DeleteFileIfExists(path string) (error) {
+	if _,err := os.Stat(path); os.IsNotExist(err) {
+		return nil
+    }
+	if err := os.Remove(path); err != nil {
+		return err
+	}
+	return nil
+}

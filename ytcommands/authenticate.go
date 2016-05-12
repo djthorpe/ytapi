@@ -6,45 +6,12 @@ package ytcommands
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"errors"
-	"path/filepath"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
-    "github.com/djthorpe/ytapi/util"
 )
-
-////////////////////////////////////////////////////////////////////////////////
-// File methods
-
-// TODO: Make these relative to home directory, not absolute
-
-func GetCredentialsPath(values *ytapi.Values) string {
-	return filepath.Join(util.UserDir(),values.GetString(&ytapi.FlagCredentials))
-}
-
-func GetOAuthTokenPath(values *ytapi.Values) string {
-	return filepath.Join(GetCredentialsPath(values),values.GetString(&ytapi.FlagAuthToken))
-}
-
-func GetServiceAccountPath(values *ytapi.Values) string {
-	return filepath.Join(GetCredentialsPath(values),values.GetString(&ytapi.FlagServiceAccount))
-}
-
-func GetClientSecretPath(values *ytapi.Values) string {
-	return filepath.Join(GetCredentialsPath(values),values.GetString(&ytapi.FlagClientSecret))
-}
-
-func GetDefaultsPath(values *ytapi.Values) string {
-	return filepath.Join(GetCredentialsPath(values),values.GetString(&ytapi.FlagDefaults))
-}
-
-func GetCredentialsFolder(values *ytapi.Values) (string, error) {
-	credentialsPath := GetCredentialsPath(values)
-	return credentialsPath, nil
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register search output format
@@ -90,15 +57,6 @@ func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 		return errors.New("Cannot set -channel flag without -contentowner flag")
 	}
 
-	// remove existing oauth token
-	tokenPath := GetOAuthTokenPath(values)
-	if _, err := os.Stat(tokenPath); os.IsNotExist(err) == false {
-		err = os.Remove(tokenPath)
-		if err != nil {
-			return err
-		}
-	}
-
 	// set up output format
 	table.RegisterPart("id", []*ytapi.Flag{
 		&ytapi.Flag{Name: "channel", Path: "Id", Type: ytapi.FLAG_CHANNEL},
@@ -111,8 +69,8 @@ func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 	})
 	table.SetColumns([]string{"channel", "title" })
 
-	// success
-	return nil
+	// success - but ask to remove the authentication token
+	return ytapi.ErrorRemoveAuthToken
 }
 
 func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {

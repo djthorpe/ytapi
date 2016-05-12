@@ -50,7 +50,7 @@ type RegisterFunction struct {
 	Callback func() []*Command
 }
 
-// Set of Flags
+// FlagSet is the main object for execution of a set of instructions
 type FlagSet struct {
     flagset  *flag.FlagSet
     sections []*Section
@@ -62,7 +62,7 @@ type FlagSet struct {
     Defaults string
 }
 
-// Default values
+// Default values read from store
 type Defaults struct {
 	ContentOwner string `json:"contentowner,omitempty"`
 	Channel      string `json:"channel,omitempty"`
@@ -134,15 +134,20 @@ var (
 
 // Global variables
 var (
+
+	// Global flags which are defined for every invocation of the tool
 	GlobalFlags = []*Flag{
         &FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret,
         &FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel,
         &FlagFields,
     }
+
+	// Variety of error conditions
     ErrorUsage = errors.New("Display usage information")
     ErrorClientSecrets = errors.New("Missing Client Secrets File")
     ErrorServiceAccount = errors.New("Missing Service Account File and/or Content Owner")
 	ErrorWriteDefaults = errors.New("Write Defaults to file")
+	ErrorRemoveAuthToken = errors.New("Remove OAuth token")
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -314,11 +319,9 @@ func (this *FlagSet) Parse() (*Command,error) {
     }
 
     // setup output
-    if command.Setup != nil {
-        if err := command.Setup(this.Values, this.Output); err != nil {
-            return command,err
-        }
-    }
+	if err := this.SetupCommand(command); err != nil {
+		return command,err
+	}
 
     // check for -help <Command>
     if err == flag.ErrHelp {
@@ -468,38 +471,84 @@ func (this *FlagSet) WriteDefaults() error {
 	return nil
 }
 
+func (this *FlagSet) RemoveAuthToken() error {
+	if this.AuthToken == "" {
+		return nil
+	}
+	if err := util.DeleteFileIfExists(this.AuthToken); err != nil {
+		return err
+	}
+	return nil
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Add and remove fields
 
 func (this *FlagSet) SetFields(fields []string) (error) {
-	// Check fields - which should start with + or -
-	fmt.Println("TODO: SetFields ",fields)
+	// Check fields - all of which should start with +- or with no +-, but not mixed
+	is_plusminus := false
+	is_setfields := false
+	for _,field := range(fields) {
+		field := strings.TrimSpace(field)
+		if field == "" {
+			continue
+		}
+		if strings.HasPrefix(field,"+") || strings.HasPrefix(field,"-") {
+			if is_setfields {
+				return errors.New(fmt.Sprintf("Invalid field name or snippet \"%s\", cannot have prefix of '+' or '-'",field))
+			}
+			is_plusminus = true
+		} else {
+			if is_plusminus {
+				return errors.New(fmt.Sprintf("Invalid field name or snippet \"%s\", must have prefix of '+' or '-'",field))
+			}
+			is_setfields = true
+		}
+	}
+	// Sanity check
+	if is_plusminus == false && is_setfields == false {
+		return errors.New("Missing fields")
+	}
+	// Remove existing field columns if we're setting the fields from scratch
+	if is_setfields {
+		this.Output.SetColumns([]string{ })
+	}
+	// Add and remove columns
+	for _,field := range(fields) {
+		var err error
+		if is_setfields {
+			err = this.Output.AddColumn(field)
+		} else if strings.HasPrefix(field,"+") {
+			err = this.Output.AddColumn(field[1:])
+		} else if strings.HasPrefix(field,"-") {
+			err = this.Output.RemoveColumn(field[1:])
+		}
+		if err != nil {
+			return err
+		}
+	}
+	// Success
 	return nil
 }
 
-/*
-		for _,field := range(fields) {
-			var err error
-			if strings.HasPrefix(field,"+") {
-				err = output.AddColumn(field[1:])
-			} else if strings.HasPrefix(field,"-") {
-				err = output.RemoveColumn(field[1:])
-			} else {
-				err = errors.New(fmt.Sprint("Unknown field name or snippet: ",field))
-			}
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
-			}
-		}
-*/
-
 ////////////////////////////////////////////////////////////////////////////////
-// Execute command, display output
+// Setup & Execute command, display output
+
+func (this *FlagSet) SetupCommand(command *Command) (error) {
+	// if command is nil, then return without execution
+	if command==nil || command.Setup==nil {
+		return nil
+	}
+	err := command.Setup(this.Values, this.Output)
+	if err == ErrorRemoveAuthToken {
+		err = this.RemoveAuthToken()
+	}
+	return err
+}
 
 func (this *FlagSet) ExecuteCommand(command *Command,service *ytservice.Service) (error) {
 	// if command is nil, then return without execution
-	if command==nil {
+	if command==nil || command.Execute==nil {
 		return nil
 	}
 
