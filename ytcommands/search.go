@@ -19,34 +19,33 @@ func RegisterSearchCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "SearchVideos",
 			Description: "Search for videos based on text query or related video",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchOrder, &ytapi.FlagSearchVideo, &ytapi.FlagSearchSafe },
+			Optional:    []*ytapi.Flag{&ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchOrder, &ytapi.FlagSearchVideo, &ytapi.FlagSearchSafe},
 			Setup:       RegisterVideoSearchFormat,
 			Execute:     VideoSearch,
 		},
 		&ytapi.Command{
 			Name:        "SearchBroadcasts",
 			Description: "Search for live broadcasts",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchOrder, &ytapi.FlagSearchSafe, &ytapi.FlagSearchBroadcastStatus },
+			Optional:    []*ytapi.Flag{&ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchOrder, &ytapi.FlagSearchSafe, &ytapi.FlagSearchBroadcastStatus},
 			Setup:       RegisterBroadcastSearchFormat,
 			Execute:     BroadcastSearch,
 		},
 		&ytapi.Command{
 			Name:        "SearchPlaylists",
 			Description: "Search for playlists based on text query",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchOrder, &ytapi.FlagSearchSafe },
+			Optional:    []*ytapi.Flag{&ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchOrder, &ytapi.FlagSearchSafe},
 			Setup:       RegisterPlaylistSearchFormat,
 			Execute:     PlaylistSearch,
 		},
 		&ytapi.Command{
 			Name:        "SearchChannels",
 			Description: "Search for channels",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchChannelOrder, &ytapi.FlagSearchSafe },
+			Optional:    []*ytapi.Flag{&ytapi.FlagSearchQuery, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults, &ytapi.FlagSearchChannelOrder, &ytapi.FlagSearchSafe},
 			Setup:       RegisterChannelSearchFormat,
 			Execute:     ChannelSearch,
 		},
 	}
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register search output format
@@ -63,7 +62,7 @@ func RegisterVideoSearchFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"video", "title", "description", "channelTitle" })
+	table.SetColumns([]string{"video", "title", "description", "channelTitle"})
 
 	// success
 	return nil
@@ -80,7 +79,7 @@ func RegisterPlaylistSearchFormat(values *ytapi.Values, table *ytapi.Table) erro
 	})
 
 	// set default columns
-	table.SetColumns([]string{"playlist", "title", "description", "channelTitle" })
+	table.SetColumns([]string{"playlist", "title", "description", "channelTitle"})
 
 	// success
 	return nil
@@ -95,21 +94,20 @@ func RegisterChannelSearchFormat(values *ytapi.Values, table *ytapi.Table) error
 	})
 
 	// set default columns
-	table.SetColumns([]string{"channel", "title", "description" })
+	table.SetColumns([]string{"channel", "title", "description"})
 
 	// success
 	return nil
 }
 
-
 func RegisterBroadcastSearchFormat(values *ytapi.Values, table *ytapi.Table) error {
-	err := RegisterVideoSearchFormat(values,table)
+	err := RegisterVideoSearchFormat(values, table)
 	if err != nil {
 		return nil
 	}
 
 	// set default columns
-	table.SetColumns([]string{"video", "title", "description", "channelTitle","liveBroadcastContent" })
+	table.SetColumns([]string{"video", "title", "description", "channelTitle", "liveBroadcastContent"})
 
 	return nil
 }
@@ -139,7 +137,7 @@ func VideoSearch(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	}
 
 	// Perform search, and return results
-	return ytapi.DoSearchList(call, table,values.GetInt(&ytapi.FlagMaxResults))
+	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +167,7 @@ func BroadcastSearch(service *ytservice.Service, values *ytapi.Values, table *yt
 	}
 
 	// Perform search, and return results
-	return ytapi.DoSearchList(call, table,values.GetInt(&ytapi.FlagMaxResults))
+	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,9 +192,8 @@ func PlaylistSearch(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// Perform search, and return results
-	return ytapi.DoSearchList(call, table,values.GetInt(&ytapi.FlagMaxResults))
+	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults))
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Channel Search
@@ -220,7 +217,5 @@ func ChannelSearch(service *ytservice.Service, values *ytapi.Values, table *ytap
 	}
 
 	// Perform search, and return results
-	return ytapi.DoSearchList(call, table,values.GetInt(&ytapi.FlagMaxResults))
+	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults))
 }
-
-

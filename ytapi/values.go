@@ -7,8 +7,8 @@ package ytapi
 import (
 	"errors"
 	"fmt"
-	"time"
 	"reflect"
+	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,36 +47,36 @@ type Values struct {
 ////////////////////////////////////////////////////////////////////////////////
 // Value implementation
 
-func NewValue(flag *Flag,value reflect.Value) (*Value,error) {
+func NewValue(flag *Flag, value reflect.Value) (*Value, error) {
 	this := new(Value)
 	this.flag = flag
 
-	switch(value.Kind()) {
-		case reflect.String:
-			if err := this.SetString(value.String()); err != nil {
-				return nil,err
-			}
-		case reflect.Bool:
-			if err := this.SetBool(value.Bool()); err != nil {
-				return nil,err
-			}
-		case reflect.Uint64:
-			if err := this.SetUint(value.Uint()); err != nil {
-				return nil,err
-			}
-		case reflect.Int64:
-			if err := this.SetInt(value.Int()); err != nil {
-				return nil,err
-			}
-		case reflect.Slice:
-			if err := this.SetString(value.String()); err != nil {
-				return nil,err
-			}
-		default:
-			return nil,errors.New(fmt.Sprint("Invalid value kind in NewValue: ",value.Kind()))
+	switch value.Kind() {
+	case reflect.String:
+		if err := this.SetString(value.String()); err != nil {
+			return nil, err
+		}
+	case reflect.Bool:
+		if err := this.SetBool(value.Bool()); err != nil {
+			return nil, err
+		}
+	case reflect.Uint64:
+		if err := this.SetUint(value.Uint()); err != nil {
+			return nil, err
+		}
+	case reflect.Int64:
+		if err := this.SetInt(value.Int()); err != nil {
+			return nil, err
+		}
+	case reflect.Slice:
+		if err := this.SetString(value.String()); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errors.New(fmt.Sprint("Invalid value kind in NewValue: ", value.Kind()))
 	}
 
-	return this,nil
+	return this, nil
 }
 
 func (this *Value) SetBool(value bool) error {
@@ -105,7 +105,7 @@ func (this *Value) SetUint(value uint64) error {
 		this.v_uint = value
 		break
 	case this.flag.Type == FLAG_BOOL:
-		if value==0 {
+		if value == 0 {
 			this.v_bool = false
 		} else {
 			this.v_bool = true
@@ -128,7 +128,7 @@ func (this *Value) SetInt(value int64) error {
 		this.v_uint = uint64(value)
 		break
 	case this.flag.Type == FLAG_BOOL:
-		if value==0 {
+		if value == 0 {
 			this.v_bool = false
 		} else {
 			this.v_bool = true
@@ -196,7 +196,6 @@ func (this *Value) SetString(value string) error {
 func (this *Value) Set(value string) error {
 	return this.SetString(value)
 }
-
 
 func (this *Value) String() string {
 	if this.is_set {
@@ -274,13 +273,13 @@ func NewValues() *Values {
 	return this
 }
 
-func (this *Values) Set(value *Value) (*Value) {
+func (this *Values) Set(value *Value) *Value {
 	this.values[value.flag] = value
-    return value
+	return value
 }
 
-func (this *Values) Get(flag *Flag) (*Value) {
-    return this.values[flag]
+func (this *Values) Get(flag *Flag) *Value {
+	return this.values[flag]
 }
 
 func (this *Values) IsSet(flag *Flag) bool {
@@ -305,7 +304,7 @@ func (this *Values) SetDefault(flag *Flag, value string) error {
 func (this *Values) GetString(flag *Flag) string {
 	value, exists := this.values[flag]
 	if exists == false {
-		panic(fmt.Sprint("Missing flag value: ",flag.Name))
+		panic(fmt.Sprint("Missing flag value: ", flag.Name))
 	}
 	return value.String()
 }

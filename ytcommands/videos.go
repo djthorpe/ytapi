@@ -29,7 +29,7 @@ func RegisterVideoCommands() []*ytapi.Command {
 			Name:        "GetVideo",
 			Description: "Get single video",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
-			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagRegion },
+			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagRegion},
 			Setup:       RegisterVideoFormat,
 			Execute:     GetVideo,
 		},
@@ -42,7 +42,7 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 	table.RegisterPart("snippet", []*ytapi.Flag{
 		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "description",Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
 		&ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "tags", Type: ytapi.FLAG_STRING},
@@ -73,7 +73,7 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 	table.RegisterPart("statistics", []*ytapi.Flag{
 		&ytapi.Flag{Name: "viewCount", Type: ytapi.FLAG_UINT},
-		&ytapi.Flag{Name: "likeCount",  Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "likeCount", Type: ytapi.FLAG_UINT},
 		&ytapi.Flag{Name: "dislikeCount", Type: ytapi.FLAG_UINT},
 		&ytapi.Flag{Name: "favoriteCount", Type: ytapi.FLAG_UINT},
 		&ytapi.Flag{Name: "commentCount", Type: ytapi.FLAG_UINT},
@@ -123,7 +123,6 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	return ytapi.DoVideosList(call, table, int64(maxresults))
 }
 
-
 func GetVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
@@ -131,7 +130,7 @@ func GetVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.Tab
 	parts := strings.Join(table.Parts(false), ",")
 	language := values.GetString(&ytapi.FlagLanguage)
 	region := values.GetString(&ytapi.FlagRegion)
-    video := values.GetString(&ytapi.FlagVideo)
+	video := values.GetString(&ytapi.FlagVideo)
 
 	// create call and set parameters
 	call := service.API.Videos.List(parts).Id(video)
@@ -149,4 +148,3 @@ func GetVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.Tab
 	// Perform search, and return results
 	return ytapi.DoVideosList(call, table, 0)
 }
-

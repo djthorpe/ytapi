@@ -5,8 +5,8 @@
 package util
 
 import (
-	"regexp"
 	"bytes"
+	"regexp"
 )
 
 var (
@@ -14,9 +14,9 @@ var (
 )
 
 func UppercaseFirstLetter(src string) string {
-	words := wordRegex.FindAll([]byte(src),-1)
+	words := wordRegex.FindAll([]byte(src), -1)
 	for i, val := range words {
 		words[i] = bytes.Title(val)
 	}
-	return string(bytes.Join(words,nil))
+	return string(bytes.Join(words, nil))
 }

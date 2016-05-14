@@ -5,8 +5,8 @@
 package ytapi
 
 const (
-  VERSION_COPYRIGHT = "Copyright David Thorpe 2015 All Rights Reserved"
-  VERSION_AUTHOR = "David Thorpe <djt@mutablelogic.com>"
-  VERSION_TAG = "v0.1"
-  VERSION_URL = "https://github.com/djthorpe/ytapi"
+	VERSION_COPYRIGHT = "Copyright David Thorpe 2015 All Rights Reserved"
+	VERSION_AUTHOR    = "David Thorpe <djt@mutablelogic.com>"
+	VERSION_TAG       = "v0.1"
+	VERSION_URL       = "https://github.com/djthorpe/ytapi"
 )

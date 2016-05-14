@@ -68,13 +68,13 @@ func RegisterBroadcastFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	table.RegisterPart("snippet", []*ytapi.Flag{
-		&ytapi.Flag{Name: "title",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "description", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
 		&ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "scheduledStartTime", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "scheduledEndTime", Type: ytapi.FLAG_TIME},
-		&ytapi.Flag{Name: "actualStartTime",  Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "actualStartTime", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "actualEndTime", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "defaultBroadcast", Path: "Snippet/IsDefaultBroadcast", Type: ytapi.FLAG_BOOL},
 		&ytapi.Flag{Name: "chat", Path: "Snippet/LiveChatId", Type: ytapi.FLAG_STRING},

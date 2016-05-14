@@ -5,42 +5,42 @@ Please see file LICENSE for information on distribution, etc
 package ytapi
 
 import (
-	"errors"
-	"flag"
-	"fmt"
-	"os"
-	"path/filepath"
-    "io/ioutil"
-	"strings"
+    "os"
+    "strings"
+    "errors"
+    "flag"
+    "fmt"
 	"encoding/json"
+	"io/ioutil"
+	"path/filepath"
 
+	"github.com/djthorpe/ytapi/util"
 	"github.com/djthorpe/ytapi/ytservice"
-    "github.com/djthorpe/ytapi/util"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const (
-    credentialsPathMode = 0700
-    credentialsFileMode = 0644
+	credentialsPathMode = 0700
+	credentialsFileMode = 0644
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // Defines a command
 type Command struct {
-	Name        string
-	Description string
-    ServiceAccount bool
-	Optional    []*Flag
-	Required    []*Flag
-	Setup       func(*Values,*Table) error
-	Execute     func(*ytservice.Service, *Values, *Table) error
+	Name           string
+	Description    string
+	ServiceAccount bool
+	Optional       []*Flag
+	Required       []*Flag
+	Setup          func(*Values, *Table) error
+	Execute        func(*ytservice.Service, *Values, *Table) error
 }
 
 // Defines a group of commands
 type Section struct {
-	Title string
+	Title    string
 	Commands []*Command
 }
 
@@ -52,14 +52,15 @@ type RegisterFunction struct {
 
 // FlagSet is the main object for execution of a set of instructions
 type FlagSet struct {
-    flagset  *flag.FlagSet
-    sections []*Section
-    Values   *Values
-    Output   *Table
-    ClientSecrets string
-    ServiceAccount string
-    AuthToken string
-    Defaults string
+	flagset        *flag.FlagSet
+	sections       []*Section
+	Values         *Values
+	Output         *Table
+	ClientSecrets  string
+	ServiceAccount string
+	AuthToken      string
+	Defaults       string
+    filehandle     *os.File
 }
 
 // Default values read from store
@@ -72,64 +73,55 @@ type Defaults struct {
 
 // Command-line flags
 var (
-	FlagCredentials         = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".ytapi"}
-	FlagDefaults            = Flag{Name: "defaults", Description: "Defaults filename", Type: FLAG_STRING, Default: "defaults.json"}
-	FlagClientSecret        = Flag{Name: "clientsecret", Description: "Client secret filename", Type: FLAG_STRING, Default: "client_secret.json"}
-	FlagServiceAccount      = Flag{Name: "serviceaccount", Description: "Service account filename", Type: FLAG_STRING, Default: "service_account.json"}
-	FlagAuthToken           = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
-
-	FlagDebug               = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
-	FlagFields              = Flag{Name: "fields", Description: "Comma-separated list of output fields", Type: FLAG_STRING}
-	FlagContentOwner        = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
-	FlagChannel             = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
-	FlagMaxResults          = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
-
-	FlagVideo               = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
-	FlagPlaylist            = Flag{Name: "playlist", Description: "Playlist ID", Type: FLAG_PLAYLIST}
-	FlagStream              = Flag{Name: "stream", Description: "Stream ID or Key", Type: FLAG_STREAM}
-	FlagLanguage            = Flag{Name: "language", Description: "Localized language", Type: FLAG_LANGUAGE}
-	FlagRegion              = Flag{Name: "region", Description: "Country region code", Type: FLAG_REGION}
-
-	FlagTitle               = Flag{Name: "title", Description: "Metadata title", Type: FLAG_STRING}
-	FlagDescription         = Flag{Name: "description", Description: "Metadata description", Type: FLAG_STRING}
-	FlagPrivacyStatus       = Flag{Name: "status", Description: "Privacy status", Type: FLAG_ENUM, Extra: "private|public|unlisted"}
-
-	FlagBroadcastStatus     = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
-	FlagBroadcastTransition = Flag{Name: "status", Description: "Broadcast transition", Type: FLAG_ENUM, Extra: "complete|live|testing"}
-	FlagStartTime           = Flag{Name: "start", Description: "Scheduled start time", Type: FLAG_TIME}
-	FlagEndTime             = Flag{Name: "end", Description: "Scheduled end time", Type: FLAG_TIME}
-	FlagDvr                 = Flag{Name: "dvr", Description: "Enable DVR", Type: FLAG_BOOL}
-	FlagContentEncryption   = Flag{Name: "encryption", Description: "Enable content encryption", Type: FLAG_BOOL}
-	FlagEmbed               = Flag{Name: "embed", Description: "Enable embedding", Type: FLAG_BOOL}
-	FlagRecordFromStart     = Flag{Name: "record", Description: "Enable recording", Type: FLAG_BOOL}
-	FlagStartWithSlate      = Flag{Name: "slate", Description: "Start with slate", Type: FLAG_BOOL}
-	FlagClosedCaptions      = Flag{Name: "captions", Description: "Enable closed captions", Type: FLAG_BOOL}
-	FlagMonitorStream       = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
-	FlagBroadcastDelay      = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
-	FlagLowLatency          = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
-
-	FlagVideoFilter         = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike"}
-
-	FlagPlaylistPosition    = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT }
-	FlagPlaylistNote        = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
-
-	FlagSearchQuery         = Flag{Name: "q", Description: "Search query", Type: FLAG_STRING }
-	FlagSearchOrder         = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount" }
-	FlagSearchChannelOrder  = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount|videocount" }
-	FlagSearchVideo         = Flag{Name: "video", Description: "Related video", Type: FLAG_VIDEO }
-	FlagSearchSafe          = Flag{Name: "safesearch", Description: "Restricted content filter", Type: FLAG_ENUM, Extra: "none|moderate|strict" }
-	FlagSearchBroadcastStatus = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "completed|live|upcoming" }
-
-	FlagPolicy              = Flag{Name: "policy", Description: "Policy ID", Type: FLAG_STRING }
-	FlagPolicyOrder         = Flag{Name: "order", Description: "Policy list order", Type: FLAG_ENUM, Extra: "timeUpdatedAsc|timeUpdatedDesc" }
-
-	FlagClaim               = Flag{Name: "claim", Description: "Claim ID", Type: FLAG_VIDEO }
-	FlagClaimType           = Flag{Name: "type", Description: "Claim Type: Defaults to audiovisual", Type: FLAG_ENUM, Extra: "audio|visual|audiovisual", Default: "audiovisual" }
-	FlagClaimStatus         = Flag{Name: "status", Description: "Claim Status", Type: FLAG_ENUM, Extra: "active|inactive" }
-	FlagClaimBlockOutsideOwnership = Flag{Name: "blockoutsideownership", Description: "Block viewing outside ownership regions", Type: FLAG_BOOL }
-
-	FlagAsset               = Flag{Name: "asset", Description: "Asset ID", Type: FLAG_STRING }
-    FlagAssetFilter         = Flag{Name: "filter", Description: "Retrieve computed asset information or my asset information", Type: FLAG_ENUM, Extra: "none|effective|mine", Default: "none" }
+	FlagCredentials                = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".ytapi"}
+	FlagDefaults                   = Flag{Name: "defaults", Description: "Defaults filename", Type: FLAG_STRING, Default: "defaults.json"}
+	FlagClientSecret               = Flag{Name: "clientsecret", Description: "Client secret filename", Type: FLAG_STRING, Default: "client_secret.json"}
+	FlagServiceAccount             = Flag{Name: "serviceaccount", Description: "Service account filename", Type: FLAG_STRING, Default: "service_account.json"}
+	FlagAuthToken                  = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
+	FlagDebug                      = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
+	FlagFields                     = Flag{Name: "fields", Description: "Comma-separated list of output fields", Type: FLAG_STRING}
+    FlagOutput                     = Flag{Name: "out", Description: "Output filename and/or format (txt, csv)", Type: FLAG_STRING, Default: "txt" }
+	FlagContentOwner               = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
+	FlagChannel                    = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
+	FlagMaxResults                 = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
+	FlagVideo                      = Flag{Name: "video", Description: "Video ID", Type: FLAG_VIDEO}
+	FlagPlaylist                   = Flag{Name: "playlist", Description: "Playlist ID", Type: FLAG_PLAYLIST}
+	FlagStream                     = Flag{Name: "stream", Description: "Stream ID or Key", Type: FLAG_STREAM}
+	FlagLanguage                   = Flag{Name: "language", Description: "Localized language", Type: FLAG_LANGUAGE}
+	FlagRegion                     = Flag{Name: "region", Description: "Country region code", Type: FLAG_REGION}
+	FlagTitle                      = Flag{Name: "title", Description: "Metadata title", Type: FLAG_STRING}
+	FlagDescription                = Flag{Name: "description", Description: "Metadata description", Type: FLAG_STRING}
+	FlagPrivacyStatus              = Flag{Name: "status", Description: "Privacy status", Type: FLAG_ENUM, Extra: "private|public|unlisted"}
+	FlagBroadcastStatus            = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
+	FlagBroadcastTransition        = Flag{Name: "status", Description: "Broadcast transition", Type: FLAG_ENUM, Extra: "complete|live|testing"}
+	FlagStartTime                  = Flag{Name: "start", Description: "Scheduled start time", Type: FLAG_TIME}
+	FlagEndTime                    = Flag{Name: "end", Description: "Scheduled end time", Type: FLAG_TIME}
+	FlagDvr                        = Flag{Name: "dvr", Description: "Enable DVR", Type: FLAG_BOOL}
+	FlagContentEncryption          = Flag{Name: "encryption", Description: "Enable content encryption", Type: FLAG_BOOL}
+	FlagEmbed                      = Flag{Name: "embed", Description: "Enable embedding", Type: FLAG_BOOL}
+	FlagRecordFromStart            = Flag{Name: "record", Description: "Enable recording", Type: FLAG_BOOL}
+	FlagStartWithSlate             = Flag{Name: "slate", Description: "Start with slate", Type: FLAG_BOOL}
+	FlagClosedCaptions             = Flag{Name: "captions", Description: "Enable closed captions", Type: FLAG_BOOL}
+	FlagMonitorStream              = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
+	FlagBroadcastDelay             = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
+	FlagLowLatency                 = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
+	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike"}
+	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
+	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
+	FlagSearchQuery                = Flag{Name: "q", Description: "Search query", Type: FLAG_STRING}
+	FlagSearchOrder                = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount"}
+	FlagSearchChannelOrder         = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount|videocount"}
+	FlagSearchVideo                = Flag{Name: "video", Description: "Related video", Type: FLAG_VIDEO}
+	FlagSearchSafe                 = Flag{Name: "safesearch", Description: "Restricted content filter", Type: FLAG_ENUM, Extra: "none|moderate|strict"}
+	FlagSearchBroadcastStatus      = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "completed|live|upcoming"}
+	FlagPolicy                     = Flag{Name: "policy", Description: "Policy ID", Type: FLAG_STRING}
+	FlagPolicyOrder                = Flag{Name: "order", Description: "Policy list order", Type: FLAG_ENUM, Extra: "timeUpdatedAsc|timeUpdatedDesc"}
+	FlagClaim                      = Flag{Name: "claim", Description: "Claim ID", Type: FLAG_VIDEO}
+	FlagClaimType                  = Flag{Name: "type", Description: "Claim Type: Defaults to audiovisual", Type: FLAG_ENUM, Extra: "audio|visual|audiovisual", Default: "audiovisual"}
+	FlagClaimStatus                = Flag{Name: "status", Description: "Claim Status", Type: FLAG_ENUM, Extra: "active|inactive"}
+	FlagClaimBlockOutsideOwnership = Flag{Name: "blockoutsideownership", Description: "Block viewing outside ownership regions", Type: FLAG_BOOL}
+	FlagAsset                      = Flag{Name: "asset", Description: "Asset ID", Type: FLAG_STRING}
+	FlagAssetFilter                = Flag{Name: "filter", Description: "Retrieve computed asset information or my asset information", Type: FLAG_ENUM, Extra: "none|effective|mine", Default: "none"}
 )
 
 // Global variables
@@ -137,210 +129,209 @@ var (
 
 	// Global flags which are defined for every invocation of the tool
 	GlobalFlags = []*Flag{
-        &FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret,
-        &FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel,
-        &FlagFields,
-    }
+		&FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret,
+		&FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel,
+		&FlagFields, &FlagOutput,
+	}
 
 	// Variety of error conditions
-    ErrorUsage = errors.New("Display usage information")
-    ErrorClientSecrets = errors.New("Missing Client Secrets File")
-    ErrorServiceAccount = errors.New("Missing Service Account File and/or Content Owner")
-	ErrorWriteDefaults = errors.New("Write Defaults to file")
+	ErrorUsage           = errors.New("Display usage information")
+	ErrorClientSecrets   = errors.New("Missing Client Secrets File")
+	ErrorServiceAccount  = errors.New("Missing Service Account File and/or Content Owner")
+	ErrorWriteDefaults   = errors.New("Write Defaults to file")
 	ErrorRemoveAuthToken = errors.New("Remove OAuth token")
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 // FlagSet implementation
 
-func NewFlagSet() (*FlagSet) {
-    this := new(FlagSet)
-    this.flagset = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
-    this.flagset.SetOutput(ioutil.Discard)
-    this.sections = make([]*Section,0)
-    this.Values = NewValues()
-    this.Output = NewTable()
-    return this
+func NewFlagSet() *FlagSet {
+	this := new(FlagSet)
+	this.flagset = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	this.flagset.SetOutput(ioutil.Discard)
+	this.sections = make([]*Section, 0)
+	this.Values = NewValues()
+	this.Output = NewTable()
+	return this
 }
 
-func (this *FlagSet) AddFlag(flag *Flag) (error) {
+func (this *FlagSet) AddFlag(flag *Flag) error {
 
-    // check for flag name clash
-    if this.flagset.Lookup(flag.Name) != nil {
-        return errors.New(fmt.Sprint("Duplicate flag: ", flag.Name))
-    }
-
-    // set flag
-    value := this.Values.Set(&Value{flag: flag})
-    this.flagset.Var(value,flag.Name,flag.Description)
-
-    // success
-    return nil
-}
-
-func (this *FlagSet) AddFlags(flags []*Flag) (error) {
-    for _,flag := range flags {
-        if err := this.AddFlag(flag); err != nil {
-            return err
-        }
-    }
-    // success
-    return nil
-}
-
-func (this *FlagSet) RegisterCommands(funcs []*RegisterFunction) (error) {
-    var commands map[string]bool = make(map[string]bool,0)
-
-    // call functions to retrieve sets of commands
-    for _, f := range funcs {
-        section := &Section{
-            Title: f.Title,
-            Commands: make([]*Command,0),
-        }
-        for _, c := range f.Callback() {
-            // check for existing command
-            if _,exists := commands[c.Name]; exists {
-                return errors.New(fmt.Sprint("Duplicate command: ", c.Name))
-            }
-            // or else add to list of sections
-            section.Commands = append(section.Commands,c)
-            commands[c.Name] = true
-        }
-        this.sections = append(this.sections,section)
-    }
-
-    // Success
-    return nil
-}
-
-func (this *FlagSet) GetCommandFromName(name string) (*Command,error) {
-    for _,section := range this.sections {
-        for _,command := range section.Commands {
-            if command.Name == name {
-                return command,nil
-            }
-        }
-    }
-    return nil,errors.New(fmt.Sprint("Invalid command: ", name))
-}
-
-func (this *FlagSet) setPaths() (error) {
-    // get credentials path, make it if it doesn't exist
-    credentialsPath,exists := util.ResolvePath(this.Values.GetString(&FlagCredentials),util.UserDir())
-    if exists == false {
-        if err := os.Mkdir(credentialsPath, credentialsPathMode); err != nil {
-            return err
-        }
-    }
-
-    // client secrets
-    clientSecretsPath,exists := util.ResolvePath(this.Values.GetString(&FlagClientSecret),credentialsPath)
-    if exists != true {
-        return ErrorClientSecrets
-    } else {
-        this.ClientSecrets = clientSecretsPath
-    }
-
-    // service account
-    serviceAccountPath,exists := util.ResolvePath(this.Values.GetString(&FlagServiceAccount),credentialsPath)
-    if exists {
-        this.ServiceAccount = serviceAccountPath
-    }
-
-    // oauth token
-    authTokenPath,exists := util.ResolvePath(this.Values.GetString(&FlagAuthToken),credentialsPath)
-    this.AuthToken = authTokenPath
-
-    // defaults file
-    defaultsPath,exists := util.ResolvePath(this.Values.GetString(&FlagDefaults),credentialsPath)
-    this.Defaults = defaultsPath
-
-    // success
-    return nil
-}
-
-func (this *FlagSet) Parse() (*Command,error) {
-    var command *Command
-    var err error
-
-
-    // Add global flags
-    if err := this.AddFlags(GlobalFlags); err != nil {
-        return nil,err
-    }
-
-    // Determine the command which will be used to add additional flags
-    if len(os.Args) < 2 {
-        return nil,ErrorUsage
-    }
-    lastarg := os.Args[len(os.Args)-1]
-    if strings.HasPrefix(lastarg,"-") == false {
-        command, err = this.GetCommandFromName(lastarg)
-        if err != nil {
-            return nil,err
-        }
-    }
-
-    // Add additional optional and required flags
-    if command != nil {
-        if err := this.AddFlags(command.Optional); err != nil {
-            return command, err
-        }
-        if err := this.AddFlags(command.Required); err != nil {
-            return command, err
-        }
-    }
-
-    // Set empty usage function
-    this.flagset.Usage = func() {}
-
-    // Set flag values
-    err = this.flagset.Parse(os.Args[1:])
-
-    // Check for -help on command line
-    if this.flagset.NArg() == 0 && err == flag.ErrHelp {
-        return nil, ErrorUsage
-    }
-    // Check for none or too many arguments
-    if this.flagset.NArg() == 0 {
-        return nil, errors.New("Missing command")
-    }
-    if this.flagset.NArg() > 1 && err == nil {
-        return nil, errors.New(fmt.Sprint("Too many arguments on command line: ", this.flagset.Args()))
-    }
-    if command == nil {
-        return nil,ErrorUsage
-    }
-
-    // Set paths for various files
-    err2 := this.setPaths()
-    if err == nil && err2 != nil {
-        err = err2
-    }
-
-    // setup output
-	if err := this.SetupCommand(command); err != nil {
-		return command,err
+	// check for flag name clash
+	if this.flagset.Lookup(flag.Name) != nil {
+		return errors.New(fmt.Sprint("Duplicate flag: ", flag.Name))
 	}
 
-    // check for -help <Command>
-    if err == flag.ErrHelp {
-        return command,ErrorUsage
-    }
-    // general caught errors
-    if err != nil {
-        return command,err
-    }
+	// set flag
+	value := this.Values.Set(&Value{flag: flag})
+	this.flagset.Var(value, flag.Name, flag.Description)
 
-    // Look for missing required flags
-    for _, flag := range command.Required {
-        if this.Values.IsSet(flag) == false {
-            return nil, errors.New(fmt.Sprint("Missing required flag: ", flag.Name))
-        }
-    }
+	// success
+	return nil
+}
 
-    // success
-    return command,nil
+func (this *FlagSet) AddFlags(flags []*Flag) error {
+	for _, flag := range flags {
+		if err := this.AddFlag(flag); err != nil {
+			return err
+		}
+	}
+	// success
+	return nil
+}
+
+func (this *FlagSet) RegisterCommands(funcs []*RegisterFunction) error {
+	var commands map[string]bool = make(map[string]bool, 0)
+
+	// call functions to retrieve sets of commands
+	for _, f := range funcs {
+		section := &Section{
+			Title:    f.Title,
+			Commands: make([]*Command, 0),
+		}
+		for _, c := range f.Callback() {
+			// check for existing command
+			if _, exists := commands[c.Name]; exists {
+				return errors.New(fmt.Sprint("Duplicate command: ", c.Name))
+			}
+			// or else add to list of sections
+			section.Commands = append(section.Commands, c)
+			commands[c.Name] = true
+		}
+		this.sections = append(this.sections, section)
+	}
+
+	// Success
+	return nil
+}
+
+func (this *FlagSet) GetCommandFromName(name string) (*Command, error) {
+	for _, section := range this.sections {
+		for _, command := range section.Commands {
+			if command.Name == name {
+				return command, nil
+			}
+		}
+	}
+	return nil, errors.New(fmt.Sprint("Invalid command: ", name))
+}
+
+func (this *FlagSet) setPaths() error {
+	// get credentials path, make it if it doesn't exist
+	credentialsPath, exists := util.ResolvePath(this.Values.GetString(&FlagCredentials), util.UserDir())
+	if exists == false {
+		if err := os.Mkdir(credentialsPath, credentialsPathMode); err != nil {
+			return err
+		}
+	}
+
+	// client secrets
+	clientSecretsPath, exists := util.ResolvePath(this.Values.GetString(&FlagClientSecret), credentialsPath)
+	if exists != true {
+		return ErrorClientSecrets
+	} else {
+		this.ClientSecrets = clientSecretsPath
+	}
+
+	// service account
+	serviceAccountPath, exists := util.ResolvePath(this.Values.GetString(&FlagServiceAccount), credentialsPath)
+	if exists {
+		this.ServiceAccount = serviceAccountPath
+	}
+
+	// oauth token
+	authTokenPath, exists := util.ResolvePath(this.Values.GetString(&FlagAuthToken), credentialsPath)
+	this.AuthToken = authTokenPath
+
+	// defaults file
+	defaultsPath, exists := util.ResolvePath(this.Values.GetString(&FlagDefaults), credentialsPath)
+	this.Defaults = defaultsPath
+
+	// success
+	return nil
+}
+
+func (this *FlagSet) Parse() (*Command, error) {
+	var command *Command
+	var err error
+
+	// Add global flags
+	if err := this.AddFlags(GlobalFlags); err != nil {
+		return nil, err
+	}
+
+	// Determine the command which will be used to add additional flags
+	if len(os.Args) < 2 {
+		return nil, ErrorUsage
+	}
+	lastarg := os.Args[len(os.Args)-1]
+	if strings.HasPrefix(lastarg, "-") == false {
+		command, err = this.GetCommandFromName(lastarg)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Add additional optional and required flags
+	if command != nil {
+		if err := this.AddFlags(command.Optional); err != nil {
+			return command, err
+		}
+		if err := this.AddFlags(command.Required); err != nil {
+			return command, err
+		}
+	}
+
+	// Set empty usage function
+	this.flagset.Usage = func() {}
+
+	// Set flag values
+	err = this.flagset.Parse(os.Args[1:])
+
+	// Check for -help on command line
+	if this.flagset.NArg() == 0 && err == flag.ErrHelp {
+		return nil, ErrorUsage
+	}
+	// Check for none or too many arguments
+	if this.flagset.NArg() == 0 {
+		return nil, errors.New("Missing command")
+	}
+	if this.flagset.NArg() > 1 && err == nil {
+		return nil, errors.New(fmt.Sprint("Too many arguments on command line: ", this.flagset.Args()))
+	}
+	if command == nil {
+		return nil, ErrorUsage
+	}
+
+	// Set paths for various files
+	err2 := this.setPaths()
+	if err == nil && err2 != nil {
+		err = err2
+	}
+
+	// setup output
+	if err := this.SetupCommand(command); err != nil {
+		return command, err
+	}
+
+	// check for -help <Command>
+	if err == flag.ErrHelp {
+		return command, ErrorUsage
+	}
+	// general caught errors
+	if err != nil {
+		return command, err
+	}
+
+	// Look for missing required flags
+	for _, flag := range command.Required {
+		if this.Values.IsSet(flag) == false {
+			return nil, errors.New(fmt.Sprint("Missing required flag: ", flag.Name))
+		}
+	}
+
+	// success
+	return command, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -358,61 +349,63 @@ func (this *FlagSet) UsageGlobalFlags() {
 	// Output globals
 	fmt.Fprintf(os.Stderr, "\nGlobal flags:\n\n")
 	for _, f := range GlobalFlags {
-        // skip content owner flag if no service account
-        if f == &FlagContentOwner && this.ServiceAccount == "" {
-            continue
-        }
-        // output flag description
+		// skip content owner flag if no service account
+		if f == &FlagContentOwner && this.ServiceAccount == "" {
+			continue
+		}
+		// output flag description
 		fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s", f.Name, f.TypeString(), f.Description)
-        if f.Default != "" {
-            fmt.Fprintf(os.Stderr, " (default: \"%s\")",f.Default)
-        }
-        fmt.Fprint(os.Stderr, "\n")
+		if f.Default != "" {
+			fmt.Fprintf(os.Stderr, " (default: \"%s\")", f.Default)
+		}
+		fmt.Fprint(os.Stderr, "\n")
 	}
 }
 
+// Output a list of flags for a command.
 func (this *FlagSet) UsageCommand(command *Command) {
-    fmt.Fprintf(os.Stderr, "\nFlags for %s:\n\n", command.Name)
-    // Output flags
-    for _, f := range command.Required {
-        fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s, required\n", f.Name, f.TypeString(), f.Description)
-    }
-    for _, f := range command.Optional {
-        fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s, optional\n", f.Name, f.TypeString(), f.Description)
-    }
+	fmt.Fprintf(os.Stderr, "\nFlags for %s:\n\n", command.Name)
+	// Output flags
+	for _, f := range command.Required {
+		fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s, required\n", f.Name, f.TypeString(), f.Description)
+	}
+	for _, f := range command.Optional {
+		fmt.Fprintf(os.Stderr, "\t-%s <%s>\n\t\t%s, optional\n", f.Name, f.TypeString(), f.Description)
+	}
 }
 
 // Output a list of possible commands, grouped by section. Will not display
 // commands which are only to be used for service accounts, if no service
 // account is installed
 func (this *FlagSet) UsageCommandList() {
-	for _,section := range(this.sections) {
-        var commands []*Command = make([]*Command,0)
-        for _, command := range(section.Commands) {
-            if command.ServiceAccount && this.ServiceAccount == "" {
-                continue
-            }
-            commands = append(commands,command)
-        }
-        if len(commands) == 0 {
-            continue
-        }
+	for _, section := range this.sections {
+		var commands []*Command = make([]*Command, 0)
+		for _, command := range section.Commands {
+			// TODO
+            /*if command.ServiceAccount && this.ServiceAccount == "" {
+				continue
+			}*/
+			commands = append(commands, command)
+		}
+		if len(commands) == 0 {
+			continue
+		}
 		fmt.Fprintf(os.Stderr, "\n%s:\n\n", section.Title)
-		for _, command := range(commands) {
+		for _, command := range commands {
 			fmt.Fprintf(os.Stderr, "\t%s\n\t\t%s\n", command.Name, command.Description)
 		}
 	}
 }
 
 func (this *FlagSet) UsageFields() {
-	for _,part := range(this.Output.Parts(true)) {
+	for _, part := range this.Output.Parts(true) {
 		fields := this.Output.FieldsForPart(part)
 		if len(fields) == 0 {
 			continue
 		}
 		fmt.Fprintf(os.Stderr, "\nFields for '%s':\n\n", part)
-		for _,field := range(fields) {
-			fmt.Fprintf(os.Stderr, "\t%s (%s)\n",field.Name,field.TypeString())
+		for _, field := range fields {
+			fmt.Fprintf(os.Stderr, "\t%s (%s)\n", field.Name, field.TypeString())
 		}
 	}
 }
@@ -484,23 +477,23 @@ func (this *FlagSet) RemoveAuthToken() error {
 ////////////////////////////////////////////////////////////////////////////////
 // Add and remove fields
 
-func (this *FlagSet) SetFields(fields []string) (error) {
+func (this *FlagSet) SetFields(fields []string) error {
 	// Check fields - all of which should start with +- or with no +-, but not mixed
 	is_plusminus := false
 	is_setfields := false
-	for _,field := range(fields) {
+	for _, field := range fields {
 		field := strings.TrimSpace(field)
 		if field == "" {
 			continue
 		}
-		if strings.HasPrefix(field,"+") || strings.HasPrefix(field,"-") {
+		if strings.HasPrefix(field, "+") || strings.HasPrefix(field, "-") {
 			if is_setfields {
-				return errors.New(fmt.Sprintf("Invalid field name or snippet \"%s\", cannot have prefix of '+' or '-'",field))
+				return errors.New(fmt.Sprintf("Invalid field name or snippet \"%s\", cannot have prefix of '+' or '-'", field))
 			}
 			is_plusminus = true
 		} else {
 			if is_plusminus {
-				return errors.New(fmt.Sprintf("Invalid field name or snippet \"%s\", must have prefix of '+' or '-'",field))
+				return errors.New(fmt.Sprintf("Invalid field name or snippet \"%s\", must have prefix of '+' or '-'", field))
 			}
 			is_setfields = true
 		}
@@ -511,16 +504,16 @@ func (this *FlagSet) SetFields(fields []string) (error) {
 	}
 	// Remove existing field columns if we're setting the fields from scratch
 	if is_setfields {
-		this.Output.SetColumns([]string{ })
+		this.Output.SetColumns([]string{})
 	}
 	// Add and remove columns
-	for _,field := range(fields) {
+	for _, field := range fields {
 		var err error
 		if is_setfields {
 			err = this.Output.AddColumn(field)
-		} else if strings.HasPrefix(field,"+") {
+		} else if strings.HasPrefix(field, "+") {
 			err = this.Output.AddColumn(field[1:])
-		} else if strings.HasPrefix(field,"-") {
+		} else if strings.HasPrefix(field, "-") {
 			err = this.Output.RemoveColumn(field[1:])
 		}
 		if err != nil {
@@ -532,11 +525,53 @@ func (this *FlagSet) SetFields(fields []string) (error) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Open & Close output
+
+func (this *FlagSet) OpenOutput() error {
+    output := this.Values.GetString(&FlagOutput)
+    format := OUTPUT_ASCII
+    ext := filepath.Ext(output)
+    if ext == "" {
+        ext = output
+    }
+    switch(ext) {
+        case "txt":
+        case ".txt":
+            format = OUTPUT_ASCII
+        case "csv":
+        case ".csv":
+            format = OUTPUT_CSV
+        default:
+            return errors.New("Invalid output format, should be csv,txt")
+    }
+    // Open output file or use stdout
+    if output != ext {
+        fh,err := os.OpenFile(output,os.O_RDWR|os.O_CREATE,credentialsFileMode)
+        if err != nil {
+            return err
+        }
+        this.Output.SetDataFormat(fh,format)
+        this.filehandle = fh
+    } else {
+        this.Output.SetDataFormat(os.Stdout,format)
+    }
+    // Success
+    return nil
+}
+
+func (this *FlagSet) CloseOutput() (error) {
+    if this.filehandle != nil {
+        return this.filehandle.Close()
+    }
+    return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Setup & Execute command, display output
 
-func (this *FlagSet) SetupCommand(command *Command) (error) {
+func (this *FlagSet) SetupCommand(command *Command) error {
 	// if command is nil, then return without execution
-	if command==nil || command.Setup==nil {
+	if command == nil || command.Setup == nil {
 		return nil
 	}
 	err := command.Setup(this.Values, this.Output)
@@ -546,36 +581,35 @@ func (this *FlagSet) SetupCommand(command *Command) (error) {
 	return err
 }
 
-func (this *FlagSet) ExecuteCommand(command *Command,service *ytservice.Service) (error) {
+func (this *FlagSet) ExecuteCommand(command *Command, service *ytservice.Service) error {
 	// if command is nil, then return without execution
-	if command==nil || command.Execute==nil {
+	if command == nil || command.Execute == nil {
 		return nil
 	}
 
-    // check for service account and return error if command can't be executed
-    if command.ServiceAccount && (service.ServiceAccount==false) {
-        return ErrorServiceAccount
-    }
+	// check for service account and return error if command can't be executed
+	if command.ServiceAccount && (service.ServiceAccount == false) {
+		return ErrorServiceAccount
+	}
 
-    // execute the command
-    if err := command.Execute(service, this.Values, this.Output); err != nil {
-        return err
-    }
+	// execute the command
+	if err := command.Execute(service, this.Values, this.Output); err != nil {
+		return err
+	}
 
-    // return success
-    return nil
+	// return success
+	return nil
 }
 
-func (this *FlagSet) DisplayOutput() (error) {
-    if this.Output.NumberOfColumns() > 0 {
-        if err := this.Output.ASCII(os.Stdout); err != nil {
-            return err
-        }
-    }
-    if this.Output.NumberOfRows() > 1 {
-        this.Output.Info(fmt.Sprintf("%v items returned",this.Output.NumberOfRows()))
-    }
-    // success
-    return nil
+func (this *FlagSet) DisplayOutput() error {
+	if this.Output.NumberOfColumns() > 0 {
+		if err := this.Output.DataOutput(); err != nil {
+			return err
+		}
+	}
+	if this.Output.NumberOfRows() > 1 {
+		this.Output.Info(fmt.Sprintf("%v items returned", this.Output.NumberOfRows()))
+	}
+	// success
+	return nil
 }
-

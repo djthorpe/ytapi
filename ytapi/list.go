@@ -5,8 +5,8 @@ Please see file LICENSE for information on distribution, etc
 package ytapi
 
 import (
-	"google.golang.org/api/youtube/v3"
 	"github.com/djthorpe/ytapi/youtubepartner/v1"
+	"google.golang.org/api/youtube/v3"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -246,7 +246,6 @@ func DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults i
 	return nil
 }
 
-
 func DoPlaylistItemsList(call *youtube.PlaylistItemsListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""
@@ -315,7 +314,3 @@ func DoClaimsList(call *youtubepartner.ClaimsListCall, table *Table, maxresults 
 	// Success
 	return nil
 }
-
-
-
-

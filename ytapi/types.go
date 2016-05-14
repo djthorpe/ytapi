@@ -102,7 +102,7 @@ func (this *Flag) asEnum(value string) (string, error) {
 func (this *Flag) asVideo(value string) (Video, error) {
 	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\-\\_]{11})$", value)
 	if matched == false {
-		return "", errors.New(fmt.Sprintf("Malformed video value: %s",value))
+		return "", errors.New(fmt.Sprintf("Malformed video value: %s", value))
 	}
 	return Video(value), nil
 }
@@ -144,7 +144,7 @@ func (this *Flag) asPlaylist(value string) (Playlist, error) {
 	if matched3 {
 		return Playlist(value), nil
 	}
-	return "", errors.New(fmt.Sprintf("Malformed playlist value: %s",value))
+	return "", errors.New(fmt.Sprintf("Malformed playlist value: %s", value))
 }
 
 func (this *Flag) asLanguage(value string) (Language, error) {
@@ -156,7 +156,7 @@ func (this *Flag) asLanguage(value string) (Language, error) {
 	if matched {
 		return Language(value), nil
 	}
-	return "", errors.New(fmt.Sprintf("Malformed language value: %s",value))
+	return "", errors.New(fmt.Sprintf("Malformed language value: %s", value))
 }
 
 func (this *Flag) asRegion(value string) (Region, error) {
@@ -168,10 +168,9 @@ func (this *Flag) asRegion(value string) (Region, error) {
 }
 
 func (this *Flag) asTime(value string) (time.Time, error) {
-	datetime, err := util.ParseTime(value,false)
+	datetime, err := util.ParseTime(value, false)
 	if err != nil {
 		return time.Time{}, err
 	}
 	return datetime, nil
 }
-

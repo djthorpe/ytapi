@@ -15,12 +15,12 @@ import (
 func RegisterPolicyCommands() []*ytapi.Command {
 	return []*ytapi.Command{
 		&ytapi.Command{
-			Name:        "ListPolicies",
-			Description: "List policies",
-            ServiceAccount: true,
-			Optional:    []*ytapi.Flag{&ytapi.FlagPolicyOrder},
-			Setup:       RegisterPolicyFormat,
-			Execute:     ListPolicies,
+			Name:           "ListPolicies",
+			Description:    "List policies",
+			ServiceAccount: true,
+			Optional:       []*ytapi.Flag{&ytapi.FlagPolicyOrder},
+			Setup:          RegisterPolicyFormat,
+			Execute:        ListPolicies,
 		},
 	}
 }
@@ -38,18 +38,17 @@ func RegisterPolicyFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"policy", "name", "description","timeUpdated" })
+	table.SetColumns([]string{"policy", "name", "description", "timeUpdated"})
 
 	// success
 	return nil
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // List Policies
 
 func ListPolicies(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-    // create call and set parameters
+	// create call and set parameters
 	call := service.PAPI.Policies.List()
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 	if values.IsSet(&ytapi.FlagPolicyOrder) {
@@ -57,7 +56,7 @@ func ListPolicies(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	}
 
 	// perform query
-	response,err := call.Do()
+	response, err := call.Do()
 	if err != nil {
 		return err
 	}

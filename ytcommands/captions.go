@@ -33,7 +33,7 @@ func RegisterCaptionFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	table.RegisterPart("snippet", []*ytapi.Flag{
 		&ytapi.Flag{Name: "video", Path: "Snippet/VideoId", Type: ytapi.FLAG_VIDEO},
-		&ytapi.Flag{Name: "lastUpdated",  Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "lastUpdated", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "captiontype", Path: "Snippet/TrackKind", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "language", Type: ytapi.FLAG_LANGUAGE},
 		&ytapi.Flag{Name: "name", Type: ytapi.FLAG_STRING},

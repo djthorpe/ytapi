@@ -88,7 +88,7 @@ func RegisterChannelFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"channel", "title", "description", "publishedAt" })
+	table.SetColumns([]string{"channel", "title", "description", "publishedAt"})
 
 	// success
 	return nil

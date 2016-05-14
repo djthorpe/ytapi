@@ -7,7 +7,7 @@ package cidcommands
 import (
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
-//    "github.com/djthorpe/ytapi/youtubepartner/v1"
+	//    "github.com/djthorpe/ytapi/youtubepartner/v1"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,12 +16,12 @@ import (
 func RegisterReferenceCommands() []*ytapi.Command {
 	return []*ytapi.Command{
 		&ytapi.Command{
-			Name:        "ListReferences",
-			Description: "Get a list of references for an asset",
-            ServiceAccount: true,
-            Required:    []*ytapi.Flag{ &ytapi.FlagAsset },
-			Setup:       RegisterReferenceFormat,
-			Execute:     ListReferences,
+			Name:           "ListReferences",
+			Description:    "Get a list of references for an asset",
+			ServiceAccount: true,
+			Required:       []*ytapi.Flag{&ytapi.FlagAsset},
+			Setup:          RegisterReferenceFormat,
+			Execute:        ListReferences,
 		},
 	}
 }
@@ -36,7 +36,7 @@ func RegisterReferenceFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{ "reference" })
+	table.SetColumns([]string{"reference"})
 
 	// success
 	return nil
@@ -46,9 +46,8 @@ func RegisterReferenceFormat(values *ytapi.Values, table *ytapi.Table) error {
 // List References
 
 func ListReferences(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-    // TODO
+	// TODO
 
-    // Success
+	// Success
 	return nil
 }
-

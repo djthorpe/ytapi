@@ -7,21 +7,21 @@ package ytservice
 import (
 	"io/ioutil"
 
+	"github.com/djthorpe/ytapi/youtubepartner/v1"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/youtube/v3"
-	"github.com/djthorpe/ytapi/youtubepartner/v1"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // Service object which contains the main context for calling the YouTube API
 type Service struct {
-	API            *youtube.Service
-	PAPI           *youtubepartner.Service
-	ServiceAccount bool
+	API                 *youtube.Service
+	PAPI                *youtubepartner.Service
+	ServiceAccount      bool
 	ServiceAccountEmail string
-	token          *oauth2.Token
+	token               *oauth2.Token
 }
 
 ////////////////////////////////////////////////////////////////////////////////

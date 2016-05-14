@@ -15,11 +15,11 @@ import (
 func RegisterContentOwnerCommands() []*ytapi.Command {
 	return []*ytapi.Command{
 		&ytapi.Command{
-			Name:        "ListContentOwners",
-			Description: "List content owners",
-            ServiceAccount: true,
-			Setup:       RegisterContentOwnerFormat,
-			Execute:     ListContentOwners,
+			Name:           "ListContentOwners",
+			Description:    "List content owners",
+			ServiceAccount: true,
+			Setup:          RegisterContentOwnerFormat,
+			Execute:        ListContentOwners,
 		},
 	}
 }
@@ -36,23 +36,22 @@ func RegisterContentOwnerFormat(values *ytapi.Values, table *ytapi.Table) error 
 	})
 
 	// set default columns
-	table.SetColumns([]string{"contentowner", "displayName", "conflictNotificationEmail" })
+	table.SetColumns([]string{"contentowner", "displayName", "conflictNotificationEmail"})
 
 	// success
 	return nil
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // List Content Owners
 
 func ListContentOwners(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-    // Create call and set parameters
+	// Create call and set parameters
 	call := service.PAPI.ContentOwners.List()
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
 	// Get response
-	response,err := call.FetchMine(true).Do()
+	response, err := call.FetchMine(true).Do()
 	if err != nil {
 		return err
 	}

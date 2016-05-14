@@ -5,9 +5,9 @@ Please see file LICENSE for information on distribution, etc
 package ytcommands
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -37,14 +37,14 @@ func retrieveChannelDetails(service *ytservice.Service, values *ytapi.Values, ta
 	}
 	if values.IsSet(&ytapi.FlagChannel) {
 		call = call.Id(values.GetString(&ytapi.FlagChannel))
-	} else if(service.ServiceAccount) {
+	} else if service.ServiceAccount {
 		call = call.ManagedByMe(true)
 	} else {
 		call = call.Mine(true)
 	}
 
 	// Perform search, and return results
-	return ytapi.DoChannelsList(call,table,0)
+	return ytapi.DoChannelsList(call, table, 0)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ func retrieveChannelDetails(service *ytservice.Service, values *ytapi.Values, ta
 func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 
 	// Disallow -channel parameter without -contentowner parameter
-	if values.IsSet(&ytapi.FlagChannel) && values.IsSet(&ytapi.FlagContentOwner)==false {
+	if values.IsSet(&ytapi.FlagChannel) && values.IsSet(&ytapi.FlagContentOwner) == false {
 		return errors.New("Cannot set -channel flag without -contentowner flag")
 	}
 
@@ -67,7 +67,7 @@ func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 	table.RegisterPart("contentOwnerDetails", []*ytapi.Flag{
 		&ytapi.Flag{Name: "contentowner", Path: "ContentOwnerDetails/ContentOwner", Type: ytapi.FLAG_CONTENTOWNER},
 	})
-	table.SetColumns([]string{"channel", "title" })
+	table.SetColumns([]string{"channel", "title"})
 
 	// success - but ask to remove the authentication token
 	return ytapi.ErrorRemoveAuthToken
@@ -77,21 +77,20 @@ func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table
 
 	// Display authentication settings
 	if service.ServiceAccount {
-		table.Info(fmt.Sprintf("Service Account: %s",service.ServiceAccountEmail))
+		table.Info(fmt.Sprintf("Service Account: %s", service.ServiceAccountEmail))
 		if values.IsSet(&ytapi.FlagContentOwner) {
-			table.Info(fmt.Sprint("  Content Owner: ",values.GetString(&ytapi.FlagContentOwner)))
+			table.Info(fmt.Sprint("  Content Owner: ", values.GetString(&ytapi.FlagContentOwner)))
 		}
 		if values.IsSet(&ytapi.FlagChannel) {
-			table.Info(fmt.Sprint("        Channel: ",values.GetString(&ytapi.FlagChannel)))
+			table.Info(fmt.Sprint("        Channel: ", values.GetString(&ytapi.FlagChannel)))
 		}
 	}
 
 	// Get channel details
-	if err := retrieveChannelDetails(service,values,table); err != nil {
+	if err := retrieveChannelDetails(service, values, table); err != nil {
 		return err
 	}
 
 	// Write defaults
 	return ytapi.ErrorWriteDefaults
 }
-

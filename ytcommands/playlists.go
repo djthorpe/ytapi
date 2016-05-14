@@ -6,14 +6,13 @@ package ytcommands
 
 import (
 	"errors"
-	"strings"
 	"fmt"
+	"strings"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
 	"google.golang.org/api/youtube/v3"
 )
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register playlist commands
@@ -31,7 +30,7 @@ func RegisterPlaylistCommands() []*ytapi.Command {
 			Name:        "NewPlaylist",
 			Description: "Create a new playlist",
 			Required:    []*ytapi.Flag{&ytapi.FlagTitle},
-			Optional:    []*ytapi.Flag{&ytapi.FlagDescription,&ytapi.FlagPrivacyStatus,&ytapi.FlagLanguage},
+			Optional:    []*ytapi.Flag{&ytapi.FlagDescription, &ytapi.FlagPrivacyStatus, &ytapi.FlagLanguage},
 			Setup:       RegisterPlaylistFormat,
 			Execute:     InsertPlaylist,
 		},
@@ -45,7 +44,7 @@ func RegisterPlaylistCommands() []*ytapi.Command {
 			Name:        "UpdatePlaylist",
 			Description: "Update playlist metadata",
 			Required:    []*ytapi.Flag{&ytapi.FlagPlaylist},
-			Optional:    []*ytapi.Flag{&ytapi.FlagTitle,&ytapi.FlagDescription,&ytapi.FlagPrivacyStatus,&ytapi.FlagLanguage},
+			Optional:    []*ytapi.Flag{&ytapi.FlagTitle, &ytapi.FlagDescription, &ytapi.FlagPrivacyStatus, &ytapi.FlagLanguage},
 			Setup:       RegisterPlaylistFormat,
 			Execute:     UpdatePlaylist,
 		},
@@ -65,7 +64,7 @@ func RegisterPlaylistFormat(values *ytapi.Values, table *ytapi.Table) error {
 		&ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "language", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
 		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
-		&ytapi.Flag{Name: "channelTitle",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "channelTitle", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "tags", Type: ytapi.FLAG_STRING},
 	})
 	table.RegisterPart("contentDetails", []*ytapi.Flag{
@@ -79,7 +78,7 @@ func RegisterPlaylistFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"playlist", "title", "description","itemCount","privacyStatus"})
+	table.SetColumns([]string{"playlist", "title", "description", "itemCount", "privacyStatus"})
 
 	// success
 	return nil
@@ -116,9 +115,9 @@ func InsertPlaylist(service *ytservice.Service, values *ytapi.Values, table *yta
 	// Create call, set parameters
 	call := service.API.Playlists.Insert("snippet,status", &youtube.Playlist{
 		Snippet: &youtube.PlaylistSnippet{
-			Title:              values.GetString(&ytapi.FlagTitle),
-			Description:        values.GetString(&ytapi.FlagDescription),
-			DefaultLanguage:    values.GetString(&ytapi.FlagLanguage),
+			Title:           values.GetString(&ytapi.FlagTitle),
+			Description:     values.GetString(&ytapi.FlagDescription),
+			DefaultLanguage: values.GetString(&ytapi.FlagLanguage),
 		},
 		Status: &youtube.PlaylistStatus{
 			PrivacyStatus: values.GetString(&ytapi.FlagPrivacyStatus),
@@ -145,7 +144,6 @@ func InsertPlaylist(service *ytservice.Service, values *ytapi.Values, table *yta
 	return ytapi.DoPlaylistsList(call2, table, 1)
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Update playlist metadata
 
@@ -163,7 +161,7 @@ func UpdatePlaylist(service *ytservice.Service, values *ytapi.Values, table *yta
 		return err
 	}
 	if len(response.Items) != 1 {
-		return errors.New(fmt.Sprint("Playlist not found: ",playlist))
+		return errors.New(fmt.Sprint("Playlist not found: ", playlist))
 	}
 	metadata := response.Items[0]
 	if values.IsSet(&ytapi.FlagTitle) {
@@ -179,12 +177,12 @@ func UpdatePlaylist(service *ytservice.Service, values *ytapi.Values, table *yta
 		metadata.Status.PrivacyStatus = values.GetString(&ytapi.FlagPrivacyStatus)
 	}
 	// do update
-	call2 := service.API.Playlists.Update("snippet,status",&youtube.Playlist{
+	call2 := service.API.Playlists.Update("snippet,status", &youtube.Playlist{
 		Id: metadata.Id,
 		Snippet: &youtube.PlaylistSnippet{
-			Title:              metadata.Snippet.Title,
-			Description:        metadata.Snippet.Description,
-			DefaultLanguage:    metadata.Snippet.DefaultLanguage,
+			Title:           metadata.Snippet.Title,
+			Description:     metadata.Snippet.Description,
+			DefaultLanguage: metadata.Snippet.DefaultLanguage,
 		},
 		Status: &youtube.PlaylistStatus{
 			PrivacyStatus: metadata.Status.PrivacyStatus,
@@ -227,8 +225,6 @@ func DeletePlaylist(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// Success
-	table.Info(fmt.Sprint("Deleted: ",playlist))
+	table.Info(fmt.Sprint("Deleted: ", playlist))
 	return nil
 }
-
-

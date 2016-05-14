@@ -19,7 +19,7 @@ func RegisterChannelSectionCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "ListChannelSections",
 			Description: "List channel sections",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagLanguage },
+			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage},
 			Setup:       RegisterChannelSectionFormat,
 			Execute:     ListChannelSections,
 		},
@@ -38,14 +38,14 @@ func RegisterChannelSectionFormat(values *ytapi.Values, table *ytapi.Table) erro
 	table.RegisterPart("snippet", []*ytapi.Flag{
 		&ytapi.Flag{Name: "type", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "style", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "channel",Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
 		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "position", Type: ytapi.FLAG_UINT},
 		&ytapi.Flag{Name: "language", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
 	})
 
 	// set default columns
-	table.SetColumns([]string{"position", "title", "type", "style" })
+	table.SetColumns([]string{"position", "title", "type", "style"})
 
 	// success
 	return nil
@@ -72,7 +72,7 @@ func ListChannelSections(service *ytservice.Service, values *ytapi.Values, table
 		call = call.Mine(true)
 	}
 
-	response,err := call.Do()
+	response, err := call.Do()
 	if err != nil {
 		return err
 	}

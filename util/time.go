@@ -6,11 +6,11 @@ package util
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"fmt"
 )
 
 var (
@@ -28,11 +28,11 @@ var (
 // and an error if the time could not be parsed, or nil
 // The 'notnull' boolean flag can be used to allow empty string,
 // in which case time.Time{} is returned
-func ParseTime(value string,notnull bool) (time.Time, error) {
+func ParseTime(value string, notnull bool) (time.Time, error) {
 
 	// EMPTY
-	if (notnull==false) && Empty.MatchString(value) {
-		return time.Time{},nil
+	if (notnull == false) && Empty.MatchString(value) {
+		return time.Time{}, nil
 	}
 
 	// make lowercase
@@ -68,11 +68,11 @@ func ParseTime(value string,notnull bool) (time.Time, error) {
 		return time.Now().AddDate(0, 0, int(duration)), nil
 	}
 	// ISO format
-	t, err := time.Parse(ISO,value)
+	t, err := time.Parse(ISO, value)
 	if err == nil {
-		return t,nil
+		return t, nil
 	}
 
 	// error
-	return time.Time{}, errors.New(fmt.Sprint("Cannot parse time value: \"",value,"\""))
+	return time.Time{}, errors.New(fmt.Sprint("Cannot parse time value: \"", value, "\""))
 }
