@@ -24,3 +24,6 @@ _testmain.go
 *.prof
 
 .DS_Store
+build/version.json
+build/version.go
+
