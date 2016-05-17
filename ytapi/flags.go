@@ -288,6 +288,12 @@ func (this *FlagSet) Parse() (*Command, error) {
 	// Set flag values
 	err = this.flagset.Parse(os.Args[1:])
 
+	// Set paths for various files
+	err2 := this.setPaths()
+	if err == nil && err2 != nil {
+		err = err2
+	}
+
 	// Check for -help on command line
 	if this.flagset.NArg() == 0 && err == flag.ErrHelp {
 		return nil, ErrorUsage
@@ -301,12 +307,6 @@ func (this *FlagSet) Parse() (*Command, error) {
 	}
 	if command == nil {
 		return nil, ErrorUsage
-	}
-
-	// Set paths for various files
-	err2 := this.setPaths()
-	if err == nil && err2 != nil {
-		err = err2
 	}
 
 	// setup output
@@ -373,10 +373,9 @@ func (this *FlagSet) UsageCommandList() {
 	for _, section := range this.sections {
 		var commands []*Command = make([]*Command, 0)
 		for _, command := range section.Commands {
-			// TODO
-            /*if command.ServiceAccount && this.ServiceAccount == "" {
+            if command.ServiceAccount && this.ServiceAccount == "" {
 				continue
-			}*/
+			}
 			commands = append(commands, command)
 		}
 		if len(commands) == 0 {

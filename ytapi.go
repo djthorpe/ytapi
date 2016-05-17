@@ -26,7 +26,7 @@ func Usage() {
     fmt.Fprintf(os.Stderr, "%s\n",VERSION_URL)
     fmt.Fprintf(os.Stderr, "%s\n\n",VERSION_COPYRIGHT)
     fmt.Fprintf(os.Stderr, "    Author: %s\n",VERSION_AUTHOR)
-    if VERSION_TAG != "dd" {
+    if VERSION_TAG != "" {
         fmt.Fprintf(os.Stderr,"       Tag: %s\n",VERSION_TAG)
     }
     if VERSION_BRANCH != "" {
