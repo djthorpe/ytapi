@@ -8,12 +8,41 @@ import (
 	"fmt"
 	"os"
 	"strings"
+    "path/filepath"
 
 	"github.com/djthorpe/ytapi/cidcommands"
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytcommands"
 	"github.com/djthorpe/ytapi/ytservice"
 )
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+func Usage() {
+    execname := filepath.Base(os.Args[0])
+
+    fmt.Fprintf(os.Stderr, "%s: Command Line Tool for YouTube API calls\n",execname)
+    fmt.Fprintf(os.Stderr, "%s\n",VERSION_URL)
+    fmt.Fprintf(os.Stderr, "%s\n\n",VERSION_COPYRIGHT)
+    fmt.Fprintf(os.Stderr, "    Author: %s\n",VERSION_AUTHOR)
+    if VERSION_TAG != "dd" {
+        fmt.Fprintf(os.Stderr,"       Tag: %s\n",VERSION_TAG)
+    }
+    if VERSION_BRANCH != "" {
+        fmt.Fprintf(os.Stderr,"    Branch: %s\n",VERSION_BRANCH)
+    }
+    if VERSION_HASH != "" {
+        fmt.Fprintf(os.Stderr,"      Hash: %s\n",VERSION_HASH)
+    }
+    fmt.Fprintf(os.Stderr, "      Date: %s\n",VERSION_DATE)
+    fmt.Fprintf(os.Stderr, "Go Version: %s\n",VERSION_GOVERSION)
+
+    fmt.Fprintf(os.Stderr, "\nUsage of %s:\n\n", execname)
+    fmt.Fprintf(os.Stderr, "\t%s -help\n", execname)
+    fmt.Fprintf(os.Stderr, "\t%s -help <command>\n", execname)
+    fmt.Fprintf(os.Stderr, "\t%s <flags> <command>\n", execname)
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,9 +78,9 @@ func main() {
 	// the configuration
 	command, err := flags.Parse()
 	if err == ytapi.ErrorUsage {
-		flags.Usage()
-		flags.UsageGlobalFlags()
+		Usage()
 		if command != nil {
+            flags.UsageGlobalFlags()
 			flags.UsageCommand(command)
 			flags.UsageFields()
 		} else {

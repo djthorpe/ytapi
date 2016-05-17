@@ -25,5 +25,5 @@ _testmain.go
 
 .DS_Store
 build/version.json
-build/version.go
+version.go
 

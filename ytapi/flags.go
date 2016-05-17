@@ -337,14 +337,6 @@ func (this *FlagSet) Parse() (*Command, error) {
 ////////////////////////////////////////////////////////////////////////////////
 // Usage
 
-func (this *FlagSet) Usage() {
-	execname := filepath.Base(os.Args[0])
-	fmt.Fprintf(os.Stderr, "Usage of %s:\n\n", execname)
-	fmt.Fprintf(os.Stderr, "\t%s -help\n", execname)
-	fmt.Fprintf(os.Stderr, "\t%s -help <command>\n", execname)
-	fmt.Fprintf(os.Stderr, "\t%s <flags> <command>\n", execname)
-}
-
 func (this *FlagSet) UsageGlobalFlags() {
 	// Output globals
 	fmt.Fprintf(os.Stderr, "\nGlobal flags:\n\n")

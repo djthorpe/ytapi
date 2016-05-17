@@ -7,11 +7,27 @@
 CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 JSON_PATH="${CURRENT_PATH}/version.json"
 TEMPLATE_PATH="${CURRENT_PATH}/version.go.tmpl"
-VERSION_PATH="${CURRENT_PATH}/version.go"
+VERSION_PATH="${CURRENT_PATH}/../version.go"
 GIT=`which git`
 GO=`which go`
 
+##############################################################
+# Sanity checks
+
 cd "${CURRENT_PATH}/.."
+if [ ! -d ${CURRENT_PATH} ] ; then
+    echo "Not found: ${CURRENT_PATH}"
+fi
+if [ ! -f ${TEMPLATE_PATH} ] ; then
+  echo "Not found: ${TEMPLATE_PATH}"
+fi
+if [ ! -x ${GIT} ] ; then
+  echo "Not found: ${GIT}"
+fi
+if [ ! -x ${GO} ] ; then
+  echo "Not found: ${GO}"
+fi
+
 
 ##############################################################
 # Determine version
@@ -34,7 +50,7 @@ echo "}" >> ${JSON_PATH}
 
 # build the command line tool
 ${GO} run build/build.go ${JSON_PATH} ${TEMPLATE_PATH} > ${VERSION_PATH}
-${GO} install ytapi.go
+${GO} install ytapi.go version.go
 
 ls -l ${GOBIN}/ytapi
 
