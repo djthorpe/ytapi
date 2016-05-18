@@ -135,6 +135,7 @@ var (
 	}
 
 	// Variety of error conditions
+	ErrorEmptyArgs       = errors.New("No Arguments")
 	ErrorUsage           = errors.New("Display usage information")
 	ErrorClientSecrets   = errors.New("Missing Client Secrets File")
 	ErrorServiceAccount  = errors.New("Missing Service Account File and/or Content Owner")
@@ -262,7 +263,7 @@ func (this *FlagSet) Parse() (*Command, error) {
 
 	// Determine the command which will be used to add additional flags
 	if len(os.Args) < 2 {
-		return nil, ErrorUsage
+		return nil, ErrorEmptyArgs
 	}
 	lastarg := os.Args[len(os.Args)-1]
 	if strings.HasPrefix(lastarg, "-") == false {

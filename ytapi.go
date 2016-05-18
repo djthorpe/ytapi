@@ -18,8 +18,16 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 func Usage() {
+    execname := filepath.Base(os.Args[0])
+    fmt.Fprintf(os.Stderr, "\nUsage of %s:\n\n", execname)
+    fmt.Fprintf(os.Stderr, "\t%s -help\n", execname)
+    fmt.Fprintf(os.Stderr, "\t%s -help <command>\n", execname)
+    fmt.Fprintf(os.Stderr, "\t%s <flags> <command>\n", execname)
+    fmt.Fprintln(os.Stderr, "")
+}
+
+func UsageVersion() {
     execname := filepath.Base(os.Args[0])
 
     fmt.Fprintf(os.Stderr, "%s: Command Line Tool for YouTube API calls\n",execname)
@@ -37,11 +45,6 @@ func Usage() {
     }
     fmt.Fprintf(os.Stderr, "      Date: %s\n",VERSION_DATE)
     fmt.Fprintf(os.Stderr, "Go Version: %s\n",VERSION_GOVERSION)
-
-    fmt.Fprintf(os.Stderr, "\nUsage of %s:\n\n", execname)
-    fmt.Fprintf(os.Stderr, "\t%s -help\n", execname)
-    fmt.Fprintf(os.Stderr, "\t%s -help <command>\n", execname)
-    fmt.Fprintf(os.Stderr, "\t%s <flags> <command>\n", execname)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,8 +80,12 @@ func main() {
 	// Parse command-line flags, set up output and determine paths for
 	// the configuration
 	command, err := flags.Parse()
-	if err == ytapi.ErrorUsage {
+	if err == ytapi.ErrorEmptyArgs {
 		Usage()
+		os.Exit(0)
+	} else if err == ytapi.ErrorUsage {
+		Usage()
+		UsageVersion()
 		if command != nil {
             flags.UsageGlobalFlags()
 			flags.UsageCommand(command)

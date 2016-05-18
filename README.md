@@ -20,61 +20,9 @@ This command-line utility operates on the YouTube Data API in order to list,
 update, delete and search various YouTube objects such as videos, channels,
 broadcasts, streams and playlists.
 
-## Authentication
-
-Commands for authenticating for using the YouTube API:
-
-  * `Authenticate` Use this form when authenticating against a channel. It will open
-    your web browser where you can give permission to access your YouTube
-	account. The channel you specify will be used as a default to operate on
-	for subsequent operations.
-
-  * `-contentowner=<id> Authenticate` Use this form when authenticating against a
-    service account. The content owner you specify will be used as a default to 
-	operate on for subsequent operations.
-
-  * `-contentowner=<id> -channel=<id> Authenticate` Use this form when 
-    authenticating against a service account. The content owner and channel you 
-	specify will be used as defaults for subsequent operations.
-
-## Searching YouTube
-
-Commands for performing searches of YouTube:
-
-  * `-q=<search> Search` Search videos, channels and playlists.
-
-## Operations on Channels
-
-All channel operations can include the `-channel <id>` flag to indicate which
-channel is to be operated on, which using service account authentication.
-
-Commands for accessing channels:
-
-  * `ListChannels` Use this for listing the channel or channels that you have
-    access for
-		
-  * `ListLocalizedChannelMetadata` List all the localized metadata (title, description) for the channel
-
-Commands for updating channels:
-
-  * ` -hl <language> -country <country> -title <string> -description <string> UpdateChannelMetadata` Use this to update
-    basic metadata for a channel
-
-  * ` -hl <language> -title <string> -description <string> UpdateLocalizedChannelMetadata` Update localized 
-    metadata (title, description) for the channel in a specific language	
-
-## Operations for Live Streams
-
- * `-broadcaststatus=<all|active|upcoming|completed> ListBroadcasts` Use this for listing your broadcasts
- 
- * `-video=<id> DeleteBroadcast` Delete a single broadcast from your channel
- 
- * `ListStreams` Use this for listing your streams
-
-
 ## Installation
 
-In order to use this package, you'll need to create a ".credentials" folder
+In order to use this package, you'll need to create a `.ytapi` folder
 into which you need to place one or two files:
 
   * `client_secrets.json` is required to be placed in the folder
@@ -83,3 +31,122 @@ into which you need to place one or two files:
   
 These files can be downloaded from your Google Developer console.
 
+
+## Installation and Authentication operations
+
+	Authenticate
+		Authenticate against service account or channel
+
+## Operations on Channels
+
+	ListChannels
+		List channels
+
+## Channel Section operations
+
+	ListChannelSections
+		List channel sections
+
+## Operations on videos
+
+	ListVideos
+		List videos
+	GetVideo
+		Get single video
+
+## Operations on Broadcasts
+
+	ListBroadcasts
+		List broadcasts
+	DeleteBroadcast
+		Delete broadcast
+	TransitionBroadcast
+		Transition broadcast to another state
+	BindBroadcast
+		Bind or unbind broadcast to stream
+	NewBroadcast
+		Create a new broadcast
+
+## Operations on Streams
+
+	ListStreams
+		List streams
+	DeleteStream
+		Delete stream
+
+## Operations on video captions
+
+	ListCaptions
+		List captions
+
+## Operations on Playlists
+
+	ListPlaylists
+		List playlists for channel
+	NewPlaylist
+		Create a new playlist
+	DeletePlaylist
+		Delete an existing playlist
+	UpdatePlaylist
+		Update playlist metadata
+
+## Operations on PlaylistItems
+
+	ListPlaylistItems
+		List playlist items for a playlist
+	InsertVideoIntoPlaylist
+		Inserts a video into a playlist
+	DeleteVideoFromPlaylist
+		Deletes a video from a playlist
+
+## Language and Region operations
+
+	ListLanguages
+		List languages
+	ListRegions
+		List regions
+
+## Search operations
+
+	SearchVideos
+		Search for videos based on text query or related video
+	SearchBroadcasts
+		Search for live broadcasts
+	SearchPlaylists
+		Search for playlists based on text query
+	SearchChannels
+		Search for channels
+
+## Content owner operations
+
+	ListContentOwners
+		List content owners
+
+## Policy operations
+
+	ListPolicies
+		List policies
+
+## Claim operations
+
+	Claim
+		Create a claim between a video and asset with a defined policy
+	GetClaim
+		Get Existing claim
+	ListClaims
+		List all claims
+	ClaimHistory
+		List history for a claim
+	UpdateClaim
+		Update an existing claim
+
+## Asset operations
+
+	GetAsset
+		Get a single asset
+
+## Reference operations
+
+	ListReferences
+		Get a list of references for an asset
+		
