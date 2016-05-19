@@ -54,22 +54,22 @@ func main() {
 
 	// Register the commands allowed
 	err := flags.RegisterCommands([]*ytapi.RegisterFunction{
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterAuthenticateCommands, Title: "Authentication operations"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterChannelCommands, Title: "Operations on Channels"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterChannelSectionCommands, Title: "Channel Section operations"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterVideoCommands, Title: "Operations on videos"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterBroadcastCommands, Title: "Operations on Broadcasts"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterStreamCommands, Title: "Operations on Streams"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterCaptionCommands, Title: "Operations on video captions"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterPlaylistCommands, Title: "Operations on Playlists"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterPlaylistItemCommands, Title: "Operations on PlaylistItems"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterLanguageRegionCommands, Title: "Language and Region operations"},
-		&ytapi.RegisterFunction{Callback: ytcommands.RegisterSearchCommands, Title: "Search operations"},
-		&ytapi.RegisterFunction{Callback: cidcommands.RegisterContentOwnerCommands, Title: "Content owner operations"},
-		&ytapi.RegisterFunction{Callback: cidcommands.RegisterPolicyCommands, Title: "Policy operations"},
-		&ytapi.RegisterFunction{Callback: cidcommands.RegisterClaimCommands, Title: "Claim operations"},
-		&ytapi.RegisterFunction{Callback: cidcommands.RegisterAssetCommands, Title: "Asset operations"},
-		&ytapi.RegisterFunction{Callback: cidcommands.RegisterReferenceCommands, Title: "Reference operations"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterAuthenticateCommands, Title: "Authentication and Installation"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterChannelCommands, Title: "Channels"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterChannelSectionCommands, Title: "Channel Sections"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterVideoCommands, Title: "Videos"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterBroadcastCommands, Title: "Broadcasts"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterStreamCommands, Title: "Streams"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterCaptionCommands, Title: "Video Caption Tracks"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterPlaylistCommands, Title: "Playlists"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterPlaylistItemCommands, Title: "PlaylistItems"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterLanguageRegionCommands, Title: "Language and Regions"},
+		&ytapi.RegisterFunction{Callback: ytcommands.RegisterSearchCommands, Title: "Search"},
+		&ytapi.RegisterFunction{Callback: cidcommands.RegisterContentOwnerCommands, Title: "Content Owners"},
+		&ytapi.RegisterFunction{Callback: cidcommands.RegisterPolicyCommands, Title: "Content Owner Policies"},
+		&ytapi.RegisterFunction{Callback: cidcommands.RegisterClaimCommands, Title: "Claims"},
+		&ytapi.RegisterFunction{Callback: cidcommands.RegisterAssetCommands, Title: "Assets"},
+		&ytapi.RegisterFunction{Callback: cidcommands.RegisterReferenceCommands, Title: "Asset References"},
 	})
 	if err != nil {
 		// Error occured in command setup

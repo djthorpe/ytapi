@@ -117,6 +117,10 @@ var (
 	FlagSearchVideo                = Flag{Name: "video", Description: "Related video", Type: FLAG_VIDEO}
 	FlagSearchSafe                 = Flag{Name: "safesearch", Description: "Restricted content filter", Type: FLAG_ENUM, Extra: "none|moderate|strict"}
 	FlagSearchBroadcastStatus      = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "completed|live|upcoming"}
+	FlagCaption                    = Flag{Name: "caption", Description: "Caption ID", Type: FLAG_STRING}
+	FlagCaptionSync                = Flag{Name: "sync", Description: "Automatically synchronize the caption file with the audio track of the video", Type: FLAG_BOOL}
+	FlagCaptionDraft               = Flag{Name: "draft", Description: "Status of the caption track", Type: FLAG_BOOL}
+	FlagCaptionName                = Flag{Name: "name", Description: "Name of the caption track", Type: FLAG_STRING}
 	FlagPolicy                     = Flag{Name: "policy", Description: "Policy ID", Type: FLAG_STRING}
 	FlagPolicyOrder                = Flag{Name: "order", Description: "Policy list order", Type: FLAG_ENUM, Extra: "timeUpdatedAsc|timeUpdatedDesc"}
 	FlagClaim                      = Flag{Name: "claim", Description: "Claim ID", Type: FLAG_VIDEO}
