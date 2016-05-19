@@ -24,6 +24,11 @@ func RegisterAuthenticateCommands() []*ytapi.Command {
 			Setup:       AuthenticateSetup,
 			Execute:     AuthenticateExecute,
 		},
+		&ytapi.Command{
+			Name:        "Install",
+			Description: "Install credentials",
+			Execute:     InstallExecute,
+		},
 	}
 }
 
@@ -94,3 +99,9 @@ func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table
 	// Write defaults
 	return ytapi.ErrorWriteDefaults
 }
+
+func InstallExecute(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+	// Write credentials
+	return ytapi.ErrorWriteCredentials
+}
+

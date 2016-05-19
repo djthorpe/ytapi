@@ -11,6 +11,7 @@ import (
     "flag"
     "fmt"
 	"encoding/json"
+	"encoding/base64"
 	"io/ioutil"
 	"path/filepath"
 
@@ -137,10 +138,10 @@ var (
 	// Variety of error conditions
 	ErrorEmptyArgs       = errors.New("No Arguments")
 	ErrorUsage           = errors.New("Display usage information")
-	ErrorClientSecrets   = errors.New("Missing Client Secrets File")
-	ErrorServiceAccount  = errors.New("Missing Service Account File and/or Content Owner")
 	ErrorWriteDefaults   = errors.New("Write Defaults to file")
+	ErrorWriteCredentials= errors.New("Write Credentials")
 	ErrorRemoveAuthToken = errors.New("Remove OAuth token")
+	ErrorServiceAccount  = errors.New("Invalid service account or missing content owner")
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -227,25 +228,19 @@ func (this *FlagSet) setPaths() error {
 	}
 
 	// client secrets
-	clientSecretsPath, exists := util.ResolvePath(this.Values.GetString(&FlagClientSecret), credentialsPath)
-	if exists != true {
-		return ErrorClientSecrets
-	} else {
-		this.ClientSecrets = clientSecretsPath
-	}
+	clientSecretsPath, _ := util.ResolvePath(this.Values.GetString(&FlagClientSecret), credentialsPath)
+	this.ClientSecrets = clientSecretsPath
 
 	// service account
-	serviceAccountPath, exists := util.ResolvePath(this.Values.GetString(&FlagServiceAccount), credentialsPath)
-	if exists {
-		this.ServiceAccount = serviceAccountPath
-	}
+	serviceAccountPath, _ := util.ResolvePath(this.Values.GetString(&FlagServiceAccount), credentialsPath)
+	this.ServiceAccount = serviceAccountPath
 
 	// oauth token
-	authTokenPath, exists := util.ResolvePath(this.Values.GetString(&FlagAuthToken), credentialsPath)
+	authTokenPath, _ := util.ResolvePath(this.Values.GetString(&FlagAuthToken), credentialsPath)
 	this.AuthToken = authTokenPath
 
 	// defaults file
-	defaultsPath, exists := util.ResolvePath(this.Values.GetString(&FlagDefaults), credentialsPath)
+	defaultsPath, _ := util.ResolvePath(this.Values.GetString(&FlagDefaults), credentialsPath)
 	this.Defaults = defaultsPath
 
 	// success
@@ -461,6 +456,36 @@ func (this *FlagSet) RemoveAuthToken() error {
 		return nil
 	}
 	if err := util.DeleteFileIfExists(this.AuthToken); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *FlagSet) WriteClientSecret(data64 string) error {
+	if this.ClientSecrets == "" {
+		return errors.New("Invalid client secret filename")
+	}
+	data, err := base64.StdEncoding.DecodeString(data64)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(this.ClientSecrets,data,credentialsFileMode)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (this *FlagSet) WriteServiceAccount(data64 string) error {
+	if this.ServiceAccount == "" {
+		return errors.New("Invalid service account filename")
+	}
+	data, err := base64.StdEncoding.DecodeString(data64)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(this.ServiceAccount,data,credentialsFileMode)
+	if err != nil {
 		return err
 	}
 	return nil

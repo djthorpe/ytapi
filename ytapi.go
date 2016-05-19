@@ -22,8 +22,8 @@ func Usage() {
     execname := filepath.Base(os.Args[0])
     fmt.Fprintf(os.Stderr, "\nUsage of %s:\n\n", execname)
     fmt.Fprintf(os.Stderr, "\t%s -help\n", execname)
-    fmt.Fprintf(os.Stderr, "\t%s -help <command>\n", execname)
-    fmt.Fprintf(os.Stderr, "\t%s <flags> <command>\n", execname)
+    fmt.Fprintf(os.Stderr, "\t%s -help <api-call>\n", execname)
+    fmt.Fprintf(os.Stderr, "\t%s <flags> <api-call>\n", execname)
     fmt.Fprintln(os.Stderr, "")
 }
 
@@ -81,11 +81,11 @@ func main() {
 	// the configuration
 	command, err := flags.Parse()
 	if err == ytapi.ErrorEmptyArgs {
+		UsageVersion()
 		Usage()
 		os.Exit(0)
 	} else if err == ytapi.ErrorUsage {
 		Usage()
-		UsageVersion()
 		if command != nil {
             flags.UsageGlobalFlags()
 			flags.UsageCommand(command)
@@ -94,16 +94,8 @@ func main() {
 			flags.UsageCommandList()
 		}
 		os.Exit(0)
-	} else if err == ytapi.ErrorClientSecrets {
-		// Error occured during parsing of the flags
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	} else if err == ytapi.ErrorServiceAccount {
-		// Error occured during parsing of the flags
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	} else if err != nil {
-		// Error occured during parsing of the flags
+	}
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
@@ -115,6 +107,21 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+	}
+
+	// install credentials
+	if command.Name == "Install" {
+		if VERSION_CLIENT_SECRET != "" {
+			err = flags.WriteClientSecret(VERSION_CLIENT_SECRET)
+		}
+		if err == nil && VERSION_SERVICE_ACCOUNT != "" {
+			err = flags.WriteServiceAccount(VERSION_SERVICE_ACCOUNT)
+		}
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		os.Exit(0)
 	}
 
 	// Read content owner and channel from file if command is not "Authenticate"
@@ -140,7 +147,9 @@ func main() {
 	// and oauth token
 	var service *ytservice.Service
 	debugFlag := flags.Values.GetBool(&ytapi.FlagDebug)
-	if flags.Values.IsSet(&ytapi.FlagContentOwner) {
+	if command.Name == "Install" {
+		// Empty service object
+	} else if flags.Values.IsSet(&ytapi.FlagContentOwner) {
 		service, err = ytservice.NewYouTubeServiceFromServiceAccountJSON(flags.ServiceAccount, debugFlag)
 	} else {
 		service, err = ytservice.NewYouTubeServiceFromClientSecretsJSON(flags.ClientSecrets, flags.AuthToken, debugFlag)
@@ -155,6 +164,8 @@ func main() {
 		// Write defaults to file
 		if err == ytapi.ErrorWriteDefaults {
 			err = flags.WriteDefaults()
+		} else if err == ytapi.ErrorWriteCredentials {
+			// TODO
 		}
 		// Check for error
 		if err != nil {
