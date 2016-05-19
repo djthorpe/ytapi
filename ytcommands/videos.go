@@ -317,7 +317,7 @@ func SetVideoThumbnail(service *ytservice.Service, values *ytapi.Values, table *
 	file, err := os.Open(values.GetString(&ytapi.FlagFile))
 	defer file.Close()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	// Request and Response
