@@ -211,7 +211,11 @@ func (this *Table) Append(items interface{}) error {
 func (this *Table) asStringArray(row *Values) []string {
 	values := make([]string, this.NumberOfColumns())
 	for i, key := range this.colkey {
-		values[i] = row.GetString(this.fields[key])
+		if row.IsSet(this.fields[key]) {
+			values[i] = row.GetString(this.fields[key])
+		} else {
+			values[i] = "<nil>"
+		}
 	}
 	return values
 }

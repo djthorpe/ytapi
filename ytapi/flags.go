@@ -82,6 +82,7 @@ var (
 	FlagDebug                      = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
 	FlagFields                     = Flag{Name: "fields", Description: "Comma-separated list of output fields", Type: FLAG_STRING}
     FlagOutput                     = Flag{Name: "out", Description: "Output filename and/or format (txt, csv)", Type: FLAG_STRING, Default: "txt" }
+    FlagFile                       = Flag{Name: "file", Description: "Filename", Type: FLAG_STRING }
 	FlagContentOwner               = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
 	FlagChannel                    = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
 	FlagMaxResults                 = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
@@ -107,6 +108,7 @@ var (
 	FlagBroadcastDelay             = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
 	FlagLowLatency                 = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
 	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike"}
+	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT }
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
 	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
 	FlagSearchQuery                = Flag{Name: "q", Description: "Search query", Type: FLAG_STRING}
