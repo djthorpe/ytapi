@@ -1,4 +1,7 @@
 #!/bin/bash
+##############################################################
+# YTAPI BUILD SCRIPT
+##############################################################
 # Shell script to determine what the current build of the
 # repository is, and encode it into a go file - then compile
 # the ytapi binary. To use the command, you can run the
@@ -11,8 +14,9 @@
 # build.sh -c <client_secret.json>
 # build.sh -c <client_secret.json> -s <service_account.json>
 #
-# are all valid ways of compiling a binary of the software
-
+# ...are all valid ways of compiling a binary of the software
+# the resulting binary will be in ${GOBIN} and called 'ytapi'
+# which you can then distribute!
 ##############################################################
 
 CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
