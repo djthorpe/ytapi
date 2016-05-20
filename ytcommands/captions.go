@@ -6,8 +6,10 @@ package ytcommands
 
 import (
 	"os"
+	"fmt"
 	"strings"
 	"path/filepath"
+	"io/ioutil"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -39,6 +41,13 @@ func RegisterCaptionCommands() []*ytapi.Command {
 			Description: "Delete Caption Track from video",
 			Required:    []*ytapi.Flag{&ytapi.FlagCaption},
 			Execute:     DeleteCaptionTrack,
+		},
+		&ytapi.Command{
+			Name:        "DownloadCaptionTrack",
+			Description: "Download Caption Track from video",
+			Required:    []*ytapi.Flag{ &ytapi.FlagCaption },
+			Optional:    []*ytapi.Flag{ &ytapi.FlagCaptionFormat, &ytapi.FlagLanguage },
+			Execute:     DownloadCaptionTrack,
 		},
 	}
 }
@@ -117,13 +126,15 @@ func AddCaptionTrack(service *ytservice.Service, values *ytapi.Values, table *yt
 	}
 
 	// Create the call
-	// TODO: isDraft
 	call := service.API.Captions.Insert("snippet",&youtube.Caption{
 		Snippet: &youtube.CaptionSnippet{
 			VideoId: video,
 			Language: language,
 			Name: name,
 			IsDraft: draft,
+			ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
+				"IsDraft": &ytapi.FlagCaptionDraft,
+			}),
 		},
 	})
 
@@ -131,7 +142,9 @@ func AddCaptionTrack(service *ytservice.Service, values *ytapi.Values, table *yt
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 	}
-	call = call.Sync(values.GetBool(&ytapi.FlagCaptionSync))
+	if values.IsSet(&ytapi.FlagCaptionSync) {
+		call = call.Sync(values.GetBool(&ytapi.FlagCaptionSync))
+	}
 
 	// Open the caption file file
 	file, err := os.Open(filename)
@@ -182,6 +195,40 @@ func DeleteCaptionTrack(service *ytservice.Service, values *ytapi.Values, table 
 	if err != nil {
 		return err
 	}
+
+	// success
+	return nil
+}
+
+
+func DownloadCaptionTrack(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	caption := values.GetString(&ytapi.FlagCaption)
+
+	// Create call, set parameters
+	call := service.API.Captions.Download(caption)
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+	}
+	if values.IsSet(&ytapi.FlagLanguage) {
+		call = call.Tlang(values.GetString(&ytapi.FlagLanguage))
+	}
+	if values.IsSet(&ytapi.FlagCaptionFormat) {
+		call = call.Tfmt(values.GetString(&ytapi.FlagCaptionFormat))
+	}
+
+	// Download the caption track
+	response, err := call.Download()
+	if err != nil {
+		return err
+	}
+
+	// Print out the body
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+	table.Info(fmt.Sprintf("%s",body))
 
 	// success
 	return nil
