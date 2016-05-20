@@ -42,6 +42,7 @@ type Flag struct {
 	Extra       string
 	Default     string
 	Path        string
+	added       bool
 }
 
 ////////////////////////////////////////////////////////////////////////////////

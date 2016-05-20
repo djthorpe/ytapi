@@ -5,11 +5,13 @@
 package ytcommands
 
 import (
+	"os"
 	"strings"
+	"errors"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
-//	"google.golang.org/api/youtube/v3"
+	"google.golang.org/api/youtube/v3"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,10 +35,31 @@ func RegisterChannelCommands() []*ytapi.Command {
 			Execute:     ListChannels,
 		},
 		&ytapi.Command{
+			Name:        "SetChannelBanner",
+			Description: "Set Channel Banner Image",
+			Required:    []*ytapi.Flag{ &ytapi.FlagFile },
+			Execute:     SetChannelBanner,
+		},
+		&ytapi.Command{
 			Name:        "GetLocalizedChannelMetadata",
 			Description: "Get localized channel metadata",
-			Required:    []*ytapi.Flag{ &ytapi.FlagChannel },
+			Setup:       RegisterLocalizedChannelMetadataFormat,
 			Execute:     GetLocalizedChannelMetadata,
+		},
+		&ytapi.Command{
+			Name:        "UpdateLocalizedChannelMetadata",
+			Description: "Update localized channel metadata",
+			Required:    []*ytapi.Flag{ &ytapi.FlagLanguage, &ytapi.FlagTitle },
+			Optional:    []*ytapi.Flag{ &ytapi.FlagDescription },
+			Setup:       RegisterLocalizedChannelMetadataFormat,
+			Execute:     UpdateLocalizedChannelMetadata,
+		},
+		&ytapi.Command{
+			Name:        "DeleteLocalizedChannelMetadata",
+			Description: "Remove localized channel metadata",
+			Required:    []*ytapi.Flag{ &ytapi.FlagLanguage },
+			Setup:       RegisterLocalizedChannelMetadataFormat,
+			Execute:     DeleteLocalizedChannelMetadata,
 		},
 	}
 }
@@ -94,28 +117,29 @@ func RegisterChannelFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"channel", "title", "description", "publishedAt"})
+	table.SetColumns([]string{"channel", "title", "description", "defaultLanguage" })
 
 	// success
 	return nil
 }
 
-func RegisterLocalizedChannelMetadataFormat(params *ytservice.Params, table *ytapi.Table) error {
+func RegisterLocalizedChannelMetadataFormat(values *ytapi.Values, table *ytapi.Table) error {
 	table.RegisterPart("localizations", []*ytapi.Flag{
 		&ytapi.Flag{Name: "language", Path: "Language", Type: ytapi.FLAG_LANGUAGE},
 		&ytapi.Flag{Name: "title", Path: "Title", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "description", Path: "Description", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "default", Path: "Default", Type: ytapi.FLAG_BOOL},
 	})
 
 	// set default columns
-	table.SetColumns([]string{"language", "title", "description"})
+	table.SetColumns([]string{"language", "title", "description", "default"})
 
 	// success
 	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Channels.list
+// Channels
 
 func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
@@ -144,6 +168,39 @@ func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	return ytapi.DoChannelsList(call, table, int64(maxresults))
 }
 
+func SetChannelBanner(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get Parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+//	channel := values.GetString(&ytapi.FlagChannel)
+
+	// Create Call
+	call := service.API.ChannelBanners.Insert(&youtube.ChannelBannerResource{})
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+	}
+
+	// Read file
+	file, err := os.Open(values.GetString(&ytapi.FlagFile))
+	defer file.Close()
+	if err != nil {
+		return err
+	}
+
+	// Upload channel banner and retrieve URL for the banner
+	response, err := call.Media(file).Do()
+	if err != nil {
+		return err
+	}
+	url := response.Url
+
+	// TODO: Retrieve channel
+	table.Info(url)
+
+	// success
+	return nil
+}
+
 func GetLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
@@ -155,16 +212,19 @@ func GetLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Value
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(contentowner)
 	}
-	_, err := call.Id(channel).Do()
+	if values.IsSet(&ytapi.FlagChannel) == false {
+		call = call.Mine(true)
+	} else {
+		call = call.Id(channel)
+	}
+
+	// Execute call
+	response, err := call.Do()
 	if err != nil {
 		return err
 	}
-
-/*
-		return ytservice.NewError(ytservice.ErrorResponse, err)
-	}
 	if len(response.Items) == 0 {
-		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
+		return errors.New("Channel not found")
 	}
 
 	// Get localizations
@@ -172,10 +232,117 @@ func GetLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Value
 	for language, metadata := range localizations {
 		table.Append([]Localization{{language, metadata.Title, metadata.Description}})
 	}
-*/
 
 	// success
 	return nil
+}
+
+func UpdateLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
+	language := values.GetString(&ytapi.FlagLanguage)
+
+	// create call
+	call := service.API.Channels.List("localizations")
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+	}
+	if values.IsSet(&ytapi.FlagChannel) == false {
+		call = call.Mine(true)
+	} else {
+		call = call.Id(channel)
+	}
+
+	// Execute call
+	response, err := call.Do()
+	if err != nil {
+		return err
+	}
+	if len(response.Items) == 0 {
+		return errors.New("Channel not found")
+	}
+
+	// Update channel localization settings
+	metadata, ok := response.Items[0].Localizations[language]
+	if ok == false {
+		metadata = youtube.ChannelLocalization{ }
+	}
+	if values.IsSet(&ytapi.FlagTitle) {
+		metadata.Title = values.GetString(&ytapi.FlagTitle)
+	}
+	if values.IsSet(&ytapi.FlagDescription) {
+		metadata.Description = values.GetString(&ytapi.FlagDescription)
+	}
+	response.Items[0].Localizations[language] = metadata
+
+	// update localization
+	call2 := service.API.Channels.Update("localizations", &youtube.Channel{
+		Id:            channel,
+		Localizations: response.Items[0].Localizations,
+	})
+	if service.ServiceAccount {
+		call2 = call2.OnBehalfOfContentOwner(contentowner)
+	}
+	_, err = call2.Do()
+	if err != nil {
+		return err
+	}
+
+	// success
+	return GetLocalizedChannelMetadata(service,values,table)
+}
+
+func DeleteLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
+	language := values.GetString(&ytapi.FlagLanguage)
+
+	// create call
+	call := service.API.Channels.List("localizations")
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+	}
+	if values.IsSet(&ytapi.FlagChannel) == false {
+		call = call.Mine(true)
+	} else {
+		call = call.Id(channel)
+	}
+
+	// Execute
+	response, err := call.Do()
+	if err != nil {
+		return err
+	}
+	if len(response.Items) == 0 {
+		return errors.New("Channel not found")
+	}
+
+	// Update channel localization settings
+	_, ok := response.Items[0].Localizations[language]
+	if ok == false {
+		return errors.New("Localized metadata for language does not exist")
+	}
+	delete(response.Items[0].Localizations,language)
+
+	// update localization
+	call2 := service.API.Channels.Update("localizations", &youtube.Channel{
+		Id:            channel,
+		Localizations: response.Items[0].Localizations,
+	})
+	if service.ServiceAccount {
+		call2 = call2.OnBehalfOfContentOwner(contentowner)
+	}
+	_, err = call2.Do()
+	if err != nil {
+		return err
+	}
+
+	// success
+	return GetLocalizedChannelMetadata(service,values,table)
 }
 
 /*
@@ -235,61 +402,7 @@ func UpdateChannelMetadata(service *ytservice.Service, params *ytservice.Params,
 	return ytapi.DoChannelsList(call3, table, 1)
 }
 
-func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
-
-	// Check channel parameter
-	if params.IsValidChannel() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
-	}
-	// Check language parameter
-	if params.IsValidLanguage() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
-	}
-
-	// retrieve localizations information from the channel
-	call := service.API.Channels.List("id,localizations")
-	if service.ServiceAccount {
-		call = call.OnBehalfOfContentOwner(*params.ContentOwner)
-	}
-	response, err := call.Id(*params.Channel).Do()
-	if err != nil {
-		return ytservice.NewError(ytservice.ErrorResponse, err)
-	}
-	if len(response.Items) == 0 {
-		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
-	}
-
-	// edit localizations
-	localizations := response.Items[0].Localizations
-	metadata := youtube.ChannelLocalization{}
-	if _, ok := localizations[*params.Language]; ok {
-		metadata = localizations[*params.Language]
-	}
-	if params.IsEmptyTitle() == false {
-		metadata.Title = *params.Title
-	}
-	if params.IsEmptyDescription() == false {
-		metadata.Description = *params.Description
-	}
-	localizations[*params.Language] = metadata
-
-	// update localization
-	call2 := service.API.Channels.Update("localizations", &youtube.Channel{
-		Id:            *params.Channel,
-		Localizations: localizations,
-	})
-	if service.ServiceAccount {
-		call2 = call2.OnBehalfOfContentOwner(*params.ContentOwner)
-	}
-	_, err = call2.Do()
-	if err != nil {
-		return ytservice.NewError(ytservice.ErrorResponse, err)
-	}
-
-	// Call list
-	return ListLocalizedChannelMetadata(service, params, table)
-}
-
 */
+
 
 

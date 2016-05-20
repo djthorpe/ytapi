@@ -166,7 +166,10 @@ func NewFlagSet() *FlagSet {
 
 func (this *FlagSet) AddFlag(flag *Flag) error {
 
-	// TODO: Skip if flag has already been added
+	// Skip if flag has already been added
+	if flag.added {
+		return nil
+	}
 
 	// check for flag name clash
 	if this.flagset.Lookup(flag.Name) != nil {
@@ -176,6 +179,9 @@ func (this *FlagSet) AddFlag(flag *Flag) error {
 	// set flag
 	value := this.Values.Set(&Value{flag: flag})
 	this.flagset.Var(value, flag.Name, flag.Description)
+
+	// mark as added
+	flag.added = true
 
 	// success
 	return nil
