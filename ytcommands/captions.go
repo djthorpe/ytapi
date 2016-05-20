@@ -6,10 +6,9 @@ package ytcommands
 
 import (
 	"os"
-	"fmt"
+	"io"
 	"strings"
 	"path/filepath"
-	"io/ioutil"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -17,7 +16,7 @@ import (
 )
 
 ////////////////////////////////////////////////////////////////////////////////
-// Register caption commands
+// Register caption commands and format
 
 func RegisterCaptionCommands() []*ytapi.Command {
 	return []*ytapi.Command{
@@ -46,7 +45,7 @@ func RegisterCaptionCommands() []*ytapi.Command {
 			Name:        "DownloadCaptionTrack",
 			Description: "Download Caption Track from video",
 			Required:    []*ytapi.Flag{ &ytapi.FlagCaption },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagCaptionFormat, &ytapi.FlagLanguage },
+			Optional:    []*ytapi.Flag{ &ytapi.FlagCaptionFormat, &ytapi.FlagLanguage, &ytapi.FlagFile },
 			Execute:     DownloadCaptionTrack,
 		},
 	}
@@ -206,6 +205,7 @@ func DownloadCaptionTrack(service *ytservice.Service, values *ytapi.Values, tabl
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
 	caption := values.GetString(&ytapi.FlagCaption)
+	filename := values.GetString(&ytapi.FlagFile)
 
 	// Create call, set parameters
 	call := service.API.Captions.Download(caption)
@@ -215,8 +215,21 @@ func DownloadCaptionTrack(service *ytservice.Service, values *ytapi.Values, tabl
 	if values.IsSet(&ytapi.FlagLanguage) {
 		call = call.Tlang(values.GetString(&ytapi.FlagLanguage))
 	}
+
+	// Set caption download format, either from -format flag or from
+	// the extension of the output filename
 	if values.IsSet(&ytapi.FlagCaptionFormat) {
 		call = call.Tfmt(values.GetString(&ytapi.FlagCaptionFormat))
+	} else if values.IsSet(&ytapi.FlagFile) {
+		// Try to determine format from file extension as a fallback
+		// filepath.Ext also includes the '.' as the first character
+		ext := filepath.Ext(filename)
+		formats := strings.Split(ytapi.FlagCaptionFormat.Extra,"|")
+		for _,format := range(formats) {
+			if ext[1:] == format {
+				call = call.Tfmt(format)
+			}
+		}
 	}
 
 	// Download the caption track
@@ -224,11 +237,21 @@ func DownloadCaptionTrack(service *ytservice.Service, values *ytapi.Values, tabl
 	if err != nil {
 		return err
 	}
-
-	// Print out the body
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
-	table.Info(fmt.Sprintf("%s",body))
+
+	// Output body to file
+	fh := os.Stdout
+	if values.IsSet(&ytapi.FlagFile) {
+		fh, err = os.Create(filename)
+		if err != nil {
+			return err
+		}
+		defer fh.Close()
+	}
+	_,err = io.Copy(fh,response.Body)
+	if err != nil {
+		return err
+	}
 
 	// success
 	return nil

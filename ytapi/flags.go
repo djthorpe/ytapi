@@ -166,6 +166,8 @@ func NewFlagSet() *FlagSet {
 
 func (this *FlagSet) AddFlag(flag *Flag) error {
 
+	// TODO: Skip if flag has already been added
+
 	// check for flag name clash
 	if this.flagset.Lookup(flag.Name) != nil {
 		return errors.New(fmt.Sprint("Duplicate flag: ", flag.Name))
@@ -277,10 +279,11 @@ func (this *FlagSet) Parse() (*Command, error) {
 
 	// Add additional optional and required flags
 	if command != nil {
-		if err := this.AddFlags(command.Optional); err != nil {
+		if err := this.AddFlags(command.Required); err != nil {
 			return command, err
 		}
-		if err := this.AddFlags(command.Required); err != nil {
+		// Skip an optional flag if it was already marked as required
+		if err := this.AddFlags(command.Optional); err != nil {
 			return command, err
 		}
 	}

@@ -9,7 +9,7 @@ import (
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
-	"google.golang.org/api/youtube/v3"
+//	"google.golang.org/api/youtube/v3"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,12 @@ func RegisterChannelCommands() []*ytapi.Command {
 			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagMaxResults},
 			Setup:       RegisterChannelFormat,
 			Execute:     ListChannels,
+		},
+		&ytapi.Command{
+			Name:        "GetLocalizedChannelMetadata",
+			Description: "Get localized channel metadata",
+			Required:    []*ytapi.Flag{ &ytapi.FlagChannel },
+			Execute:     GetLocalizedChannelMetadata,
 		},
 	}
 }
@@ -138,20 +144,23 @@ func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	return ytapi.DoChannelsList(call, table, int64(maxresults))
 }
 
-func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.Params, table *ytapi.Table) error {
+func GetLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
-	// Check channel parameter
-	if params.IsValidChannel() == false {
-		return ytservice.NewError(ytservice.ErrorBadParameter, nil)
-	}
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
 
 	// create call
 	call := service.API.Channels.List("localizations")
 	if service.ServiceAccount {
-		call = call.OnBehalfOfContentOwner(*params.ContentOwner)
+		call = call.OnBehalfOfContentOwner(contentowner)
 	}
-	response, err := call.Id(*params.Channel).Do()
+	_, err := call.Id(channel).Do()
 	if err != nil {
+		return err
+	}
+
+/*
 		return ytservice.NewError(ytservice.ErrorResponse, err)
 	}
 	if len(response.Items) == 0 {
@@ -163,10 +172,13 @@ func ListLocalizedChannelMetadata(service *ytservice.Service, params *ytservice.
 	for language, metadata := range localizations {
 		table.Append([]Localization{{language, metadata.Title, metadata.Description}})
 	}
+*/
 
 	// success
 	return nil
 }
+
+/*
 
 ////////////////////////////////////////////////////////////////////////////////
 // Set channel metadata
@@ -277,3 +289,7 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, params *ytservic
 	// Call list
 	return ListLocalizedChannelMetadata(service, params, table)
 }
+
+*/
+
+
