@@ -145,6 +145,11 @@ func (this *Value) SetInt(value int64) error {
 func (this *Value) SetString(value string) error {
 	var err error
 
+	// Don't set if the string value is empty
+	if value == "" && this.flag.Type != FLAG_STRING {
+		return nil
+	}
+
 	// Set string value
 	this.v_string = value
 

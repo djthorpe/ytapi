@@ -28,12 +28,12 @@ func RegisterCaptionCommands() []*ytapi.Command {
 			Execute:     ListCaptionTracks,
 		},
 		&ytapi.Command{
-			Name:        "AddCaptionTrack",
+			Name:        "UploadCaptionTrack",
 			Description: "Add Caption Track to video",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo,&ytapi.FlagFile,&ytapi.FlagLanguage},
 			Optional:    []*ytapi.Flag{&ytapi.FlagCaptionName,&ytapi.FlagCaptionSync,&ytapi.FlagCaptionDraft},
 			Setup:       RegisterCaptionFormat,
-			Execute:     AddCaptionTrack,
+			Execute:     UploadCaptionTrack,
 		},
 		&ytapi.Command{
 			Name:        "DeleteCaptionTrack",
@@ -109,7 +109,7 @@ func ListCaptionTracks(service *ytservice.Service, values *ytapi.Values, table *
 	return nil
 }
 
-func AddCaptionTrack(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+func UploadCaptionTrack(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
 	video := values.GetString(&ytapi.FlagVideo)

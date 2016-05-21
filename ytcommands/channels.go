@@ -20,6 +20,7 @@ type Localization struct {
 	Language    string
 	Title       string
 	Description string
+	Default     bool
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -332,7 +333,7 @@ func GetLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Value
 	// Get localizations
 	localizations := response.Items[0].Localizations
 	for language, metadata := range localizations {
-		table.Append([]Localization{{language, metadata.Title, metadata.Description}})
+		table.Append([]Localization{{language, metadata.Title, metadata.Description, false}})
 	}
 
 	// success
