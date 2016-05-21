@@ -34,8 +34,7 @@ func RegisterVideoCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "ListVideos",
 			Description: "List videos",
-			Required:    []*ytapi.Flag{&ytapi.FlagVideoFilter},
-			Optional:    []*ytapi.Flag{&ytapi.FlagVideoCategory, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults},
+			Optional:    []*ytapi.Flag{ &ytapi.FlagVideoFilter, &ytapi.FlagVideoCategory, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults},
 			Setup:       RegisterVideoFormat,
 			Execute:     ListVideos,
 		},
@@ -70,11 +69,19 @@ func RegisterVideoCommands() []*ytapi.Command {
 			Execute:     UpdateVideoMetadata,
 		},
 		&ytapi.Command{
-			Name:        "SetVideoPrivacyStatus",
-			Description: "Set a video to private, public or unlisted",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo, &ytapi.FlagPrivacyStatus, },
+			Name:        "SetVideoStatus",
+			Description: "Set video status (private, public, unlisted, license, embedding or public statistics viewable)",
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Optional:    []*ytapi.Flag{ &ytapi.FlagPrivacyStatus, &ytapi.FlagEmbeds, &ytapi.FlagLicense, &ytapi.FlagStatsViewable },
 			Setup:       RegisterVideoFormat,
-			Execute:     SetVideoPrivacyStatus,
+			Execute:     SetVideoStatus,
+		},
+		&ytapi.Command{
+			Name:        "SetVideoPublishDate",
+			Description: "Set video private and future publish date",
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo, &ytapi.FlagDate },
+			Setup:       RegisterVideoFormat,
+			Execute:     SetVideoPublishDate,
 		},
 		&ytapi.Command{
 			Name:        "SetVideoThumbnail",
@@ -147,15 +154,16 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 		&ytapi.Flag{Name: "regionsAllowed", Path: "ContentDetails/RegionRestriction/Allowed", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "regionsBlocked", Path: "ContentDetails/RegionRestriction/Blocked", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "contentRating", Path: "ContentDetails/ContentRating/YtRating", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "projection", Type: ytapi.FLAG_STRING},
 	})
 	table.RegisterPart("status", []*ytapi.Flag{
 		&ytapi.Flag{Name: "privacyStatus", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "uploadStatus", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "failureReason", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "rejectionReason", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "scheduledPublishAt", Path: "Status/PublishAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "publishAt", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "license", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "embeddable", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "embeds", Path: "Status/Embeddable", Type: ytapi.FLAG_BOOL},
 		&ytapi.Flag{Name: "publicStatsViewable", Type: ytapi.FLAG_BOOL},
 	})
 	table.RegisterPart("statistics", []*ytapi.Flag{
@@ -164,6 +172,21 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 		&ytapi.Flag{Name: "dislikeCount", Type: ytapi.FLAG_UINT},
 		&ytapi.Flag{Name: "favoriteCount", Type: ytapi.FLAG_UINT},
 		&ytapi.Flag{Name: "commentCount", Type: ytapi.FLAG_UINT},
+	})
+	table.RegisterPart("player", []*ytapi.Flag{
+		&ytapi.Flag{Name: "embedHtml", Type: ytapi.FLAG_STRING},
+	})
+	table.RegisterPart("recordingDetails", []*ytapi.Flag{
+		&ytapi.Flag{Name: "location", Path: "RecordingDetails/LocationDescription", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "latitude", Path: "RecordingDetails/Location/Latitude", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "longitude", Path: "RecordingDetails/Location/Latitude", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "altitude", Path: "RecordingDetails/Location/Altitude", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "recordingDate", Type: ytapi.FLAG_STRING},
+	})
+	table.RegisterPart("fileDetails", []*ytapi.Flag{
+		&ytapi.Flag{Name: "fileName",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "fileSize", Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "fileType", Type: ytapi.FLAG_STRING},
 	})
 	table.RegisterPart("liveStreamingDetails", []*ytapi.Flag{
 		&ytapi.Flag{Name: "actualStartTime", Type: ytapi.FLAG_TIME},
@@ -295,6 +318,14 @@ func UploadVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	return table.Append(response2.Items)
 }
 
+func ListVideosFromPlaylist(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// TODO
+
+	// success
+	return nil
+}
+
 func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
@@ -304,6 +335,14 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	language := values.GetString(&ytapi.FlagLanguage)
 	region := values.GetString(&ytapi.FlagRegion)
 	filter := values.GetString(&ytapi.FlagVideoFilter)
+
+	// if filter is uploads, then switch to Playlist mode
+	if filter == "uploads" {
+		if values.IsSet(&ytapi.FlagVideoCategory) {
+			return errors.New("Category cannot be set when listing uploaded videos")
+		}
+		return ListVideosFromPlaylist(service,values,table)
+	}
 
 	// create call and set parameters
 	call := service.API.Videos.List(parts)
@@ -430,7 +469,7 @@ func UpdateVideoMetadata(service *ytservice.Service, values *ytapi.Values, table
 }
 
 
-func SetVideoPrivacyStatus(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+func SetVideoStatus(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
@@ -452,10 +491,66 @@ func SetVideoPrivacyStatus(service *ytservice.Service, values *ytapi.Values, tab
 	}
 
 	// set metadata
-	response.Items[0].Status.PrivacyStatus = values.GetString(&ytapi.FlagPrivacyStatus)
+	if values.IsSet(&ytapi.FlagPrivacyStatus) {
+		response.Items[0].Status.PrivacyStatus = values.GetString(&ytapi.FlagPrivacyStatus)
+	}
+	if values.IsSet(&ytapi.FlagEmbeds) {
+		response.Items[0].Status.Embeddable = values.GetBool(&ytapi.FlagEmbeds)
+	}
+	if values.IsSet(&ytapi.FlagLicense) {
+		response.Items[0].Status.License = values.GetString(&ytapi.FlagLicense)
+	}
+	if values.IsSet(&ytapi.FlagStatsViewable) {
+		response.Items[0].Status.PublicStatsViewable = values.GetBool(&ytapi.FlagStatsViewable)
+	}
 
 	// update video
-	call2 := service.API.Videos.Update("status",response.Items[0])
+	call2 := service.API.Videos.Update("status",&youtube.Video{
+		Id: response.Items[0].Id,
+		Status: response.Items[0].Status,
+	})
+	if service.ServiceAccount {
+		call2 = call2.OnBehalfOfContentOwner(contentowner)
+	}
+
+	_,err = call2.Do()
+	if err != nil {
+		return err
+	}
+
+	// Success
+	return GetVideoMetadata(service,values,table)
+}
+
+func SetVideoPublishDate(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	video := values.GetString(&ytapi.FlagVideo)
+
+	// Create call and set parameters
+	call := service.API.Videos.List("id,status").Id(video)
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+	}
+
+	// Execute
+	response, err := call.Do()
+	if err != nil {
+		return err
+	}
+	if len(response.Items) != 1 {
+		return errors.New("Not Found")
+	}
+
+	// update video
+	call2 := service.API.Videos.Update("status",&youtube.Video{
+		Id: response.Items[0].Id,
+		Status: &youtube.VideoStatus{
+			PrivacyStatus: "private",
+			PublishAt: values.GetTimeInISOFormat(&ytapi.FlagDate),
+		},
+	})
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}

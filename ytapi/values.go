@@ -347,11 +347,11 @@ func (this *Values) GetTime(flag *Flag) time.Time {
 }
 
 func (this *Values) GetTimeInISOFormat(flag *Flag) string {
-	value := this.GetTime(flag)
+	value := this.GetTime(flag).UTC()
 	if value.Equal(time.Time{}) {
 		return ""
 	} else {
-		return value.Format(time.RFC3339)
+		return value.Format(time.RFC3339Nano)
 	}
 }
 

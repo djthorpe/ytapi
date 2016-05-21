@@ -93,7 +93,11 @@ var (
 	FlagRegion                     = Flag{Name: "region", Description: "Country region code", Type: FLAG_REGION}
 	FlagTitle                      = Flag{Name: "title", Description: "Metadata title", Type: FLAG_STRING}
 	FlagDescription                = Flag{Name: "description", Description: "Metadata description", Type: FLAG_STRING}
+    FlagEmbeds                     = Flag{Name: "embeds", Description: "Embed player flag", Type: FLAG_BOOL}
+	FlagLicense                    = Flag{Name: "license", Description: "Video License", Type: FLAG_ENUM, Extra: "youtube|creativeCommon" }
+	FlagStatsViewable              = Flag{Name: "statsviewable", Description: "Extended video statistics are publicly viewable", Type: FLAG_BOOL }
 	FlagPrivacyStatus              = Flag{Name: "status", Description: "Privacy status", Type: FLAG_ENUM, Extra: "private|public|unlisted"}
+	FlagDate                       = Flag{Name: "date", Description: "Publish date and time", Type: FLAG_TIME}
 	FlagBroadcastStatus            = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
 	FlagBroadcastTransition        = Flag{Name: "status", Description: "Broadcast transition", Type: FLAG_ENUM, Extra: "complete|live|testing"}
 	FlagStartTime                  = Flag{Name: "start", Description: "Scheduled start time", Type: FLAG_TIME}
@@ -107,7 +111,7 @@ var (
 	FlagMonitorStream              = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
 	FlagBroadcastDelay             = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
 	FlagLowLatency                 = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
-	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike"}
+	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|uploads", Default: "uploads" }
 	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT }
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
 	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
@@ -567,11 +571,14 @@ func (this *FlagSet) OpenOutput() error {
     if ext == "" {
         ext = output
     }
+
     switch(ext) {
         case "txt":
+            format = OUTPUT_ASCII
         case ".txt":
             format = OUTPUT_ASCII
         case "csv":
+            format = OUTPUT_CSV
         case ".csv":
             format = OUTPUT_CSV
         default:

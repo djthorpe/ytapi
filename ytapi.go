@@ -164,8 +164,6 @@ func main() {
 		// Write defaults to file
 		if err == ytapi.ErrorWriteDefaults {
 			err = flags.WriteDefaults()
-		} else if err == ytapi.ErrorWriteCredentials {
-			// TODO
 		}
 		// Check for error
 		if err != nil {
