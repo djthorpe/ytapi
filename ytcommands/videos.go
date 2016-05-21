@@ -39,6 +39,14 @@ func RegisterVideoCommands() []*ytapi.Command {
 			Execute:     ListVideos,
 		},
 		&ytapi.Command{
+			Name:        "ListVideosForPlaylist",
+			Description: "List videos for a playlist",
+			Required:    []*ytapi.Flag{ &ytapi.FlagPlaylist },
+			Optional:    []*ytapi.Flag{ &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults},
+			Setup:       RegisterVideoFormat,
+			Execute:     ListVideosForPlaylist,
+		},
+		&ytapi.Command{
 			Name:        "UploadVideo",
 			Description: "Upload a video",
 			Required:    []*ytapi.Flag{ &ytapi.FlagFile, &ytapi.FlagPrivacyStatus, },
@@ -345,11 +353,71 @@ func UploadVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	return table.Append(response2.Items)
 }
 
-func ListVideosFromPlaylist(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+func ListVideosForPlaylist(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
-	// TODO
+	// get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	playlist := values.GetString(&ytapi.FlagPlaylist)
+	maxresults := values.GetInt(&ytapi.FlagMaxResults)
+	parts := strings.Join(table.Parts(false), ",")
 
-	// success
+	// create the call
+	call := service.API.PlaylistItems.List("snippet").PlaylistId(playlist)
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+	}
+
+	// iterate through to obtain the videos
+	var numresults int64 = 0
+	var nextPageToken string = ""
+
+	// Page through results
+	for {
+		// test to see if we have all the items we now need
+		if maxresults > 0 && numresults >= maxresults {
+			break
+		}
+
+		// determine how many items we should rerieve in this pass
+		var retrieveitems int64 = 0
+		if maxresults == 0 {
+			retrieveitems = int64(ytapi.YouTubeMaxPagingResults)
+		} else if (maxresults - numresults) > ytapi.YouTubeMaxPagingResults {
+			retrieveitems = int64(ytapi.YouTubeMaxPagingResults)
+		} else {
+			retrieveitems = (maxresults - numresults)
+		}
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		if err != nil {
+			return err
+		}
+
+		// Append videos to table
+		videos := make([]string,0)
+		for _,item := range response.Items {
+			videos = append(videos,item.Snippet.ResourceId.VideoId)
+		}
+
+		// Make another call to retrieve videos
+		call2 := service.API.Videos.List(parts).Id(strings.Join(videos,","))
+		if service.ServiceAccount {
+			call2 = call2.OnBehalfOfContentOwner(contentowner)
+		}
+		response2, err := call2.Do()
+		if err != nil {
+			return err
+		}
+		table.Append(response2.Items)
+
+		// Now iterate to next page
+		numresults += int64(len(response.Items))
+		nextPageToken = response.NextPageToken
+		if nextPageToken == "" {
+			break
+		}
+	}
+
+	// Success
 	return nil
 }
 
@@ -364,12 +432,14 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	filter := values.GetString(&ytapi.FlagVideoFilter)
 
 	// if filter is uploads, then switch to Playlist mode
+	/*
 	if filter == "uploads" {
 		if values.IsSet(&ytapi.FlagVideoCategory) {
 			return errors.New("Category cannot be set when listing uploaded videos")
 		}
 		return ListVideosFromPlaylist(service,values,table)
 	}
+	*/
 
 	// create call and set parameters
 	call := service.API.Videos.List(parts)
