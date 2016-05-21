@@ -53,6 +53,20 @@ func RegisterVideoCommands() []*ytapi.Command {
 			Execute:     DeleteVideo,
 		},
 		&ytapi.Command{
+			Name:        "SetVideoRating",
+			Description: "Set like, dislike or remove rating for video",
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo, &ytapi.FlagVideoRating },
+			Setup:       RegisterVideoRatingFormat,
+			Execute:     SetVideoRating,
+		},
+		&ytapi.Command{
+			Name:        "GetVideoRating",
+			Description: "Get rating for video",
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Setup:       RegisterVideoRatingFormat,
+			Execute:     GetVideoRating,
+		},
+		&ytapi.Command{
 			Name:        "GetVideoMetadata",
 			Description: "Get metadata for a single video",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
@@ -248,6 +262,19 @@ func RegisterLocalizedVideoMetadataFormat(values *ytapi.Values, table *ytapi.Tab
 
 	// set default columns
 	table.SetColumns([]string{"language", "title", "description", "default"})
+
+	// success
+	return nil
+}
+
+func RegisterVideoRatingFormat(values *ytapi.Values, table *ytapi.Table) error {
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "video", Path: "VideoId", Type: ytapi.FLAG_VIDEO},
+		&ytapi.Flag{Name: "rating", Path: "Rating", Type: ytapi.FLAG_STRING},
+	})
+
+	// set default columns
+	table.SetColumns([]string{"video", "rating"})
 
 	// success
 	return nil
@@ -563,6 +590,45 @@ func SetVideoPublishDate(service *ytservice.Service, values *ytapi.Values, table
 	// Success
 	return GetVideoMetadata(service,values,table)
 }
+
+func SetVideoRating(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get parameters
+	video := values.GetString(&ytapi.FlagVideo)
+	rating := values.GetString(&ytapi.FlagVideoRating)
+
+	// Create call and set parameters
+	call := service.API.Videos.Rate(video,rating)
+
+	// Execute
+	err := call.Do()
+	if err != nil {
+		return err
+	}
+
+	// Success
+	return GetVideoRating(service,values,table)
+}
+
+
+func GetVideoRating(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get parameters
+	video := values.GetString(&ytapi.FlagVideo)
+
+	// Create call and set parameters
+	call := service.API.Videos.GetRating(video)
+
+	// Execute
+	response,err := call.Do()
+	if err != nil {
+		return err
+	}
+
+	// Success
+	return table.Append(response.Items)
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Categories

@@ -113,6 +113,7 @@ var (
 	FlagLowLatency                 = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
 	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|uploads", Default: "uploads" }
 	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT }
+	FlagVideoRating                = Flag{Name: "rating", Description: "Video Rating", Type: FLAG_ENUM, Extra: "like|dislike|none" }
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
 	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
 	FlagSearchQuery                = Flag{Name: "q", Description: "Search query", Type: FLAG_STRING}
