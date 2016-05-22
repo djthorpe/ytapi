@@ -432,14 +432,14 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	filter := values.GetString(&ytapi.FlagVideoFilter)
 
 	// if filter is uploads, then switch to Playlist mode
-	/*
-	if filter == "uploads" {
+	if filter == "uploads" || filter == "likes" || filter == "favorites" || filter == "watchhistory" || filter == "watchlater" {
 		if values.IsSet(&ytapi.FlagVideoCategory) {
 			return errors.New("Category cannot be set when listing uploaded videos")
 		}
-		return ListVideosFromPlaylist(service,values,table)
+		table.Info("TODO: Get playlist")
+		// success
+		return nil
 	}
-	*/
 
 	// create call and set parameters
 	call := service.API.Videos.List(parts)

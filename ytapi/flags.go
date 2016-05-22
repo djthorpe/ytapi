@@ -111,7 +111,7 @@ var (
 	FlagMonitorStream              = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
 	FlagBroadcastDelay             = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
 	FlagLowLatency                 = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
-	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|uploads", Default: "uploads" }
+	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|likes|favorites|uploads|watchhistory|watchlater", Default: "uploads" }
 	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT }
 	FlagVideoRating                = Flag{Name: "rating", Description: "Video Rating", Type: FLAG_ENUM, Extra: "like|dislike|none" }
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
@@ -548,11 +548,11 @@ func (this *FlagSet) SetFields(fields []string) error {
 	for _, field := range fields {
 		var err error
 		if is_setfields {
-			err = this.Output.AddColumn(field)
+			err = this.Output.AddFieldOrPart(field)
 		} else if strings.HasPrefix(field, "+") {
-			err = this.Output.AddColumn(field[1:])
+			err = this.Output.AddFieldOrPart(field[1:])
 		} else if strings.HasPrefix(field, "-") {
-			err = this.Output.RemoveColumn(field[1:])
+			err = this.Output.RemoveFieldOrPart(field[1:])
 		}
 		if err != nil {
 			return err

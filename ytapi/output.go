@@ -28,11 +28,11 @@ const (
 ////////////////////////////////////////////////////////////////////////////////
 
 type Table struct {
-	colkey     []string
-	partorder  []string
-	colmap     map[string]bool
-	fields     map[string]*Flag
-	parts      map[string]string
+	colkey     []string            // order of registered columns to display
+	colmap     map[string]bool     // whether a column exists in the display
+	partorder  []string            // order of registered parts
+	fields     map[string]*Flag    // field name -> field
+	parts      map[string]string   // field name -> part
 	paths      map[string][]string
 	rows       []*Values
     format     int
@@ -45,14 +45,18 @@ type Table struct {
 // Returns a new table object
 func NewTable() *Table {
 	this := &Table{}
-	this.partorder = make([]string, 0)
+	this.colkey = []string{ }
 	this.colmap = make(map[string]bool)
+
+	this.partorder = make([]string, 0)
 	this.fields = make(map[string]*Flag)
 	this.parts = make(map[string]string)
 	this.paths = make(map[string][]string)
+
     this.format = OUTPUT_ASCII
     this.infoOutput = os.Stderr
     this.dataOutput = os.Stdout
+
 	return this
 }
 
@@ -87,55 +91,89 @@ func (this *Table) RegisterPart(part string, fields []*Flag) {
 }
 
 // Set the default output columns
-func (this *Table) SetColumns(columns []string) {
-	this.colkey = columns
+func (this *Table) SetColumns(columns []string) error {
+	this.colkey = []string{}
+	this.colmap = make(map[string]bool)
 	for _, key := range columns {
-		this.colmap[key] = true
-	}
-}
-
-// Add a field or part to the output columns
-func (this *Table) AddColumn(name string) error {
-	_, exists := this.colmap[name]
-	if exists == true {
-		// column already exists
-		return nil
-	}
-
-	// check for column name
-	if _, exists := this.fields[name]; exists {
-		this.colkey = append(this.colkey, name)
-		this.colmap[name] = true
-		return nil
-	}
-
-	// check for snippet name
-	fields := this.FieldsForPart(name)
-	if len(fields) == 0 {
-		return errors.New(fmt.Sprint("Unknown field or part name: ", name))
-	}
-
-	// add snippet columns
-	for _, field := range fields {
-		if err := this.RemoveColumn(field.Name); err != nil {
-			return err
-		}
-		if err := this.AddColumn(field.Name); err != nil {
+		if err := this.AddFieldOrPart(key); err != nil {
 			return err
 		}
 	}
+
+	// success
 	return nil
 }
 
-// Remove a field or part to the output columns
-func (this *Table) RemoveColumn(name string) error {
-	_, exists := this.colmap[name]
-	if exists == false {
-		// column does not exist
+// Add a column or part
+func (this *Table) AddFieldOrPart(key string) error {
+	// if field, then add the field
+	if _, exists := this.fields[key]; exists {
+		this.addField(key)
 		return nil
 	}
 
-	fmt.Printf("REMOVE ", name)
+	// if snippet, then expand into fields
+	fields := this.FieldsForPart(key)
+	if len(fields) == 0 {
+		return errors.New(fmt.Sprint("Unknown field or part name to add: ", key))
+	}
+
+	// add fields
+	for _,field := range fields {
+		this.addField(field.Name)
+	}
+
+	// success
+	return nil
+}
+
+// Add a field to the output columns
+func (this *Table) addField(key string) {
+	// remove existing column
+	if _, exists := this.colmap[key]; exists {
+		this.removeField(key)
+	}
+	// append column
+	this.colkey = append(this.colkey, key)
+	this.colmap[key] = true
+}
+
+// Remove field from the output columns
+func (this *Table) removeField(key string) {
+	if _, exists := this.colmap[key]; exists == false {
+		return
+	}
+	// regenerate columns
+	j := -1
+	for i, field := range this.colkey {
+		if field==key {
+			j = i
+		}
+	}
+	if j >= 0 {
+		this.colkey = append(this.colkey[:j], this.colkey[j+1:]...)
+	}
+	// remove from column map
+	delete(this.colmap,key)
+}
+
+// Remove a field or part from the output columns
+func (this *Table) RemoveFieldOrPart(key string) error {
+	// if field, then add the field
+	if _, exists := this.fields[key]; exists {
+		this.removeField(key)
+		return nil
+	}
+	// if snippet, then expand into fields
+	fields := this.FieldsForPart(key)
+	if len(fields) == 0 {
+		return errors.New(fmt.Sprint("Unknown field or part name to remove: ", key))
+	}
+	// remove fields
+	for _,field := range fields {
+		this.removeField(field.Name)
+	}
+	// success
 	return nil
 }
 
