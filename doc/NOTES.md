@@ -1,4 +1,12 @@
 
+Creating a release
+git tag alpha-002 -a -m "Added new alpha release"
+build/build.sh -c ~/.ytapi/client_secrets.json -s ~/.ytapi/service_account.json
+git push origin alpha-002
+
+On github, then create a release from the tags
+
+
 Here are some methods that need implemented:
 
 Activities

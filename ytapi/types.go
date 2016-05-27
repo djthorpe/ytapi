@@ -117,7 +117,7 @@ func (this *Flag) asStream(value string) (Stream, error) {
 }
 
 func (this *Flag) asContentOwner(value string) (ContentOwner, error) {
-	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\_]{22})$", value)
+	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\_\\-]{22})$", value)
 	if matched == false {
 		return "", errors.New("Malformed content owner value")
 	}
