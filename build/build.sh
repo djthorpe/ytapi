@@ -111,7 +111,7 @@ echo "}" >> ${JSON_PATH}
 
 # build the command line tool
 ${GO} run build/build.go ${JSON_PATH} ${TEMPLATE_PATH} > ${VERSION_PATH}
-${GO} install ytapi.go version.go
+${GO} install -ldflags "-s -w" ytapi.go version.go
 
 # output
 cat ${JSON_PATH}
