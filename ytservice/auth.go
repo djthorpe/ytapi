@@ -4,18 +4,25 @@
 */
 package ytservice
 
+////////////////////////////////////////////////////////////////////////////////
+
 import (
-	"encoding/gob"
 	"fmt"
+	"os"
+	"time"
+	"runtime"
+	"encoding/gob"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"os/exec"
-	"time"
+)
 
+import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
+
+////////////////////////////////////////////////////////////////////////////////
 
 // Returns context
 func getContext(debug bool) context.Context {
@@ -88,7 +95,19 @@ func tokenFromWeb(config *oauth2.Config, ctx context.Context) (*oauth2.Token, er
 }
 
 // Attempt to open a URL using a browser
-func openURL(url string) {
+func openURL(url string) bool {
+	var args []string
+	switch runtime.GOOS {
+	case "darwin":
+		args = []string{"open"}
+	case "windows":
+		args = []string{"cmd", "/c", "start"}
+	default:
+		args = []string{"xdg-open"}
+	}
+	cmd := exec.Command(args[0], append(args[1:], url)...)
+	return cmd.Start() == nil
+/*
 	try := []string{"xdg-open", "google-chrome", "open"}
 	for _, bin := range try {
 		err := exec.Command(bin, url).Run()
@@ -96,4 +115,5 @@ func openURL(url string) {
 			return
 		}
 	}
+*/
 }
