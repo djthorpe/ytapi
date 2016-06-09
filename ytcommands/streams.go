@@ -106,7 +106,7 @@ func RegisterStreamFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"key", "title", "format", "isDefaultStream"})
+	table.SetColumns([]string{"key", "title", "format", "isDefaultStream","stream"})
 
 	// success
 	return nil
