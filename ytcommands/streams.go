@@ -7,7 +7,10 @@ package ytcommands
 import (
 	"errors"
 	"fmt"
+	"strings"
+)
 
+import (
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
 )
@@ -116,24 +119,17 @@ func ListStreams(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 
 	// Get parameters
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
-	contentowner := values.GetString(&ytapi.FlagContentOwner)
-	channel := values.GetString(&ytapi.FlagChannel)
-	parts := "id,snippet,cdn,status" //strings.Join(table.Parts(), ",")
 
+	// Set the call parameters
 	// create call and set parameters
-	call := service.API.LiveStreams.List(parts)
+	call := service.API.LiveStreams.List(strings.Join(table.Parts(false), ","))
 	if service.ServiceAccount {
-		call = call.OnBehalfOfContentOwner(contentowner)
-		if channel == "" {
-			return errors.New("Invalid channel parameter")
-		} else {
-			call = call.OnBehalfOfContentOwnerChannel(channel)
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		if values.IsSet(&ytapi.FlagChannel) {
+			call = call.OnBehalfOfContentOwnerChannel(values.GetString(&ytapi.FlagChannel))
 		}
-	} else if channel != "" {
-		return errors.New("Invalid channel parameter")
-	} else {
-		call = call.Mine(true)
 	}
+	call = call.Mine(true)
 
 	// Perform search, and return results
 	return ytapi.DoStreamsList(call, table, int64(maxresults))
