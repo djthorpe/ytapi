@@ -28,23 +28,38 @@ func RegisterBroadcastCommands() []*ytapi.Command {
 			Execute:     ListBroadcasts,
 		},
 		&ytapi.Command{
+			Name:        "GetBroadcast",
+			Description: "Get broadcast",
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Setup:       RegisterBroadcastFormat,
+			Execute:     GetBroadcast,
+		},
+		&ytapi.Command{
 			Name:        "DeleteBroadcast",
 			Description: "Delete broadcast",
-			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
 			Execute:     DeleteBroadcast,
 		},
 		&ytapi.Command{
 			Name:        "TransitionBroadcast",
 			Description: "Transition broadcast to another state",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagBroadcastTransition},
+			Setup:       RegisterBroadcastFormat,
 			Execute:     TransitionBroadcast,
 		},
 		&ytapi.Command{
 			Name:        "BindBroadcast",
-			Description: "Bind or unbind broadcast to stream",
-			Optional:    []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagStream},
+			Description: "Bind a broadcast to stream",
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo,&ytapi.FlagStream},
+			Setup:       RegisterBroadcastFormat,
+			Execute:     BindBroadcast,
+		},
+		&ytapi.Command{
+			Name:        "UnbindBroadcast",
+			Description: "Unbind a broadcast from a stream",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
-			Execute:     TransitionBroadcast,
+			Setup:       RegisterBroadcastFormat,
+			Execute:     UnbindBroadcast,
 		},
 		&ytapi.Command{
 			Name:        "NewBroadcast",
@@ -109,14 +124,14 @@ func RegisterBroadcastFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"broadcast", "title", "description", "status", "chat"})
+	table.SetColumns([]string{"broadcast", "title", "description", "status", "stream"})
 
 	// success
 	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// List Broadcasts
+// List/Get Broadcasts
 
 func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
@@ -142,6 +157,22 @@ func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *yta
 
 	// Perform search, and return results
 	return ytapi.DoBroadcastsList(call, table, int64(maxresults))
+}
+
+func GetBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Set the call parameters
+	call := service.API.LiveBroadcasts.List(strings.Join(table.Parts(false), ","))
+	call = call.Id(values.GetString(&ytapi.FlagVideo))
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		if values.IsSet(&ytapi.FlagChannel) {
+			call = call.OnBehalfOfContentOwnerChannel(values.GetString(&ytapi.FlagChannel))
+		}
+	}
+
+	// Perform search, and return results
+	return ytapi.DoBroadcastsList(call, table, 1)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,6 +239,57 @@ func TransitionBroadcast(service *ytservice.Service, values *ytapi.Values, table
 	// TODO: retrieve broadcast again and print out values
 
 	// success
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Bind and Unbind Broadcast
+
+func BindBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	stream := values.GetString(&ytapi.FlagStream)
+	video := values.GetString(&ytapi.FlagVideo)
+
+	// Set the call parameters
+	call := service.API.LiveBroadcasts.Bind(video,strings.Join(table.Parts(false), ","))
+	call = call.StreamId(stream)
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		if values.IsSet(&ytapi.FlagChannel) {
+			call = call.OnBehalfOfContentOwnerChannel(values.GetString(&ytapi.FlagChannel))
+		}
+	}
+
+	// Bind broadcast
+	response, err := call.Do()
+	if err != nil {
+		return err
+	}
+	table.Append([]*youtube.LiveBroadcast{ response })
+
+	return nil
+}
+
+func UnbindBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	video := values.GetString(&ytapi.FlagVideo)
+
+	// Set the call parameters
+	call := service.API.LiveBroadcasts.Bind(video,strings.Join(table.Parts(false), ","))
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		if values.IsSet(&ytapi.FlagChannel) {
+			call = call.OnBehalfOfContentOwnerChannel(values.GetString(&ytapi.FlagChannel))
+		}
+	}
+
+	// Unbind broadcast
+	response, err := call.Do()
+	if err != nil {
+		return err
+	}
+	table.Append([]*youtube.LiveBroadcast{ response })
+
 	return nil
 }
 
