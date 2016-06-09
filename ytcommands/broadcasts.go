@@ -5,8 +5,11 @@
 package ytcommands
 
 import (
+	"strings"
 	"errors"
+)
 
+import (
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
 	"google.golang.org/api/youtube/v3"
@@ -119,24 +122,20 @@ func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *yta
 
 	// Get parameters
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
-	contentowner := values.GetString(&ytapi.FlagContentOwner)
-	channel := values.GetString(&ytapi.FlagChannel)
-	status := values.GetString(&ytapi.FlagBroadcastStatus)
-	parts := "id,snippet,status" //strings.Join(table.Parts(), ",")
 
-	// create call and set parameters
-	call := service.API.LiveBroadcasts.List(parts)
+	// Set the call parameters
+	call := service.API.LiveBroadcasts.List(strings.Join(table.Parts(false), ","))
+	call = call.BroadcastType("all")
 	if service.ServiceAccount {
-		call = call.OnBehalfOfContentOwner(contentowner)
-		if channel == "" {
-			return errors.New("Invalid channel parameter")
-		} else {
-			call = call.OnBehalfOfContentOwnerChannel(channel)
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		if values.IsSet(&ytapi.FlagChannel) {
+			call = call.OnBehalfOfContentOwnerChannel(values.GetString(&ytapi.FlagChannel))
 		}
-	} else if channel != "" {
-		return errors.New("Invalid channel parameter")
-	} else if status != "" {
-		call = call.BroadcastStatus(status)
+	}
+
+	// Status
+	if values.IsSet(&ytapi.FlagBroadcastStatus) {
+		call = call.BroadcastStatus(values.GetString(&ytapi.FlagBroadcastStatus))
 	} else {
 		call = call.Mine(true)
 	}
