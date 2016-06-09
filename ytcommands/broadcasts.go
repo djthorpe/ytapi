@@ -97,6 +97,22 @@ func RegisterBroadcastCommands() []*ytapi.Command {
 			},
 			Execute: InsertBroadcast,
 		},
+		&ytapi.Command{
+			Name:        "UpdateBroadcast",
+			Description: "Update an existing broadcast",
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Optional: []*ytapi.Flag{
+				&ytapi.FlagTitle, &ytapi.FlagDescription,
+				&ytapi.FlagStartTime, &ytapi.FlagEndTime,
+				&ytapi.FlagPrivacyStatus, &ytapi.FlagDvr,
+				&ytapi.FlagContentEncryption, &ytapi.FlagEmbed,
+				&ytapi.FlagRecordFromStart, &ytapi.FlagStartWithSlate,
+				&ytapi.FlagClosedCaptions, &ytapi.FlagMonitorStream,
+				&ytapi.FlagBroadcastDelay, &ytapi.FlagLowLatency,
+			},
+			Setup:   RegisterBroadcastFormat,
+			Execute: UpdateBroadcast,
+		},
 	}
 }
 
@@ -401,3 +417,99 @@ func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 	// success
 	return nil
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Update Broadcast
+
+func UpdateBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get the broadcast
+	call := service.API.LiveBroadcasts.List("snippet,status,contentDetails")
+	call = call.Id(values.GetString(&ytapi.FlagVideo))
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		if values.IsSet(&ytapi.FlagChannel) {
+			call = call.OnBehalfOfContentOwnerChannel(values.GetString(&ytapi.FlagChannel))
+		}
+	}
+
+	response,err := call.Do()
+	if err != nil {
+		return err
+	}
+	if len(response.Items) != 1 {
+		return errors.New("Not Found")
+	}
+
+	// set body
+	body := response.Items[0]
+	if values.IsSet(&ytapi.FlagTitle) {
+		body.Snippet.Title = values.GetString(&ytapi.FlagTitle)
+	}
+	if values.IsSet(&ytapi.FlagDescription) {
+		body.Snippet.Description = values.GetString(&ytapi.FlagDescription)
+	}
+	if values.IsSet(&ytapi.FlagStartTime) {
+		body.Snippet.ScheduledStartTime = values.GetTimeInISOFormat(&ytapi.FlagStartTime)
+	}
+	if values.IsSet(&ytapi.FlagEndTime) {
+		body.Snippet.ScheduledEndTime = values.GetTimeInISOFormat(&ytapi.FlagEndTime)
+	}
+	if values.IsSet(&ytapi.FlagPrivacyStatus) {
+		body.Status.PrivacyStatus = values.GetString(&ytapi.FlagPrivacyStatus)
+	}
+	if values.IsSet(&ytapi.FlagDvr) {
+		body.ContentDetails.EnableDvr = values.GetBool(&ytapi.FlagDvr)
+	}
+	if values.IsSet(&ytapi.FlagContentEncryption) {
+		body.ContentDetails.EnableContentEncryption = values.GetBool(&ytapi.FlagContentEncryption)
+	}
+	if values.IsSet(&ytapi.FlagEmbed) {
+		body.ContentDetails.EnableEmbed = values.GetBool(&ytapi.FlagEmbed)
+	}
+	if values.IsSet(&ytapi.FlagRecordFromStart) {
+		body.ContentDetails.RecordFromStart = values.GetBool(&ytapi.FlagRecordFromStart)
+	}
+	if values.IsSet(&ytapi.FlagStartWithSlate) {
+		body.ContentDetails.StartWithSlate = values.GetBool(&ytapi.FlagStartWithSlate)
+	}
+	if values.IsSet(&ytapi.FlagLowLatency) {
+		body.ContentDetails.EnableLowLatency = values.GetBool(&ytapi.FlagLowLatency)
+	}
+	if values.IsSet(&ytapi.FlagClosedCaptions) {
+		body.ContentDetails.EnableClosedCaptions = values.GetBool(&ytapi.FlagClosedCaptions)
+	}
+	if values.IsSet(&ytapi.FlagBroadcastDelay) {
+		body.ContentDetails.MonitorStream.BroadcastStreamDelayMs = int64(values.GetUint(&ytapi.FlagBroadcastDelay))
+	}
+	if values.IsSet(&ytapi.FlagMonitorStream) {
+		body.ContentDetails.MonitorStream.EnableMonitorStream = values.GetBool(&ytapi.FlagMonitorStream)
+	}
+
+	// set fields to force sending
+	body.ContentDetails.ForceSendFields = []string{
+		"EnableDvr","EnableContentEncryption","EnableEmbed","RecordFromStart",
+		"StartWithSlate","EnableLowLatency","EnableClosedCaptions",
+	}
+	body.ContentDetails.MonitorStream.ForceSendFields = []string{
+		"EnableMonitorStream","BroadcastStreamDelayMs",
+	}
+
+	// Update
+	call2 := service.API.LiveBroadcasts.Update("snippet,status,contentDetails",body)
+	if service.ServiceAccount {
+		call2 = call2.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		if values.IsSet(&ytapi.FlagChannel) {
+			call2 = call2.OnBehalfOfContentOwnerChannel(values.GetString(&ytapi.FlagChannel))
+		}
+	}
+
+	_,err = call2.Do()
+	if err != nil {
+		return err
+	}
+
+	// Success
+	return GetBroadcast(service,values,table)
+}
+
