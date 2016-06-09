@@ -62,3 +62,4 @@ Here are some other future enhancements:
 - Time output format, fix parsing of input time formats
 - Local timezone flag
 - Analytics API support
+- Implement Validator: https://developers.google.com/apis-explorer/#p/youtubePartner/v1/youtubePartner.validator.validate
