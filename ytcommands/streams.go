@@ -79,16 +79,16 @@ func RegisterStreamFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	table.RegisterPart("snippet", []*ytapi.Flag{
-		&ytapi.Flag{Name: "title", Path: "Snippet/Title", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "description", Path: "Snippet/Description", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "title",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
-		&ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
-		&ytapi.Flag{Name: "isDefaultStream", Path: "Snippet/IsDefaultStream", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "publishedAt",  Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "default", Path: "Snippet/IsDefaultStream", Type: ytapi.FLAG_BOOL},
 	})
 
 	table.RegisterPart("cdn", []*ytapi.Flag{
-		&ytapi.Flag{Name: "format", Path: "Cdn/Format", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "ingestionType", Path: "Cdn/IngestionType", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "format", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "type", Path: "Cdn/IngestionType", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "key", Path: "Cdn/IngestionInfo/StreamName", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "ingestionAddress", Path: "Cdn/IngestionInfo/IngestionAddress", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "backupIngestionAddress", Path: "Cdn/IngestionInfo/BackupIngestionAddress", Type: ytapi.FLAG_STRING},
@@ -106,7 +106,7 @@ func RegisterStreamFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"key", "title", "format", "isDefaultStream","stream"})
+	table.SetColumns([]string{"key", "title", "type", "default", "stream"})
 
 	// success
 	return nil
