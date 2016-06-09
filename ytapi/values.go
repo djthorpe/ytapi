@@ -79,6 +79,17 @@ func NewValue(flag *Flag, value reflect.Value) (*Value, error) {
 	return this, nil
 }
 
+func NewValueWithString(flag *Flag, value string) (*Value, error) {
+	this := new(Value)
+	this.flag = flag
+
+	if err := this.SetString(value); err != nil {
+		return nil, err
+	}
+
+	return this,nil
+}
+
 func (this *Value) SetBool(value bool) error {
 	switch {
 	case this.flag.Type == FLAG_UINT:

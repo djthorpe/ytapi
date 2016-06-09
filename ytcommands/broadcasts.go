@@ -48,6 +48,27 @@ func RegisterBroadcastCommands() []*ytapi.Command {
 			Execute:     TransitionBroadcast,
 		},
 		&ytapi.Command{
+			Name:        "PreviewBroadcast",
+			Description: "Transition broadcast to preview state",
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Setup:       RegisterBroadcastFormat,
+			Execute:     PreviewBroadcast,
+		},
+		&ytapi.Command{
+			Name:        "StartBroadcast",
+			Description: "Transition broadcast to started state",
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Setup:       RegisterBroadcastFormat,
+			Execute:     StartBroadcast,
+		},
+		&ytapi.Command{
+			Name:        "StopBroadcast",
+			Description: "Transition broadcast to stopped state",
+			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Setup:       RegisterBroadcastFormat,
+			Execute:     StopBroadcast,
+		},
+		&ytapi.Command{
 			Name:        "BindBroadcast",
 			Description: "Bind a broadcast to stream",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo,&ytapi.FlagStream},
@@ -208,38 +229,58 @@ func DeleteBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Transition Broadcast
+// Transition, Preview, Stop and Start Broadcast
 
 func TransitionBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
 	// Get parameters
-	contentowner := values.GetString(&ytapi.FlagContentOwner)
-	channel := values.GetString(&ytapi.FlagChannel)
 	video := values.GetString(&ytapi.FlagVideo)
 	transition := values.GetString(&ytapi.FlagBroadcastTransition)
 
-	// Create call, set parameters
-	call := service.API.LiveBroadcasts.Transition(transition, video, "id,snippet,status")
+	// Set the call parameters
+	call := service.API.LiveBroadcasts.Transition(transition,video,strings.Join(table.Parts(false), ","))
 	if service.ServiceAccount {
-		call = call.OnBehalfOfContentOwner(contentowner)
-		if channel == "" {
-			return errors.New("Invalid channel parameter")
-		} else {
-			call = call.OnBehalfOfContentOwnerChannel(channel)
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		if values.IsSet(&ytapi.FlagChannel) {
+			call = call.OnBehalfOfContentOwnerChannel(values.GetString(&ytapi.FlagChannel))
 		}
-	} else if channel != "" {
-		return errors.New("Invalid channel parameter")
 	}
 
-	// Insert broadcast and get response
-	_, err := call.Do()
+	// Execute call
+	response, err := call.Do()
 	if err != nil {
 		return err
 	}
+	table.Append([]*youtube.LiveBroadcast{ response })
 
-	// TODO: retrieve broadcast again and print out values
-
-	// success
 	return nil
+}
+
+func PreviewBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+	value, err := ytapi.NewValueWithString(&ytapi.FlagBroadcastTransition,"testing")
+	if err != nil {
+		return err
+	}
+	values.Set(value)
+	return TransitionBroadcast(service,values,table)
+}
+
+func StopBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+	value, err := ytapi.NewValueWithString(&ytapi.FlagBroadcastTransition,"complete")
+	if err != nil {
+		return err
+	}
+	values.Set(value)
+	return TransitionBroadcast(service,values,table)
+}
+
+func StartBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+	value, err := ytapi.NewValueWithString(&ytapi.FlagBroadcastTransition,"live")
+	if err != nil {
+		return err
+	}
+	values.Set(value)
+	return TransitionBroadcast(service,values,table)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
