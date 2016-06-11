@@ -66,8 +66,13 @@ func RegisterChannelSectionFormat(values *ytapi.Values, table *ytapi.Table) erro
 		&ytapi.Flag{Name: "language", Path: "Snippet/DefaultLanguage", Type: ytapi.FLAG_LANGUAGE},
 	})
 
+	table.RegisterPart("contentDetails", []*ytapi.Flag{
+		&ytapi.Flag{Name: "playlists", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "channels", Type: ytapi.FLAG_STRING},
+	})
+
 	// set default columns
-	table.SetColumns([]string{"position", "title", "type", "style", "language" })
+	table.SetColumns([]string{"position", "title", "type", "style", "language", "playlists", "channels" })
 
 	// success
 	return nil
@@ -105,6 +110,30 @@ func sectionFromPosition(service *ytservice.Service, values *ytapi.Values) (stri
 	return "", errors.New("Channel Section not found")
 }
 
+func titleForPlaylist(service *ytservice.Service,values *ytapi.Values,playlist string) (string, error) {
+	// create call and set parameters
+	call := service.API.Playlists.List("snippet")
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+	}
+	if values.IsSet(&ytapi.FlagLanguage) {
+		call = call.Hl(values.GetString(&ytapi.FlagLanguage))
+	}
+	call = call.Id(playlist)
+
+	// Do the call
+	response,err := call.Do()
+	if err != nil {
+		return "",err
+	}
+	// Check for items
+	if len(response.Items) != 1 {
+		return "",errors.New("Playlist not found")
+	}
+
+	return response.Items[0].Snippet.Title,nil
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Channel Sections List
 
@@ -112,7 +141,7 @@ func ListChannelSections(service *ytservice.Service, values *ytapi.Values, table
 
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
-	parts := strings.Join(table.Parts(false), ",")
+	parts := strings.Join(table.Parts(true), ",") 	// Return all parts (true)
 
 	// create call and set parameters
 	call := service.API.ChannelSections.List(parts)
@@ -132,6 +161,55 @@ func ListChannelSections(service *ytservice.Service, values *ytapi.Values, table
 	if err != nil {
 		return err
 	}
+
+	// Fudge the title column where the type isn't multipleChannels or multiplePlaylists
+	for _,resource := range response.Items {
+		switch(resource.Snippet.Type) {
+			case "allPlaylists":
+				resource.Snippet.Title = "Playlists by [Channel Name]"
+			case "singlePlaylist":
+				playlists := resource.ContentDetails.Playlists
+				if len(playlists) != 1 {
+					return errors.New("Playlist not found")
+				}
+				title, err := titleForPlaylist(service,values,playlists[0])
+				if err != nil {
+					return err
+				}
+				resource.Snippet.Title = title
+			case "likes":
+				resource.Snippet.Title = "Liked videos"
+			case "liveEvents":
+				resource.Snippet.Title = "Live Events"
+			case "completedEvents":
+				resource.Snippet.Title = "Completed Events"
+			case "upcomingEvents":
+				resource.Snippet.Title = "Upcoming Events"
+			case "likedPlaylists":
+				resource.Snippet.Title = "Saved playlists"
+			case "multipleChannels":
+				resource.Snippet.Title = resource.Snippet.Title
+			case "multiplePlaylists":
+				resource.Snippet.Title = resource.Snippet.Title
+			case "popularUploads":
+				resource.Snippet.Title = "Popular uploads"
+			case "postedPlaylists":
+				resource.Snippet.Title = "Posted playlists"
+			case "postedVideos":
+				resource.Snippet.Title = "Posted videos"
+			case "recentActivity":
+				resource.Snippet.Title = "Recent activities"
+			case "recentPosts":
+				resource.Snippet.Title = "Recent posts"
+			case "recentUploads":
+				resource.Snippet.Title = "Uploads"
+			case "subscriptions":
+				resource.Snippet.Title = "Subscriptions"
+			default:
+				resource.Snippet.Title = resource.Snippet.Type
+		}
+	}
+
 	if err = table.Append(response.Items); err != nil {
 		return err
 	}
