@@ -8,7 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+)
 
+import (
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
 	"google.golang.org/api/youtube/v3"
