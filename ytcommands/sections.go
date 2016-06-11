@@ -31,7 +31,10 @@ func RegisterChannelSectionCommands() []*ytapi.Command {
 			Name:        "NewChannelSection",
 			Description: "Create a new channel section",
 			Required:    []*ytapi.Flag{&ytapi.FlagSectionType},
-			Optional:    []*ytapi.Flag{&ytapi.FlagSectionStyle, &ytapi.FlagLanguage, &ytapi.FlagTitle, &ytapi.FlagSectionPosition},
+			Optional:    []*ytapi.Flag{
+				&ytapi.FlagSectionStyle, &ytapi.FlagLanguage, &ytapi.FlagTitle,
+				&ytapi.FlagSectionPosition, &ytapi.FlagPlaylist,
+			},
 			Setup:       RegisterChannelSectionFormat,
 			Execute:     NewChannelSection,
 		},
@@ -64,7 +67,7 @@ func RegisterChannelSectionFormat(values *ytapi.Values, table *ytapi.Table) erro
 	})
 
 	// set default columns
-	table.SetColumns([]string{"position", "title", "type", "style"})
+	table.SetColumns([]string{"position", "title", "type", "style", "language" })
 
 	// success
 	return nil
@@ -140,16 +143,48 @@ func ListChannelSections(service *ytservice.Service, values *ytapi.Values, table
 
 func NewChannelSection(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
+	// Set parameters
+	sectionType := values.GetString(&ytapi.FlagSectionType)
+	part := "snippet"
+
 	// Create the body
 	body := &youtube.ChannelSection{
 		Snippet: &youtube.ChannelSectionSnippet{
-			Type:  values.GetString(&ytapi.FlagSectionType),
+			Type:  sectionType,
 			Style: values.GetString(&ytapi.FlagSectionStyle),
 		},
 	}
 
+	// Title, Position and Language
+	if values.IsSet(&ytapi.FlagLanguage) {
+		body.Snippet.DefaultLanguage = values.GetString(&ytapi.FlagLanguage)
+	}
+	if values.IsSet(&ytapi.FlagTitle) {
+		if sectionType != "multiplePlaylists" && sectionType != "multipleChannels" {
+			return errors.New("Title can only be set when type is multiplePlaylists or multipleChannels")
+		}
+		body.Snippet.Title = values.GetString(&ytapi.FlagTitle)
+	}
+	if values.IsSet(&ytapi.FlagSectionPosition) {
+		position := values.GetInt(&ytapi.FlagSectionPosition)
+		body.Snippet.Position = &position
+	}
+
+	// Single Playlist
+	if sectionType == "singlePlaylist" {
+		if values.IsSet(&ytapi.FlagPlaylist)==false {
+			return errors.New("Required flag: playlist")
+		}
+		part = "snippet,contentDetails"
+		body.ContentDetails = &youtube.ChannelSectionContentDetails{
+			Playlists: []string{
+				values.GetString(&ytapi.FlagPlaylist),
+			},
+		}
+	}
+
 	// create call and set parameters
-	call := service.API.ChannelSections.Insert("snippet", body)
+	call := service.API.ChannelSections.Insert(part,body)
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 		if values.IsSet(&ytapi.FlagChannel) {
