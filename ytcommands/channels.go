@@ -5,9 +5,9 @@
 package ytcommands
 
 import (
+	"errors"
 	"os"
 	"strings"
-	"errors"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -38,13 +38,13 @@ func RegisterChannelCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "UpdateChannelBanner",
 			Description: "Update Channel Banner Image",
-			Required:    []*ytapi.Flag{ &ytapi.FlagFile },
+			Required:    []*ytapi.Flag{&ytapi.FlagFile},
 			Execute:     UpdateChannelBanner,
 		},
 		&ytapi.Command{
 			Name:        "UpdateChannelMetadata",
 			Description: "Update metadata for channel",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagTitle, &ytapi.FlagDescription, &ytapi.FlagLanguage, &ytapi.FlagRegion },
+			Optional:    []*ytapi.Flag{&ytapi.FlagTitle, &ytapi.FlagDescription, &ytapi.FlagLanguage, &ytapi.FlagRegion},
 			Setup:       RegisterChannelFormat,
 			Execute:     UpdateChannelMetadata,
 		},
@@ -57,15 +57,15 @@ func RegisterChannelCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "UpdateLocalizedChannelMetadata",
 			Description: "Update localized channel metadata",
-			Required:    []*ytapi.Flag{ &ytapi.FlagLanguage, &ytapi.FlagTitle },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagDescription },
+			Required:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagTitle},
+			Optional:    []*ytapi.Flag{&ytapi.FlagDescription},
 			Setup:       RegisterLocalizedChannelMetadataFormat,
 			Execute:     UpdateLocalizedChannelMetadata,
 		},
 		&ytapi.Command{
 			Name:        "DeleteLocalizedChannelMetadata",
 			Description: "Remove localized channel metadata",
-			Required:    []*ytapi.Flag{ &ytapi.FlagLanguage },
+			Required:    []*ytapi.Flag{&ytapi.FlagLanguage},
 			Setup:       RegisterLocalizedChannelMetadataFormat,
 			Execute:     DeleteLocalizedChannelMetadata,
 		},
@@ -125,7 +125,7 @@ func RegisterChannelFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"channel", "title", "description", "defaultLanguage", "country" })
+	table.SetColumns([]string{"channel", "title", "description", "defaultLanguage", "country"})
 
 	// success
 	return nil
@@ -227,12 +227,12 @@ func UpdateChannelBanner(service *ytservice.Service, values *ytapi.Values, table
 	// Set the URL
 	response2.Items[0].BrandingSettings.Image.BannerExternalUrl = response.Url
 	body := &youtube.Channel{
-		Id: response2.Items[0].Id,
+		Id:               response2.Items[0].Id,
 		BrandingSettings: response2.Items[0].BrandingSettings,
 	}
 
 	// Update Channel Branding Settings
-	call3 := service.API.Channels.Update("brandingSettings",body)
+	call3 := service.API.Channels.Update("brandingSettings", body)
 	if service.ServiceAccount {
 		call3 = call3.OnBehalfOfContentOwner(contentowner)
 	}
@@ -244,7 +244,6 @@ func UpdateChannelBanner(service *ytservice.Service, values *ytapi.Values, table
 	// success
 	return nil
 }
-
 
 func UpdateChannelMetadata(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
@@ -287,8 +286,8 @@ func UpdateChannelMetadata(service *ytservice.Service, values *ytapi.Values, tab
 	}
 
 	// Update Channel Branding Settings
-	call2 := service.API.Channels.Update("brandingSettings",&youtube.Channel{
-		Id: response.Items[0].Id,
+	call2 := service.API.Channels.Update("brandingSettings", &youtube.Channel{
+		Id:               response.Items[0].Id,
 		BrandingSettings: response.Items[0].BrandingSettings,
 	})
 	if service.ServiceAccount {
@@ -370,7 +369,7 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	// Update channel localization settings
 	metadata, ok := response.Items[0].Localizations[language]
 	if ok == false {
-		metadata = youtube.ChannelLocalization{ }
+		metadata = youtube.ChannelLocalization{}
 	}
 	if values.IsSet(&ytapi.FlagTitle) {
 		metadata.Title = values.GetString(&ytapi.FlagTitle)
@@ -394,7 +393,7 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	}
 
 	// success
-	return GetLocalizedChannelMetadata(service,values,table)
+	return GetLocalizedChannelMetadata(service, values, table)
 }
 
 func DeleteLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -429,7 +428,7 @@ func DeleteLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	if ok == false {
 		return errors.New("Localized metadata for language does not exist")
 	}
-	delete(response.Items[0].Localizations,language)
+	delete(response.Items[0].Localizations, language)
 
 	// update localization
 	call2 := service.API.Channels.Update("localizations", &youtube.Channel{
@@ -445,8 +444,5 @@ func DeleteLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	}
 
 	// success
-	return GetLocalizedChannelMetadata(service,values,table)
+	return GetLocalizedChannelMetadata(service, values, table)
 }
-
-
-

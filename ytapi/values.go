@@ -87,7 +87,7 @@ func NewValueWithString(flag *Flag, value string) (*Value, error) {
 		return nil, err
 	}
 
-	return this,nil
+	return this, nil
 }
 
 func (this *Value) SetBool(value bool) error {

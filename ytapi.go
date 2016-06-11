@@ -7,8 +7,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
-    "path/filepath"
 
 	"github.com/djthorpe/ytapi/cidcommands"
 	"github.com/djthorpe/ytapi/ytapi"
@@ -19,32 +19,32 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 
 func Usage() {
-    execname := filepath.Base(os.Args[0])
-    fmt.Fprintf(os.Stderr, "\nUsage of %s:\n\n", execname)
-    fmt.Fprintf(os.Stderr, "\t%s -help\n", execname)
-    fmt.Fprintf(os.Stderr, "\t%s -help <api-call>\n", execname)
-    fmt.Fprintf(os.Stderr, "\t%s <flags> <api-call>\n", execname)
-    fmt.Fprintln(os.Stderr, "")
+	execname := filepath.Base(os.Args[0])
+	fmt.Fprintf(os.Stderr, "\nUsage of %s:\n\n", execname)
+	fmt.Fprintf(os.Stderr, "\t%s -help\n", execname)
+	fmt.Fprintf(os.Stderr, "\t%s -help <api-call>\n", execname)
+	fmt.Fprintf(os.Stderr, "\t%s <flags> <api-call>\n", execname)
+	fmt.Fprintln(os.Stderr, "")
 }
 
 func UsageVersion() {
-    execname := filepath.Base(os.Args[0])
+	execname := filepath.Base(os.Args[0])
 
-    fmt.Fprintf(os.Stderr, "%s: Command Line Tool for YouTube API calls\n",execname)
-    fmt.Fprintf(os.Stderr, "%s\n",VERSION_URL)
-    fmt.Fprintf(os.Stderr, "%s\n\n",VERSION_COPYRIGHT)
-    fmt.Fprintf(os.Stderr, "    Author: %s\n",VERSION_AUTHOR)
-    if VERSION_TAG != "" {
-        fmt.Fprintf(os.Stderr,"       Tag: %s\n",VERSION_TAG)
-    }
-    if VERSION_BRANCH != "" {
-        fmt.Fprintf(os.Stderr,"    Branch: %s\n",VERSION_BRANCH)
-    }
-    if VERSION_HASH != "" {
-        fmt.Fprintf(os.Stderr,"      Hash: %s\n",VERSION_HASH)
-    }
-    fmt.Fprintf(os.Stderr, "      Date: %s\n",VERSION_DATE)
-    fmt.Fprintf(os.Stderr, "Go Version: %s\n",VERSION_GOVERSION)
+	fmt.Fprintf(os.Stderr, "%s: Command Line Tool for YouTube API calls\n", execname)
+	fmt.Fprintf(os.Stderr, "%s\n", VERSION_URL)
+	fmt.Fprintf(os.Stderr, "%s\n\n", VERSION_COPYRIGHT)
+	fmt.Fprintf(os.Stderr, "    Author: %s\n", VERSION_AUTHOR)
+	if VERSION_TAG != "" {
+		fmt.Fprintf(os.Stderr, "       Tag: %s\n", VERSION_TAG)
+	}
+	if VERSION_BRANCH != "" {
+		fmt.Fprintf(os.Stderr, "    Branch: %s\n", VERSION_BRANCH)
+	}
+	if VERSION_HASH != "" {
+		fmt.Fprintf(os.Stderr, "      Hash: %s\n", VERSION_HASH)
+	}
+	fmt.Fprintf(os.Stderr, "      Date: %s\n", VERSION_DATE)
+	fmt.Fprintf(os.Stderr, "Go Version: %s\n", VERSION_GOVERSION)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ func main() {
 	} else if err == ytapi.ErrorUsage {
 		Usage()
 		if command != nil {
-            flags.UsageGlobalFlags()
+			flags.UsageGlobalFlags()
 			flags.UsageCommand(command)
 			flags.UsageFields()
 		} else {
@@ -135,12 +135,12 @@ func main() {
 		}
 	}
 
-    // Open output file
-    if err := flags.OpenOutput(); err != nil {
-        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-        os.Exit(1)
-    }
-    defer flags.CloseOutput()
+	// Open output file
+	if err := flags.OpenOutput(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	defer flags.CloseOutput()
 
 	// Create a service. If the content owner is set, then create an API object
 	// from service account, or else create the API object from client secrets
@@ -173,9 +173,8 @@ func main() {
 	}
 
 	// Display output
-    if err := flags.DisplayOutput(); err != nil {
+	if err := flags.DisplayOutput(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
-

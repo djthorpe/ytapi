@@ -7,14 +7,14 @@ package ytservice
 ////////////////////////////////////////////////////////////////////////////////
 
 import (
-	"fmt"
-	"os"
-	"time"
-	"runtime"
 	"encoding/gob"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"os/exec"
+	"runtime"
+	"time"
 )
 
 import (
@@ -107,13 +107,13 @@ func openURL(url string) bool {
 	}
 	cmd := exec.Command(args[0], append(args[1:], url)...)
 	return cmd.Start() == nil
-/*
-	try := []string{"xdg-open", "google-chrome", "open"}
-	for _, bin := range try {
-		err := exec.Command(bin, url).Run()
-		if err == nil {
-			return
+	/*
+		try := []string{"xdg-open", "google-chrome", "open"}
+		for _, bin := range try {
+			err := exec.Command(bin, url).Run()
+			if err == nil {
+				return
+			}
 		}
-	}
-*/
+	*/
 }

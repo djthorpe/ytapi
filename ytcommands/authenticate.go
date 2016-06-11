@@ -104,4 +104,3 @@ func InstallExecute(service *ytservice.Service, values *ytapi.Values, table *yta
 	// Write credentials
 	return ytapi.ErrorWriteCredentials
 }
-

@@ -5,15 +5,15 @@ Please see file LICENSE for information on distribution, etc
 package ytapi
 
 import (
-    "os"
-    "strings"
-    "errors"
-    "flag"
-    "fmt"
-	"encoding/json"
 	"encoding/base64"
+	"encoding/json"
+	"errors"
+	"flag"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/djthorpe/ytapi/util"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -61,7 +61,7 @@ type FlagSet struct {
 	ServiceAccount string
 	AuthToken      string
 	Defaults       string
-    filehandle     *os.File
+	filehandle     *os.File
 }
 
 // Default values read from store
@@ -81,8 +81,8 @@ var (
 	FlagAuthToken                  = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
 	FlagDebug                      = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
 	FlagFields                     = Flag{Name: "fields", Description: "Comma-separated list of output fields", Type: FLAG_STRING}
-    FlagOutput                     = Flag{Name: "out", Description: "Output filename and/or format (txt, csv)", Type: FLAG_STRING, Default: "txt" }
-    FlagFile                       = Flag{Name: "file", Description: "Filename", Type: FLAG_STRING }
+	FlagOutput                     = Flag{Name: "out", Description: "Output filename and/or format (txt, csv)", Type: FLAG_STRING, Default: "txt"}
+	FlagFile                       = Flag{Name: "file", Description: "Filename", Type: FLAG_STRING}
 	FlagContentOwner               = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
 	FlagChannel                    = Flag{Name: "channel", Description: "Channel ID", Type: FLAG_CHANNEL}
 	FlagMaxResults                 = Flag{Name: "maxresults", Description: "Maximum number of results to return", Type: FLAG_UINT, Default: "0"}
@@ -93,9 +93,9 @@ var (
 	FlagRegion                     = Flag{Name: "region", Description: "Country region code", Type: FLAG_REGION}
 	FlagTitle                      = Flag{Name: "title", Description: "Metadata title", Type: FLAG_STRING}
 	FlagDescription                = Flag{Name: "description", Description: "Metadata description", Type: FLAG_STRING}
-    FlagEmbeds                     = Flag{Name: "embeds", Description: "Embed player flag", Type: FLAG_BOOL}
-	FlagLicense                    = Flag{Name: "license", Description: "Video License", Type: FLAG_ENUM, Extra: "youtube|creativeCommon" }
-	FlagStatsViewable              = Flag{Name: "statsviewable", Description: "Extended video statistics are publicly viewable", Type: FLAG_BOOL }
+	FlagEmbeds                     = Flag{Name: "embeds", Description: "Embed player flag", Type: FLAG_BOOL}
+	FlagLicense                    = Flag{Name: "license", Description: "Video License", Type: FLAG_ENUM, Extra: "youtube|creativeCommon"}
+	FlagStatsViewable              = Flag{Name: "statsviewable", Description: "Extended video statistics are publicly viewable", Type: FLAG_BOOL}
 	FlagPrivacyStatus              = Flag{Name: "status", Description: "Privacy status", Type: FLAG_ENUM, Extra: "private|public|unlisted"}
 	FlagDate                       = Flag{Name: "date", Description: "Publish date and time", Type: FLAG_TIME}
 	FlagBroadcastStatus            = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
@@ -111,11 +111,14 @@ var (
 	FlagMonitorStream              = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
 	FlagBroadcastDelay             = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
 	FlagLowLatency                 = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
-	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|likes|favorites|uploads|watchhistory|watchlater", Default: "uploads" }
-	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT }
-	FlagVideoRating                = Flag{Name: "rating", Description: "Video Rating", Type: FLAG_ENUM, Extra: "like|dislike|none" }
+	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|likes|favorites|uploads|watchhistory|watchlater", Default: "uploads"}
+	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT}
+	FlagVideoRating                = Flag{Name: "rating", Description: "Video Rating", Type: FLAG_ENUM, Extra: "like|dislike|none"}
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
 	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
+	FlagSectionType                = Flag{Name: "type", Description: "Channel Section type", Type: FLAG_ENUM, Extra: "allPlaylists|completedEvents|likedPlaylists|likes|liveEvents|multipleChannels|multiplePlaylists|popularUploads|postedPlaylists|postedVideos|recentActivity|recentPosts|recentUploads|singlePlaylist|subscriptions|upcomingEvents"}
+	FlagSectionStyle               = Flag{Name: "style", Description: "Channel Section style", Type: FLAG_ENUM, Extra: "horizonalRow|verticalList", Default: "horizontalRow"}
+	FlagSectionPosition            = Flag{Name: "position", Description: "Channel Section position", Type: FLAG_UINT}
 	FlagSearchQuery                = Flag{Name: "q", Description: "Search query", Type: FLAG_STRING}
 	FlagSearchOrder                = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount"}
 	FlagSearchChannelOrder         = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount|videocount"}
@@ -125,7 +128,7 @@ var (
 	FlagCaption                    = Flag{Name: "caption", Description: "Caption ID", Type: FLAG_STRING}
 	FlagCaptionSync                = Flag{Name: "sync", Description: "Automatically synchronize the caption file with the audio track of the video", Type: FLAG_BOOL}
 	FlagCaptionDraft               = Flag{Name: "draft", Description: "Status of the caption track", Type: FLAG_BOOL}
-	FlagCaptionFormat              = Flag{Name: "format", Description: "Format of the caption track", Type: FLAG_ENUM, Extra: "sbv|scc|srt|ttml|vtt" }
+	FlagCaptionFormat              = Flag{Name: "format", Description: "Format of the caption track", Type: FLAG_ENUM, Extra: "sbv|scc|srt|ttml|vtt"}
 	FlagCaptionName                = Flag{Name: "name", Description: "Name of the caption track", Type: FLAG_STRING}
 	FlagPolicy                     = Flag{Name: "policy", Description: "Policy ID", Type: FLAG_STRING}
 	FlagPolicyOrder                = Flag{Name: "order", Description: "Policy list order", Type: FLAG_ENUM, Extra: "timeUpdatedAsc|timeUpdatedDesc"}
@@ -148,12 +151,12 @@ var (
 	}
 
 	// Variety of error conditions
-	ErrorEmptyArgs       = errors.New("No Arguments")
-	ErrorUsage           = errors.New("Display usage information")
-	ErrorWriteDefaults   = errors.New("Write Defaults to file")
-	ErrorWriteCredentials= errors.New("Write Credentials")
-	ErrorRemoveAuthToken = errors.New("Remove OAuth token")
-	ErrorServiceAccount  = errors.New("Invalid service account or missing content owner")
+	ErrorEmptyArgs        = errors.New("No Arguments")
+	ErrorUsage            = errors.New("Display usage information")
+	ErrorWriteDefaults    = errors.New("Write Defaults to file")
+	ErrorWriteCredentials = errors.New("Write Credentials")
+	ErrorRemoveAuthToken  = errors.New("Remove OAuth token")
+	ErrorServiceAccount   = errors.New("Invalid service account or missing content owner")
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -390,7 +393,7 @@ func (this *FlagSet) UsageCommandList() {
 	for _, section := range this.sections {
 		var commands []*Command = make([]*Command, 0)
 		for _, command := range section.Commands {
-            if command.ServiceAccount && this.ServiceAccount == "" {
+			if command.ServiceAccount && this.ServiceAccount == "" {
 				continue
 			}
 			commands = append(commands, command)
@@ -490,7 +493,7 @@ func (this *FlagSet) WriteClientSecret(data64 string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(this.ClientSecrets,data,credentialsFileMode)
+	err = ioutil.WriteFile(this.ClientSecrets, data, credentialsFileMode)
 	if err != nil {
 		return err
 	}
@@ -505,7 +508,7 @@ func (this *FlagSet) WriteServiceAccount(data64 string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(this.ServiceAccount,data,credentialsFileMode)
+	err = ioutil.WriteFile(this.ServiceAccount, data, credentialsFileMode)
 	if err != nil {
 		return err
 	}
@@ -566,45 +569,45 @@ func (this *FlagSet) SetFields(fields []string) error {
 // Open & Close output
 
 func (this *FlagSet) OpenOutput() error {
-    output := this.Values.GetString(&FlagOutput)
-    format := OUTPUT_ASCII
-    ext := filepath.Ext(output)
-    if ext == "" {
-        ext = output
-    }
+	output := this.Values.GetString(&FlagOutput)
+	format := OUTPUT_ASCII
+	ext := filepath.Ext(output)
+	if ext == "" {
+		ext = output
+	}
 
-    switch(ext) {
-        case "txt":
-            format = OUTPUT_ASCII
-        case ".txt":
-            format = OUTPUT_ASCII
-        case "csv":
-            format = OUTPUT_CSV
-        case ".csv":
-            format = OUTPUT_CSV
-        default:
-            return errors.New("Invalid output format, should be csv,txt")
-    }
-    // Open output file or use stdout
-    if output != ext {
-        fh,err := os.OpenFile(output,os.O_RDWR|os.O_CREATE,credentialsFileMode)
-        if err != nil {
-            return err
-        }
-        this.Output.SetDataFormat(fh,format)
-        this.filehandle = fh
-    } else {
-        this.Output.SetDataFormat(os.Stdout,format)
-    }
-    // Success
-    return nil
+	switch ext {
+	case "txt":
+		format = OUTPUT_ASCII
+	case ".txt":
+		format = OUTPUT_ASCII
+	case "csv":
+		format = OUTPUT_CSV
+	case ".csv":
+		format = OUTPUT_CSV
+	default:
+		return errors.New("Invalid output format, should be csv,txt")
+	}
+	// Open output file or use stdout
+	if output != ext {
+		fh, err := os.OpenFile(output, os.O_RDWR|os.O_CREATE, credentialsFileMode)
+		if err != nil {
+			return err
+		}
+		this.Output.SetDataFormat(fh, format)
+		this.filehandle = fh
+	} else {
+		this.Output.SetDataFormat(os.Stdout, format)
+	}
+	// Success
+	return nil
 }
 
-func (this *FlagSet) CloseOutput() (error) {
-    if this.filehandle != nil {
-        return this.filehandle.Close()
-    }
-    return nil
+func (this *FlagSet) CloseOutput() error {
+	if this.filehandle != nil {
+		return this.filehandle.Close()
+	}
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////

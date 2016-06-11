@@ -5,10 +5,10 @@
 package ytcommands
 
 import (
-	"os"
 	"io"
-	"strings"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -30,8 +30,8 @@ func RegisterCaptionCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "UploadCaptionTrack",
 			Description: "Add Caption Track to video",
-			Required:    []*ytapi.Flag{&ytapi.FlagVideo,&ytapi.FlagFile,&ytapi.FlagLanguage},
-			Optional:    []*ytapi.Flag{&ytapi.FlagCaptionName,&ytapi.FlagCaptionSync,&ytapi.FlagCaptionDraft},
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagFile, &ytapi.FlagLanguage},
+			Optional:    []*ytapi.Flag{&ytapi.FlagCaptionName, &ytapi.FlagCaptionSync, &ytapi.FlagCaptionDraft},
 			Setup:       RegisterCaptionFormat,
 			Execute:     UploadCaptionTrack,
 		},
@@ -44,8 +44,8 @@ func RegisterCaptionCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "DownloadCaptionTrack",
 			Description: "Download Caption Track from video",
-			Required:    []*ytapi.Flag{ &ytapi.FlagCaption },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagCaptionFormat, &ytapi.FlagLanguage, &ytapi.FlagFile },
+			Required:    []*ytapi.Flag{&ytapi.FlagCaption},
+			Optional:    []*ytapi.Flag{&ytapi.FlagCaptionFormat, &ytapi.FlagLanguage, &ytapi.FlagFile},
 			Execute:     DownloadCaptionTrack,
 		},
 	}
@@ -125,12 +125,12 @@ func UploadCaptionTrack(service *ytservice.Service, values *ytapi.Values, table 
 	}
 
 	// Create the call
-	call := service.API.Captions.Insert("snippet",&youtube.Caption{
+	call := service.API.Captions.Insert("snippet", &youtube.Caption{
 		Snippet: &youtube.CaptionSnippet{
-			VideoId: video,
+			VideoId:  video,
 			Language: language,
-			Name: name,
-			IsDraft: draft,
+			Name:     name,
+			IsDraft:  draft,
 			ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
 				"IsDraft": &ytapi.FlagCaptionDraft,
 			}),
@@ -199,7 +199,6 @@ func DeleteCaptionTrack(service *ytservice.Service, values *ytapi.Values, table 
 	return nil
 }
 
-
 func DownloadCaptionTrack(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
@@ -224,8 +223,8 @@ func DownloadCaptionTrack(service *ytservice.Service, values *ytapi.Values, tabl
 		// Try to determine format from file extension as a fallback
 		// filepath.Ext also includes the '.' as the first character
 		ext := filepath.Ext(filename)
-		formats := strings.Split(ytapi.FlagCaptionFormat.Extra,"|")
-		for _,format := range(formats) {
+		formats := strings.Split(ytapi.FlagCaptionFormat.Extra, "|")
+		for _, format := range formats {
 			if ext[1:] == format {
 				call = call.Tfmt(format)
 			}
@@ -248,7 +247,7 @@ func DownloadCaptionTrack(service *ytservice.Service, values *ytapi.Values, tabl
 		}
 		defer fh.Close()
 	}
-	_,err = io.Copy(fh,response.Body)
+	_, err = io.Copy(fh, response.Body)
 	if err != nil {
 		return err
 	}
@@ -256,5 +255,3 @@ func DownloadCaptionTrack(service *ytservice.Service, values *ytapi.Values, tabl
 	// success
 	return nil
 }
-
-

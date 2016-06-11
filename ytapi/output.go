@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"strings"
 
-    "encoding/csv"
+	"encoding/csv"
 
 	"github.com/djthorpe/ytapi/util"
 	"github.com/olekukonko/tablewriter"
@@ -21,23 +21,23 @@ import (
 ////////////////////////////////////////////////////////////////////////////////
 
 const (
-    OUTPUT_ASCII = iota
-    OUTPUT_CSV
+	OUTPUT_ASCII = iota
+	OUTPUT_CSV
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 type Table struct {
-	colkey     []string            // order of registered columns to display
-	colmap     map[string]bool     // whether a column exists in the display
-	partorder  []string            // order of registered parts
-	fields     map[string]*Flag    // field name -> field
-	parts      map[string]string   // field name -> part
+	colkey     []string          // order of registered columns to display
+	colmap     map[string]bool   // whether a column exists in the display
+	partorder  []string          // order of registered parts
+	fields     map[string]*Flag  // field name -> field
+	parts      map[string]string // field name -> part
 	paths      map[string][]string
 	rows       []*Values
-    format     int
-    infoOutput io.Writer
-    dataOutput io.Writer
+	format     int
+	infoOutput io.Writer
+	dataOutput io.Writer
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ type Table struct {
 // Returns a new table object
 func NewTable() *Table {
 	this := &Table{}
-	this.colkey = []string{ }
+	this.colkey = []string{}
 	this.colmap = make(map[string]bool)
 
 	this.partorder = make([]string, 0)
@@ -53,9 +53,9 @@ func NewTable() *Table {
 	this.parts = make(map[string]string)
 	this.paths = make(map[string][]string)
 
-    this.format = OUTPUT_ASCII
-    this.infoOutput = os.Stderr
-    this.dataOutput = os.Stdout
+	this.format = OUTPUT_ASCII
+	this.infoOutput = os.Stderr
+	this.dataOutput = os.Stdout
 
 	return this
 }
@@ -119,7 +119,7 @@ func (this *Table) AddFieldOrPart(key string) error {
 	}
 
 	// add fields
-	for _,field := range fields {
+	for _, field := range fields {
 		this.addField(field.Name)
 	}
 
@@ -146,7 +146,7 @@ func (this *Table) removeField(key string) {
 	// regenerate columns
 	j := -1
 	for i, field := range this.colkey {
-		if field==key {
+		if field == key {
 			j = i
 		}
 	}
@@ -154,7 +154,7 @@ func (this *Table) removeField(key string) {
 		this.colkey = append(this.colkey[:j], this.colkey[j+1:]...)
 	}
 	// remove from column map
-	delete(this.colmap,key)
+	delete(this.colmap, key)
 }
 
 // Remove a field or part from the output columns
@@ -170,7 +170,7 @@ func (this *Table) RemoveFieldOrPart(key string) error {
 		return errors.New(fmt.Sprint("Unknown field or part name to remove: ", key))
 	}
 	// remove fields
-	for _,field := range fields {
+	for _, field := range fields {
 		this.removeField(field.Name)
 	}
 	// success
@@ -270,30 +270,30 @@ func (this *Table) dataOutputASCII(io io.Writer) error {
 }
 
 func (this *Table) dataOutputCSV(io io.Writer) error {
-    w := csv.NewWriter(io)
-    w.Write(this.colkey)
-    for _, row := range this.rows {
-        w.Write(this.asStringArray(row))
-    }
-    w.Flush()
-    return nil
+	w := csv.NewWriter(io)
+	w.Write(this.colkey)
+	for _, row := range this.rows {
+		w.Write(this.asStringArray(row))
+	}
+	w.Flush()
+	return nil
 }
 
 func (this *Table) DataOutput() error {
-    switch(this.format) {
-        case OUTPUT_ASCII:
-            return this.dataOutputASCII(this.dataOutput)
-        case OUTPUT_CSV:
-            return this.dataOutputCSV(this.dataOutput)
-        default:
-            panic("Unknown output format")
-    }
+	switch this.format {
+	case OUTPUT_ASCII:
+		return this.dataOutputASCII(this.dataOutput)
+	case OUTPUT_CSV:
+		return this.dataOutputCSV(this.dataOutput)
+	default:
+		panic("Unknown output format")
+	}
 }
 
 // Set output format
-func (this *Table) SetDataFormat(handle io.Writer,format int) {
-    this.dataOutput = handle
-    this.format = format
+func (this *Table) SetDataFormat(handle io.Writer, format int) {
+	this.dataOutput = handle
+	this.format = format
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -5,25 +5,24 @@
 package ytcommands
 
 import (
-	"os"
 	"errors"
-	"strings"
-	"strconv"
+	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
 	"google.golang.org/api/youtube/v3"
 )
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
 type Thumbnail struct {
-	Name    string
-	Url     string
-	Width   uint64
-	Height  uint64
+	Name   string
+	Url    string
+	Width  uint64
+	Height uint64
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,43 +33,43 @@ func RegisterVideoCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "ListVideos",
 			Description: "List videos",
-			Optional:    []*ytapi.Flag{ &ytapi.FlagVideoFilter, &ytapi.FlagVideoCategory, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults},
+			Optional:    []*ytapi.Flag{&ytapi.FlagVideoFilter, &ytapi.FlagVideoCategory, &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults},
 			Setup:       RegisterVideoFormat,
 			Execute:     ListVideos,
 		},
 		&ytapi.Command{
 			Name:        "ListVideosForPlaylist",
 			Description: "List videos for a playlist",
-			Required:    []*ytapi.Flag{ &ytapi.FlagPlaylist },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults},
+			Required:    []*ytapi.Flag{&ytapi.FlagPlaylist},
+			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage, &ytapi.FlagRegion, &ytapi.FlagMaxResults},
 			Setup:       RegisterVideoFormat,
 			Execute:     ListVideosForPlaylist,
 		},
 		&ytapi.Command{
 			Name:        "UploadVideo",
 			Description: "Upload a video",
-			Required:    []*ytapi.Flag{ &ytapi.FlagFile, &ytapi.FlagPrivacyStatus, },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagTitle, &ytapi.FlagDescription, &ytapi.FlagLanguage, &ytapi.FlagVideoCategory },
+			Required:    []*ytapi.Flag{&ytapi.FlagFile, &ytapi.FlagPrivacyStatus},
+			Optional:    []*ytapi.Flag{&ytapi.FlagTitle, &ytapi.FlagDescription, &ytapi.FlagLanguage, &ytapi.FlagVideoCategory},
 			Setup:       RegisterVideoFormat,
 			Execute:     UploadVideo,
 		},
 		&ytapi.Command{
 			Name:        "DeleteVideo",
 			Description: "Remove video",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
 			Execute:     DeleteVideo,
 		},
 		&ytapi.Command{
 			Name:        "SetVideoRating",
 			Description: "Set like, dislike or remove rating for video",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo, &ytapi.FlagVideoRating },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagVideoRating},
 			Setup:       RegisterVideoRatingFormat,
 			Execute:     SetVideoRating,
 		},
 		&ytapi.Command{
 			Name:        "GetVideoRating",
 			Description: "Get rating for video",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
 			Setup:       RegisterVideoRatingFormat,
 			Execute:     GetVideoRating,
 		},
@@ -85,67 +84,67 @@ func RegisterVideoCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "UpdateVideoMetadata",
 			Description: "Update metadata for a video",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagTitle, &ytapi.FlagDescription, &ytapi.FlagLanguage, &ytapi.FlagVideoCategory },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
+			Optional:    []*ytapi.Flag{&ytapi.FlagTitle, &ytapi.FlagDescription, &ytapi.FlagLanguage, &ytapi.FlagVideoCategory},
 			Setup:       RegisterVideoFormat,
 			Execute:     UpdateVideoMetadata,
 		},
 		&ytapi.Command{
 			Name:        "SetVideoStatus",
 			Description: "Set video status (private, public, unlisted, license, embedding or public statistics viewable)",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagPrivacyStatus, &ytapi.FlagEmbeds, &ytapi.FlagLicense, &ytapi.FlagStatsViewable },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
+			Optional:    []*ytapi.Flag{&ytapi.FlagPrivacyStatus, &ytapi.FlagEmbeds, &ytapi.FlagLicense, &ytapi.FlagStatsViewable},
 			Setup:       RegisterVideoFormat,
 			Execute:     SetVideoStatus,
 		},
 		&ytapi.Command{
 			Name:        "SetVideoPublishDate",
 			Description: "Set video private and future publish date",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo, &ytapi.FlagDate },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagDate},
 			Setup:       RegisterVideoFormat,
 			Execute:     SetVideoPublishDate,
 		},
 		&ytapi.Command{
 			Name:        "SetVideoThumbnail",
 			Description: "Add or update a thumbnail to a video",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo, &ytapi.FlagFile },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagFile},
 			Setup:       RegisterThumbnailFormat,
 			Execute:     SetVideoThumbnail,
 		},
 		&ytapi.Command{
 			Name:        "GetVideoThumbnail",
 			Description: "List thumbnails for a video",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
 			Setup:       RegisterThumbnailFormat,
 			Execute:     GetVideoThumbnail,
 		},
 		&ytapi.Command{
 			Name:        "GetLocalizedVideoMetadata",
 			Description: "Get localized video metadata",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
 			Setup:       RegisterLocalizedVideoMetadataFormat,
 			Execute:     GetLocalizedVideoMetadata,
 		},
 		&ytapi.Command{
 			Name:        "UpdateLocalizedVideoMetadata",
 			Description: "Update or add localized video metadata",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo, &ytapi.FlagLanguage },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagTitle, &ytapi.FlagDescription },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagLanguage},
+			Optional:    []*ytapi.Flag{&ytapi.FlagTitle, &ytapi.FlagDescription},
 			Setup:       RegisterLocalizedVideoMetadataFormat,
 			Execute:     UpdateLocalizedVideoMetadata,
 		},
 		&ytapi.Command{
 			Name:        "DeleteLocalizedVideoMetadata",
 			Description: "Remove localized video metadata",
-			Required:    []*ytapi.Flag{ &ytapi.FlagVideo, &ytapi.FlagLanguage },
+			Required:    []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagLanguage},
 			Setup:       RegisterLocalizedVideoMetadataFormat,
 			Execute:     DeleteLocalizedVideoMetadata,
 		},
 		&ytapi.Command{
 			Name:        "ListCategories",
 			Description: "Get list of video categories",
-			Required:    []*ytapi.Flag{ &ytapi.FlagRegion },
-			Optional:    []*ytapi.Flag{ &ytapi.FlagLanguage },
+			Required:    []*ytapi.Flag{&ytapi.FlagRegion},
+			Optional:    []*ytapi.Flag{&ytapi.FlagLanguage},
 			Setup:       RegisterCategoryFormat,
 			Execute:     ListCategories,
 		},
@@ -206,7 +205,7 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 		&ytapi.Flag{Name: "recordingDate", Type: ytapi.FLAG_STRING},
 	})
 	table.RegisterPart("fileDetails", []*ytapi.Flag{
-		&ytapi.Flag{Name: "fileName",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "fileName", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "fileSize", Type: ytapi.FLAG_UINT},
 		&ytapi.Flag{Name: "fileType", Type: ytapi.FLAG_STRING},
 	})
@@ -220,7 +219,7 @@ func RegisterVideoFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"video", "title", "description", "category", "language", "privacyStatus", "publishedAt" })
+	table.SetColumns([]string{"video", "title", "description", "category", "language", "privacyStatus", "publishedAt"})
 
 	// success
 	return nil
@@ -239,7 +238,7 @@ func RegisterCategoryFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{"category", "title" })
+	table.SetColumns([]string{"category", "title"})
 
 	// success
 	return nil
@@ -305,11 +304,11 @@ func UploadVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	}
 
 	// Create the call
-	call := service.API.Videos.Insert("snippet,status",&youtube.Video{
+	call := service.API.Videos.Insert("snippet,status", &youtube.Video{
 		Snippet: &youtube.VideoSnippet{
-			Title: title,
-			Description: values.GetString(&ytapi.FlagDescription),
-			CategoryId: values.GetString(&ytapi.FlagVideoCategory),
+			Title:           title,
+			Description:     values.GetString(&ytapi.FlagDescription),
+			CategoryId:      values.GetString(&ytapi.FlagVideoCategory),
 			DefaultLanguage: values.GetString(&ytapi.FlagLanguage),
 		},
 		Status: &youtube.VideoStatus{
@@ -393,13 +392,13 @@ func ListVideosForPlaylist(service *ytservice.Service, values *ytapi.Values, tab
 		}
 
 		// Append videos to table
-		videos := make([]string,0)
-		for _,item := range response.Items {
-			videos = append(videos,item.Snippet.ResourceId.VideoId)
+		videos := make([]string, 0)
+		for _, item := range response.Items {
+			videos = append(videos, item.Snippet.ResourceId.VideoId)
 		}
 
 		// Make another call to retrieve videos
-		call2 := service.API.Videos.List(parts).Id(strings.Join(videos,","))
+		call2 := service.API.Videos.List(parts).Id(strings.Join(videos, ","))
 		if service.ServiceAccount {
 			call2 = call2.OnBehalfOfContentOwner(contentowner)
 		}
@@ -454,7 +453,7 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	}
 	if values.IsSet(&ytapi.FlagVideoCategory) {
 		category := values.GetUint(&ytapi.FlagVideoCategory)
-		call = call.VideoCategoryId(strconv.FormatUint(category,10))
+		call = call.VideoCategoryId(strconv.FormatUint(category, 10))
 	}
 	if filter == "chart" {
 		call = call.Chart("mostPopular")
@@ -551,20 +550,19 @@ func UpdateVideoMetadata(service *ytservice.Service, values *ytapi.Values, table
 	}
 
 	// update video
-	call2 := service.API.Videos.Update("snippet",response.Items[0])
+	call2 := service.API.Videos.Update("snippet", response.Items[0])
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
 
-	_,err = call2.Do()
+	_, err = call2.Do()
 	if err != nil {
 		return err
 	}
 
 	// Success
-	return GetVideoMetadata(service,values,table)
+	return GetVideoMetadata(service, values, table)
 }
-
 
 func SetVideoStatus(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
@@ -602,21 +600,21 @@ func SetVideoStatus(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// update video
-	call2 := service.API.Videos.Update("status",&youtube.Video{
-		Id: response.Items[0].Id,
+	call2 := service.API.Videos.Update("status", &youtube.Video{
+		Id:     response.Items[0].Id,
 		Status: response.Items[0].Status,
 	})
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
 
-	_,err = call2.Do()
+	_, err = call2.Do()
 	if err != nil {
 		return err
 	}
 
 	// Success
-	return GetVideoMetadata(service,values,table)
+	return GetVideoMetadata(service, values, table)
 }
 
 func SetVideoPublishDate(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -641,24 +639,24 @@ func SetVideoPublishDate(service *ytservice.Service, values *ytapi.Values, table
 	}
 
 	// update video
-	call2 := service.API.Videos.Update("status",&youtube.Video{
+	call2 := service.API.Videos.Update("status", &youtube.Video{
 		Id: response.Items[0].Id,
 		Status: &youtube.VideoStatus{
 			PrivacyStatus: "private",
-			PublishAt: values.GetTimeInISOFormat(&ytapi.FlagDate),
+			PublishAt:     values.GetTimeInISOFormat(&ytapi.FlagDate),
 		},
 	})
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
 
-	_,err = call2.Do()
+	_, err = call2.Do()
 	if err != nil {
 		return err
 	}
 
 	// Success
-	return GetVideoMetadata(service,values,table)
+	return GetVideoMetadata(service, values, table)
 }
 
 func SetVideoRating(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -668,7 +666,7 @@ func SetVideoRating(service *ytservice.Service, values *ytapi.Values, table *yta
 	rating := values.GetString(&ytapi.FlagVideoRating)
 
 	// Create call and set parameters
-	call := service.API.Videos.Rate(video,rating)
+	call := service.API.Videos.Rate(video, rating)
 
 	// Execute
 	err := call.Do()
@@ -677,9 +675,8 @@ func SetVideoRating(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// Success
-	return GetVideoRating(service,values,table)
+	return GetVideoRating(service, values, table)
 }
-
 
 func GetVideoRating(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
@@ -690,7 +687,7 @@ func GetVideoRating(service *ytservice.Service, values *ytapi.Values, table *yta
 	call := service.API.Videos.GetRating(video)
 
 	// Execute
-	response,err := call.Do()
+	response, err := call.Do()
 	if err != nil {
 		return err
 	}
@@ -698,7 +695,6 @@ func GetVideoRating(service *ytservice.Service, values *ytapi.Values, table *yta
 	// Success
 	return table.Append(response.Items)
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Categories
@@ -754,22 +750,21 @@ func GetVideoThumbnail(service *ytservice.Service, values *ytapi.Values, table *
 		return errors.New("Not Found")
 	}
 	thumbnails := map[string]*youtube.Thumbnail{
-		"default": response.Items[0].Snippet.Thumbnails.Default,
-		"high": response.Items[0].Snippet.Thumbnails.High,
-		"maxres": response.Items[0].Snippet.Thumbnails.Maxres,
-		"medium": response.Items[0].Snippet.Thumbnails.Medium,
+		"default":  response.Items[0].Snippet.Thumbnails.Default,
+		"high":     response.Items[0].Snippet.Thumbnails.High,
+		"maxres":   response.Items[0].Snippet.Thumbnails.Maxres,
+		"medium":   response.Items[0].Snippet.Thumbnails.Medium,
 		"standard": response.Items[0].Snippet.Thumbnails.Standard,
 	}
-	for name,thumbnail := range thumbnails {
+	for name, thumbnail := range thumbnails {
 		if thumbnail != nil {
-			table.Append([]Thumbnail{{name, thumbnail.Url, uint64(thumbnail.Width), uint64(thumbnail.Height) }})
+			table.Append([]Thumbnail{{name, thumbnail.Url, uint64(thumbnail.Width), uint64(thumbnail.Height)}})
 		}
 	}
 
 	// Success
 	return nil
 }
-
 
 func SetVideoThumbnail(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
@@ -801,15 +796,15 @@ func SetVideoThumbnail(service *ytservice.Service, values *ytapi.Values, table *
 		return errors.New("Not Found")
 	}
 	thumbnails := map[string]*youtube.Thumbnail{
-		"default": response.Items[0].Default,
-		"high": response.Items[0].High,
-		"maxres": response.Items[0].Maxres,
-		"medium": response.Items[0].Medium,
+		"default":  response.Items[0].Default,
+		"high":     response.Items[0].High,
+		"maxres":   response.Items[0].Maxres,
+		"medium":   response.Items[0].Medium,
 		"standard": response.Items[0].Standard,
 	}
-	for name,thumbnail := range thumbnails {
+	for name, thumbnail := range thumbnails {
 		if thumbnail != nil {
-			table.Append([]Thumbnail{{name, thumbnail.Url, uint64(thumbnail.Width), uint64(thumbnail.Height) }})
+			table.Append([]Thumbnail{{name, thumbnail.Url, uint64(thumbnail.Width), uint64(thumbnail.Height)}})
 		}
 	}
 
@@ -847,7 +842,7 @@ func GetLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Values,
 	// Get localizations
 	localizations := response.Items[0].Localizations
 	for language, metadata := range localizations {
-		table.Append([]Localization{ { language, metadata.Title, metadata.Description, defaultLanguage == language } })
+		table.Append([]Localization{{language, metadata.Title, metadata.Description, defaultLanguage == language}})
 	}
 
 	// success
@@ -879,7 +874,7 @@ func UpdateLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Valu
 	// Update channel localization settings
 	metadata, ok := response.Items[0].Localizations[language]
 	if ok == false {
-		metadata = youtube.VideoLocalization{ }
+		metadata = youtube.VideoLocalization{}
 	}
 	if values.IsSet(&ytapi.FlagTitle) {
 		metadata.Title = values.GetString(&ytapi.FlagTitle)
@@ -903,7 +898,7 @@ func UpdateLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Valu
 	}
 
 	// success
-	return GetLocalizedVideoMetadata(service,values,table)
+	return GetLocalizedVideoMetadata(service, values, table)
 }
 
 func DeleteLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -933,7 +928,7 @@ func DeleteLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Valu
 	if ok == false {
 		return errors.New("Localized metadata for language does not exist")
 	}
-	delete(response.Items[0].Localizations,language)
+	delete(response.Items[0].Localizations, language)
 
 	// Sanity check for deleting default language
 	defaultLanguage := response.Items[0].Snippet.DefaultLanguage
@@ -955,13 +950,6 @@ func DeleteLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Valu
 	}
 
 	// success
-	return GetLocalizedVideoMetadata(service,values,table)
+	return GetLocalizedVideoMetadata(service, values, table)
 
 }
-
-
-
-
-
-
-

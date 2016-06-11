@@ -79,10 +79,10 @@ func RegisterStreamFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	table.RegisterPart("snippet", []*ytapi.Flag{
-		&ytapi.Flag{Name: "title",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "description", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
-		&ytapi.Flag{Name: "publishedAt",  Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "default", Path: "Snippet/IsDefaultStream", Type: ytapi.FLAG_BOOL},
 	})
 
