@@ -17,6 +17,10 @@
 # ...are all valid ways of compiling a binary of the software
 # the resulting binary will be in ${GOBIN} and called 'ytapi'
 # which you can then distribute!
+#
+# To build for Windows architecture, use with  the -w flag
+# which results in a ytapi.exe application instead.
+#
 ##############################################################
 
 CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -59,13 +63,17 @@ fi
 # which include the client secret info and service account
 # info when generating the version.json file
 
-while getopts ':c:s:' FLAG ; do
+while getopts ':c:s:w' FLAG ; do
   case ${FLAG} in
     c)
 	  CLIENT_SECRET=${OPTARG}
       ;;
     s)
 	  SERVICE_ACCOUNT=${OPTARG}
+      ;;
+    w)
+	  GOOS="windows"
+	  GOARCH="amd64"
       ;;
     \?)
       echo "Invalid option: -$OPTARG"
@@ -105,6 +113,12 @@ echo "  \"tag\":\"${TAG}\"," >> ${JSON_PATH}
 echo "  \"hash\":\"${HASH}\"," >> ${JSON_PATH}
 echo "  \"date\":\"${DATE}\"," >> ${JSON_PATH}
 echo "  \"goversion\":\"${GOVERSION}\"," >> ${JSON_PATH}
+if [ "${GOOS}X" != "X" ] ; then
+	echo "  \"target_os\":\"${GOOS}\"," >> ${JSON_PATH}
+fi
+if [ "${GOARCH}X" != "X" ] ; then
+	echo "  \"target_arch\":\"${GOARCH}\"," >> ${JSON_PATH}
+fi
 echo "  \"client_secret\":\"${CLIENT_SECRET}\"," >> ${JSON_PATH}
 echo "  \"service_account\":\"${SERVICE_ACCOUNT}\"" >> ${JSON_PATH}
 echo "}" >> ${JSON_PATH}
@@ -114,7 +128,7 @@ ${GO} run build/build.go ${JSON_PATH} ${TEMPLATE_PATH} > ${VERSION_PATH}
 if [ $? -ne 0 ] ; then
   exit $?
 fi
-${GO} install -ldflags "-s -w" ytapi.go version.go
+GOOS=${GOOS} GOARCH=${GOARCH} ${GO} install -ldflags "-s -w" ytapi.go version.go
 if [ $? -ne 0 ] ; then
   exit $?
 fi

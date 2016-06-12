@@ -1,6 +1,6 @@
 /*
-Copyright David Thorpe 2015-2016 All Rights Reserved
-Please see file LICENSE for information on distribution, etc
+  Copyright David Thorpe 2015-2016 All Rights Reserved
+  Please see file LICENSE for information on distribution, etc
 */
 package ytapi
 
