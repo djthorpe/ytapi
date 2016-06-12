@@ -117,7 +117,7 @@ var (
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
 	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
 	FlagSectionType                = Flag{Name: "type", Description: "Channel Section type", Type: FLAG_ENUM, Extra: "allPlaylists|completedEvents|likedPlaylists|likes|liveEvents|multipleChannels|multiplePlaylists|popularUploads|postedPlaylists|postedVideos|recentActivity|recentPosts|recentUploads|singlePlaylist|subscriptions|upcomingEvents"}
-	FlagSectionStyle               = Flag{Name: "style", Description: "Channel Section style", Type: FLAG_ENUM, Extra: "horizonalRow|verticalList", Default: "horizontalRow"}
+	FlagSectionStyle               = Flag{Name: "style", Description: "Channel Section style", Type: FLAG_ENUM, Extra: "horizontalRow|verticalList", Default: "horizontalRow"}
 	FlagSectionPosition            = Flag{Name: "position", Description: "Channel Section position", Type: FLAG_UINT}
 	FlagSearchQuery                = Flag{Name: "q", Description: "Search query", Type: FLAG_STRING}
 	FlagSearchOrder                = Flag{Name: "order", Description: "Search order", Type: FLAG_ENUM, Extra: "date|rating|relevance|title|viewcount"}

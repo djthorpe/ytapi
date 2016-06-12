@@ -39,6 +39,18 @@ func RegisterChannelSectionCommands() []*ytapi.Command {
 			Execute:     NewChannelSection,
 		},
 		&ytapi.Command{
+			Name:        "UpdateChannelSection",
+			Description: "Update channel section",
+			Required:    []*ytapi.Flag{
+				&ytapi.FlagSectionPosition,
+			},
+			Optional:    []*ytapi.Flag{
+				&ytapi.FlagSectionStyle, &ytapi.FlagLanguage, &ytapi.FlagTitle,
+			},
+			Setup:       RegisterChannelSectionFormat,
+			Execute:     UpdateChannelSection,
+		},
+		&ytapi.Command{
 			Name:        "DeleteChannelSection",
 			Description: "Delete a channel section",
 			Required:    []*ytapi.Flag{&ytapi.FlagSectionPosition},
@@ -67,12 +79,12 @@ func RegisterChannelSectionFormat(values *ytapi.Values, table *ytapi.Table) erro
 	})
 
 	table.RegisterPart("contentDetails", []*ytapi.Flag{
-		&ytapi.Flag{Name: "playlists", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "channels", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{ Name: "playlists", Type: ytapi.FLAG_STRING, Array: true },
+		&ytapi.Flag{ Name: "channels", Type: ytapi.FLAG_STRING, Array: true },
 	})
 
 	// set default columns
-	table.SetColumns([]string{"position", "title", "type", "style", "language", "playlists", "channels" })
+	table.SetColumns([]string{"position", "title", "style", "language", "playlists", "channels" })
 
 	// success
 	return nil
@@ -110,30 +122,6 @@ func sectionFromPosition(service *ytservice.Service, values *ytapi.Values) (stri
 	return "", errors.New("Channel Section not found")
 }
 
-func titleForPlaylist(service *ytservice.Service,values *ytapi.Values,playlist string) (string, error) {
-	// create call and set parameters
-	call := service.API.Playlists.List("snippet")
-	if service.ServiceAccount {
-		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
-	}
-	if values.IsSet(&ytapi.FlagLanguage) {
-		call = call.Hl(values.GetString(&ytapi.FlagLanguage))
-	}
-	call = call.Id(playlist)
-
-	// Do the call
-	response,err := call.Do()
-	if err != nil {
-		return "",err
-	}
-	// Check for items
-	if len(response.Items) != 1 {
-		return "",errors.New("Playlist not found")
-	}
-
-	return response.Items[0].Snippet.Title,nil
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Channel Sections List
 
@@ -141,7 +129,7 @@ func ListChannelSections(service *ytservice.Service, values *ytapi.Values, table
 
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
-	parts := strings.Join(table.Parts(true), ",") 	// Return all parts (true)
+	parts := strings.Join(table.Parts(false), ",")
 
 	// create call and set parameters
 	call := service.API.ChannelSections.List(parts)
@@ -168,15 +156,7 @@ func ListChannelSections(service *ytservice.Service, values *ytapi.Values, table
 			case "allPlaylists":
 				resource.Snippet.Title = "Playlists by [Channel Name]"
 			case "singlePlaylist":
-				playlists := resource.ContentDetails.Playlists
-				if len(playlists) != 1 {
-					return errors.New("Playlist not found")
-				}
-				title, err := titleForPlaylist(service,values,playlists[0])
-				if err != nil {
-					return err
-				}
-				resource.Snippet.Title = title
+				resource.Snippet.Title = "[Single Playlist]"
 			case "likes":
 				resource.Snippet.Title = "Liked videos"
 			case "liveEvents":
@@ -305,3 +285,22 @@ func DeleteChannelSection(service *ytservice.Service, values *ytapi.Values, tabl
 	// success
 	return ListChannelSections(service, values, table)
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Update Channel Section
+
+func UpdateChannelSection(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// obtain Channel Section ID from position
+	_, err := sectionFromPosition(service, values)
+	if err != nil {
+		return err
+	}
+
+	// TODO
+
+	// success
+	return ListChannelSections(service, values, table)
+}
+

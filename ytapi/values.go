@@ -13,27 +13,11 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Types
-type Video string
-type Channel string
-type Playlist string
-type Language string
-type Region string
-type Stream string
-type ContentOwner string
-
 // Value
 type Value struct {
 	v_string       string
 	v_uint         uint64
 	v_bool         bool
-	v_video        Video
-	v_stream       Stream
-	v_channel      Channel
-	v_playlist     Playlist
-	v_language     Language
-	v_region       Region
-	v_contentowner ContentOwner
 	v_time         time.Time
 	is_set         bool
 	flag           *Flag
@@ -176,25 +160,25 @@ func (this *Value) SetString(value string) error {
 		this.v_string, err = this.flag.asEnum(value)
 		break
 	case this.flag.Type == FLAG_VIDEO:
-		this.v_video, err = this.flag.asVideo(value)
+		this.v_string, err = this.flag.asVideo(value)
 		break
 	case this.flag.Type == FLAG_CHANNEL:
-		this.v_channel, err = this.flag.asChannel(value)
+		this.v_string, err = this.flag.asChannel(value)
 		break
 	case this.flag.Type == FLAG_STREAM:
-		this.v_stream, err = this.flag.asStream(value)
+		this.v_string, err = this.flag.asStream(value)
 		break
 	case this.flag.Type == FLAG_PLAYLIST:
-		this.v_playlist, err = this.flag.asPlaylist(value)
+		this.v_string, err = this.flag.asPlaylist(value)
 		break
 	case this.flag.Type == FLAG_LANGUAGE:
-		this.v_language, err = this.flag.asLanguage(value)
+		this.v_string, err = this.flag.asLanguage(value)
 		break
 	case this.flag.Type == FLAG_REGION:
-		this.v_region, err = this.flag.asRegion(value)
+		this.v_string, err = this.flag.asRegion(value)
 		break
 	case this.flag.Type == FLAG_CONTENTOWNER:
-		this.v_contentowner, err = this.flag.asContentOwner(value)
+		this.v_string, err = this.flag.asContentOwner(value)
 		break
 	case this.flag.Type == FLAG_TIME:
 		this.v_time, err = this.flag.asTime(value)

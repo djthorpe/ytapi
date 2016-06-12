@@ -42,6 +42,7 @@ type Flag struct {
 	Extra       string
 	Default     string
 	Path        string
+	Array       bool
 	added       bool
 }
 
@@ -49,33 +50,37 @@ type Flag struct {
 // Flag implementation
 
 func (this *Flag) TypeString() string {
+	var suffix string
+	if this.Array == true {
+		suffix = ",.."
+	}
 	switch {
 	case this.Type == FLAG_STRING:
-		return "string"
+		return "string" + suffix
 	case this.Type == FLAG_UINT:
-		return "uint"
+		return "uint" + suffix
 	case this.Type == FLAG_BOOL:
-		return "bool"
+		return "bool" + suffix
 	case this.Type == FLAG_ENUM:
-		return this.Extra
+		return this.Extra + suffix
 	case this.Type == FLAG_VIDEO:
-		return "video"
+		return "video" + suffix
 	case this.Type == FLAG_STREAM:
-		return "stream"
+		return "stream" + suffix
 	case this.Type == FLAG_CHANNEL:
-		return "channel"
+		return "channel" + suffix
 	case this.Type == FLAG_PLAYLIST:
-		return "playlist"
+		return "playlist" + suffix
 	case this.Type == FLAG_LANGUAGE:
-		return "language"
+		return "language" + suffix
 	case this.Type == FLAG_REGION:
-		return "region"
+		return "region" + suffix
 	case this.Type == FLAG_CONTENTOWNER:
-		return "contentowner"
+		return "contentowner" + suffix
 	case this.Type == FLAG_TIME:
-		return "datetime"
+		return "datetime" + suffix
 	default:
-		return "other"
+		return "other" + suffix
 	}
 }
 
@@ -100,75 +105,75 @@ func (this *Flag) asEnum(value string) (string, error) {
 	return "", errors.New(fmt.Sprint("Value should be one of: ", strings.Join(tags, ",")))
 }
 
-func (this *Flag) asVideo(value string) (Video, error) {
+func (this *Flag) asVideo(value string) (string, error) {
 	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\-\\_]{11})$", value)
 	if matched == false {
 		return "", errors.New(fmt.Sprintf("Malformed video value: %s", value))
 	}
-	return Video(value), nil
+	return value, nil
 }
 
-func (this *Flag) asStream(value string) (Stream, error) {
+func (this *Flag) asStream(value string) (string, error) {
 	matched, _ := regexp.MatchString("^([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})$", value)
 	if matched {
-		return Stream(value), nil
+		return value, nil
 	}
 	matched2, _ := regexp.MatchString("^([a-zA-Z0-9]{38})$", value)
 	if matched2 {
-		return Stream(value), nil
+		return value, nil
 	}
 
 	return "", errors.New("Malformed stream value")
 }
 
-func (this *Flag) asContentOwner(value string) (ContentOwner, error) {
+func (this *Flag) asContentOwner(value string) (string, error) {
 	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\_\\-]{22})$", value)
 	if matched == false {
 		return "", errors.New("Malformed content owner value")
 	}
-	return ContentOwner(value), nil
+	return value, nil
 }
 
-func (this *Flag) asChannel(value string) (Channel, error) {
+func (this *Flag) asChannel(value string) (string, error) {
 	matched, _ := regexp.MatchString("^UC([a-zA-Z0-9\\-\\_]{22})$", value)
 	if matched == false {
 		return "", errors.New("Malformed channel value")
 	}
-	return Channel(value), nil
+	return value, nil
 }
 
-func (this *Flag) asPlaylist(value string) (Playlist, error) {
+func (this *Flag) asPlaylist(value string) (string, error) {
 	matched, _ := regexp.MatchString("^(UU|LL|WL|HL|FL)([a-zA-Z0-9\\-]{22})$", value)
 	if matched {
-		return Playlist(value), nil
+		return value, nil
 	}
 	matched2, _ := regexp.MatchString("^PL([a-zA-Z0-9\\_\\-]{32})$", value)
 	if matched2 {
-		return Playlist(value), nil
+		return value, nil
 	}
 	matched3, _ := regexp.MatchString("^PL([A-Z0-9]{16})$", value)
 	if matched3 {
-		return Playlist(value), nil
+		return value, nil
 	}
 	return "", errors.New(fmt.Sprintf("Malformed playlist value: %s", value))
 }
 
-func (this *Flag) asLanguage(value string) (Language, error) {
+func (this *Flag) asLanguage(value string) (string, error) {
 	matched, _ := regexp.MatchString("^([a-z]{2}[a-z]?)$", value)
 	if matched {
-		return Language(value), nil
+		return value, nil
 	}
 	matched, _ = regexp.MatchString("^([a-z]{2})\\-([a-zA-Z0-9]+)$", value)
 	if matched {
-		return Language(value), nil
+		return value, nil
 	}
 	return "", errors.New(fmt.Sprintf("Malformed language value: %s", value))
 }
 
-func (this *Flag) asRegion(value string) (Region, error) {
+func (this *Flag) asRegion(value string) (string, error) {
 	matched, _ := regexp.MatchString("^([A-Z]{2})$", value)
 	if matched {
-		return Region(value), nil
+		return value, nil
 	}
 	return "", errors.New("Malformed region value")
 }

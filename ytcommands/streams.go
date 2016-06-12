@@ -6,7 +6,6 @@ package ytcommands
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -14,37 +13,6 @@ import (
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
 )
-
-////////////////////////////////////////////////////////////////////////////////
-
-var (
-	channelCache   map[ytapi.Channel]bool  // tells us we have cached keys for this channel
-	streamKeyCache map[ytapi.Stream]string // maps stream keys to id's
-)
-
-////////////////////////////////////////////////////////////////////////////////
-// Generate cache of stream key => stream id for a content-owner/channel pair
-
-func CacheStreamKeys(service *ytservice.Service) error {
-	if streamKeyCache != nil {
-		// cached
-		return nil
-	}
-
-	streamKeyCache = make(map[ytapi.Stream]string, 0)
-	channelCache = make(map[ytapi.Channel]bool, 0)
-
-	// TODO!!!!!
-
-	return nil
-}
-
-func StreamLookup(service *ytservice.Service, value string) (string, error) {
-	if err := CacheStreamKeys(service); err != nil {
-		return "", err
-	}
-	return "", errors.New(fmt.Sprint("Stream key not found: ", value))
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Register search output format
@@ -142,10 +110,7 @@ func DeleteStream(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	// Get parameters
 	contentowner := values.GetString(&ytapi.FlagContentOwner)
 	channel := values.GetString(&ytapi.FlagChannel)
-	stream, err := StreamLookup(service, values.GetString(&ytapi.FlagStream))
-	if err != nil {
-		return err
-	}
+	stream := values.GetString(&ytapi.FlagStream)
 
 	// Create call, set parameters
 	call := service.API.LiveStreams.Delete(stream)
@@ -161,7 +126,7 @@ func DeleteStream(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	}
 
 	// Perform search, and return results
-	err = call.Do()
+	err := call.Do()
 	if err != nil {
 		return err
 	}
