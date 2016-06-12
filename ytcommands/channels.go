@@ -69,6 +69,21 @@ func RegisterChannelCommands() []*ytapi.Command {
 			Setup:       RegisterLocalizedChannelMetadataFormat,
 			Execute:     DeleteLocalizedChannelMetadata,
 		},
+		&ytapi.Command{
+			Name:        "ListActivities",
+			Description: "List Channel Activities",
+			Optional:    []*ytapi.Flag{&ytapi.FlagRegion,&ytapi.FlagActivityHome,&ytapi.FlagMaxResults},
+			Setup:       RegisterActivityFormat,
+			Execute:     ListActivities,
+		},
+		&ytapi.Command{
+			Name:        "PostBulletin",
+			Description: "Post Channel Bulletin",
+			Required:    []*ytapi.Flag{&ytapi.FlagDescription},
+			Optional:    []*ytapi.Flag{&ytapi.FlagVideo},
+			Setup:       RegisterActivityFormat,
+			Execute:     PostBulletin,
+		},
 	}
 }
 
@@ -141,6 +156,28 @@ func RegisterLocalizedChannelMetadataFormat(values *ytapi.Values, table *ytapi.T
 
 	// set default columns
 	table.SetColumns([]string{"language", "title", "description", "default"})
+
+	// success
+	return nil
+}
+
+func RegisterActivityFormat(values *ytapi.Values, table *ytapi.Table) error {
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "activity", Path: "Id", Type: ytapi.FLAG_STRING},
+	})
+
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		&ytapi.Flag{Name: "type",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "group", Path: "Snippet/GroupId", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "channelTitle", Type: ytapi.FLAG_STRING},
+	})
+
+	// set default columns
+	table.SetColumns([]string{"type", "title", "publishedAt" })
 
 	// success
 	return nil
@@ -446,3 +483,57 @@ func DeleteLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	// success
 	return GetLocalizedChannelMetadata(service, values, table)
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Activities & Bulletins
+
+func ListActivities(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get parameters
+	maxresults := values.GetUint(&ytapi.FlagMaxResults)
+
+	// create call
+	call := service.API.Activities.List(strings.Join(table.Parts(false), ","))
+	if values.IsSet(&ytapi.FlagChannel) {
+		call = call.ChannelId(values.GetString(&ytapi.FlagChannel))
+	}
+
+	// Set homepage
+	if values.IsSet(&ytapi.FlagActivityHome) {
+		call = call.Home(values.GetBool(&ytapi.FlagActivityHome))
+	} else {
+			call = call.Mine(true)
+	}
+
+	// Set Region
+	if values.IsSet(&ytapi.FlagRegion) {
+		call = call.RegionCode(values.GetString(&ytapi.FlagRegion))
+	}
+
+	// Perform search, and return results
+	return ytapi.DoActivityList(call, table, int64(maxresults))
+}
+
+func PostBulletin(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// create call
+	call := service.API.Activities.Insert("snippet",&youtube.Activity{
+		Snippet: &youtube.ActivitySnippet{
+			Description: values.GetString(&ytapi.FlagDescription),
+		},
+	})
+
+	// TODO: Add --video as content Detils resource
+
+	_,err := call.Do()
+	if err != nil {
+		return err
+	}
+
+	// TODO: Output resource
+
+	// success
+	return nil
+}
+

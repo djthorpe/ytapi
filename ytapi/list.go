@@ -314,3 +314,35 @@ func DoClaimsList(call *youtubepartner.ClaimsListCall, table *Table, maxresults 
 	// Success
 	return nil
 }
+
+
+func DoActivityList(call *youtube.ActivitiesListCall, table *Table, maxresults int64) error {
+	var numresults int64 = 0
+	var nextPageToken string = ""
+
+	// Page through results
+	for {
+		// test to see if we have all the items we now need
+		if maxresults > 0 && numresults >= maxresults {
+			break
+		}
+
+		// retrieve next page of results
+		response, err := call.PageToken(nextPageToken).Do()
+		if err != nil {
+			return err
+		}
+		if err = table.Append(response.Items); err != nil {
+			return err
+		}
+		numresults += int64(len(response.Items))
+		nextPageToken = response.NextPageToken
+		if nextPageToken == "" {
+			break
+		}
+	}
+
+	// Success
+	return nil
+}
+
