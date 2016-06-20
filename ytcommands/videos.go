@@ -321,6 +321,12 @@ func UploadVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	// Set the call parameters
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		channel := values.GetString(&ytapi.FlagChannel)
+		if channel == "" {
+			return errors.New("Invalid channel parameter")
+		} else {
+			call = call.OnBehalfOfContentOwnerChannel(channel)
+		}
 	}
 
 	// Open the caption file file
