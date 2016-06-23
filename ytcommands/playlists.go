@@ -50,6 +50,29 @@ func RegisterPlaylistCommands() []*ytapi.Command {
 			Setup:       RegisterPlaylistFormat,
 			Execute:     UpdatePlaylist,
 		},
+		&ytapi.Command{
+			Name:        "ListPlaylistItems",
+			Description: "List playlist items for a playlist",
+			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults},
+			Required:    []*ytapi.Flag{&ytapi.FlagPlaylist},
+			Setup:       RegisterPlaylistItemFormat,
+			Execute:     ListPlaylistItems,
+		},
+		&ytapi.Command{
+			Name:        "InsertVideoIntoPlaylist",
+			Description: "Inserts a video into a playlist",
+			Optional:    []*ytapi.Flag{&ytapi.FlagPlaylistPosition, &ytapi.FlagPlaylistNote},
+			Required:    []*ytapi.Flag{&ytapi.FlagPlaylist, &ytapi.FlagVideo},
+			Setup:       RegisterPlaylistItemFormat,
+			Execute:     InsertVideoIntoPlaylist,
+		},
+		&ytapi.Command{
+			Name:        "DeleteVideoFromPlaylist",
+			Description: "Deletes a video from a playlist",
+			Required:    []*ytapi.Flag{&ytapi.FlagPlaylist, &ytapi.FlagVideo},
+			Setup:       RegisterPlaylistItemFormat,
+			Execute:     DeletePlaylistVideo,
+		},		
 	}
 }
 
@@ -87,7 +110,41 @@ func RegisterPlaylistFormat(values *ytapi.Values, table *ytapi.Table) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Returns set of playlist items for channel
+// Register playlist items output
+
+func RegisterPlaylistItemFormat(values *ytapi.Values, table *ytapi.Table) error {
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "playlistitem", Path: "Id", Type: ytapi.FLAG_STRING},
+	})
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "channelTitle", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "playlist", Path: "Snippet/PlaylistId", Type: ytapi.FLAG_PLAYLIST},
+		&ytapi.Flag{Name: "position", Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "kind", Path: "Snippet/ResourceId/Kind", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "video", Path: "Snippet/ResourceId/VideoId", Type: ytapi.FLAG_VIDEO},
+	})
+	table.RegisterPart("contentDetails", []*ytapi.Flag{
+		&ytapi.Flag{Name: "startAt", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "endAt", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "note", Type: ytapi.FLAG_STRING},
+	})
+	table.RegisterPart("status", []*ytapi.Flag{
+		&ytapi.Flag{Name: "privacyStatus", Type: ytapi.FLAG_STRING},
+	})
+
+	// set default columns
+	table.SetColumns([]string{"position", "title", "description", "video", "privacyStatus"})
+
+	// success
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Returns set of playlists for channel
 
 func ListPlaylists(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 	// create call and set parameters
