@@ -139,6 +139,7 @@ var (
 	FlagClaimBlockOutsideOwnership = Flag{Name: "blockoutsideownership", Description: "Block viewing outside ownership regions", Type: FLAG_BOOL}
 	FlagAsset                      = Flag{Name: "asset", Description: "Asset ID", Type: FLAG_STRING}
 	FlagAssetFilter                = Flag{Name: "filter", Description: "Retrieve computed asset information or my asset information", Type: FLAG_ENUM, Extra: "none|effective|mine", Default: "none"}
+	FlagUploader                   = Flag{Name: "uploader", Description: "Content Owner Uploader Name", Type: FLAG_STRING}
 )
 
 // Global variables

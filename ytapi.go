@@ -69,6 +69,8 @@ func main() {
 		&ytapi.RegisterFunction{Callback: cidcommands.RegisterClaimCommands, Title: "Claims"},
 		&ytapi.RegisterFunction{Callback: cidcommands.RegisterAssetCommands, Title: "Assets"},
 		&ytapi.RegisterFunction{Callback: cidcommands.RegisterReferenceCommands, Title: "Asset References"},
+		&ytapi.RegisterFunction{Callback: cidcommands.RegisterValidatorCommands, Title: "Validate Metadata"},
+
 	})
 	if err != nil {
 		// Error occured in command setup
