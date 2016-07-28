@@ -23,6 +23,11 @@
 #
 ##############################################################
 
+if [ -z "${TMPDIR}" ]; then
+  echo "TMPDIR is unset or set to the empty string."
+  TMPDIR=`dirname $(mktemp -u -t tmp.XXXXXXXXXX)`
+  echo "Now set to: ${TMPDIR}"
+fi
 CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 JSON_PATH="${TMPDIR}/version.json"
 TEMPLATE_PATH="${CURRENT_PATH}/version.go.tmpl"
@@ -55,6 +60,10 @@ if [ ! -x ${GIT} ] ; then
 fi
 if [ ! -x ${GO} ] ; then
   echo "go not installed or executable" >&2
+  exit -1
+fi
+if [ -z "${GOBIN}" ]; then
+  echo "GOBIN not set, go install will fail" >&2
   exit -1
 fi
 
@@ -122,6 +131,9 @@ fi
 echo "  \"client_secret\":\"${CLIENT_SECRET}\"," >> ${JSON_PATH}
 echo "  \"service_account\":\"${SERVICE_ACCOUNT}\"" >> ${JSON_PATH}
 echo "}" >> ${JSON_PATH}
+
+# get dependencies
+${GO} get
 
 # build the command line tool
 ${GO} run build/build.go ${JSON_PATH} ${TEMPLATE_PATH} > ${VERSION_PATH}
