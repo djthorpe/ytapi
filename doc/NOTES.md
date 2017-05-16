@@ -1,21 +1,26 @@
 
-Creating a release
+Creating a release:
+
+```
 git tag alpha-002 -a -m "Added new alpha release"
 build/build.sh -c ~/.ytapi/client_secrets.json -s ~/.ytapi/service_account.json
 git push origin alpha-002
+```
 
 On github, then create a release from the tags
 
 In order to generate the YouTube Partner API package, you need to run the
 following commands:
 
+```
 # commands to install google-api-go-generator
 cd $GOPATH/src/google.golang.org/api
 make generator 
 
 cd $GOPATH/src/github.com/djthorpe/ytapi
 curl https://www.googleapis.com/discovery/v1/apis/youtubePartner/v1/rest > youtubepartner/v1/youtubepartner.json
-${GOPATH}/bin/google-api-go-generator -cache=false -gendir=. -api_json_file=youtubepartner/v1/youtubepartner.json
+google-api-go-generator -cache=false -gendir=. -api_json_file=youtubepartner/v1/youtubepartner.json
+```
 
 ----- old notes -------
 
