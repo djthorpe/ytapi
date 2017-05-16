@@ -12,6 +12,7 @@ import (
 import (
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
+	"google.golang.org/api/youtube/v3"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,6 +32,14 @@ func RegisterStreamCommands() []*ytapi.Command {
 			Description: "Delete stream",
 			Required:    []*ytapi.Flag{&ytapi.FlagStream},
 			Execute:     DeleteStream,
+		},
+		&ytapi.Command{
+			Name:        "NewStream",
+			Description: "Create live stream",
+			Required:    []*ytapi.Flag{&ytapi.FlagTitle,&ytapi.FlagStreamResolution},
+			Optional:    []*ytapi.Flag{&ytapi.FlagDescription,&ytapi.FlagStreamType,&ytapi.FlagStreamReusable},
+			Setup:       RegisterStreamFormat,
+			Execute:     InsertStream,
 		},
 	}
 }
@@ -60,6 +69,8 @@ func RegisterStreamFormat(values *ytapi.Values, table *ytapi.Table) error {
 		&ytapi.Flag{Name: "key", Path: "Cdn/IngestionInfo/StreamName", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "ingestionAddress", Path: "Cdn/IngestionInfo/IngestionAddress", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "backupIngestionAddress", Path: "Cdn/IngestionInfo/BackupIngestionAddress", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "resolution", Path: "Cdn/Resolution", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "frameRate", Path: "Cdn/FrameRate", Type: ytapi.FLAG_STRING},
 	})
 
 	table.RegisterPart("status", []*ytapi.Flag{
@@ -89,7 +100,6 @@ func ListStreams(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
 
 	// Set the call parameters
-	// create call and set parameters
 	call := service.API.LiveStreams.List(strings.Join(table.Parts(false), ","))
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
@@ -133,4 +143,68 @@ func DeleteStream(service *ytservice.Service, values *ytapi.Values, table *ytapi
 
 	// success
 	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// LiveStreams.Insert
+
+func InsertStream(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+	// Get parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
+
+	// Create call, set parameters
+	call := service.API.LiveStreams.Insert("snippet,cdn,contentDetails", &youtube.LiveStream{
+		Snippet: &youtube.LiveStreamSnippet{
+			Title:              values.GetString(&ytapi.FlagTitle),
+			Description:        values.GetString(&ytapi.FlagDescription),
+		},
+		Cdn: &youtube.CdnSettings{
+			Format: values.GetString(&ytapi.FlagStreamResolution),
+			IngestionType: values.GetString(&ytapi.FlagStreamType),
+			ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
+				"format": &ytapi.FlagStreamResolution,
+				"ingestionType": &ytapi.FlagStreamType,
+			}),
+		},
+		ContentDetails: &youtube.LiveStreamContentDetails{
+			IsReusable: values.GetBool(&ytapi.FlagStreamReusable),
+			ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
+				"IsReusable": &ytapi.FlagStreamReusable,
+			}),
+		},
+	})
+
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+		if channel == "" {
+			return errors.New("Invalid channel parameter")
+		} else {
+			call = call.OnBehalfOfContentOwnerChannel(channel)
+		}
+	} else if channel != "" {
+		return errors.New("Invalid channel parameter")
+	}
+
+	// Insert broadcast and get response
+	response, err := call.Do()
+	if err != nil {
+		return err
+	}
+
+	// Retrieve stream details
+	call2 := service.API.LiveStreams.List(strings.Join(table.Parts(false), ",")).Id(response.Id)
+	if service.ServiceAccount {
+		call2 = call2.OnBehalfOfContentOwner(contentowner)
+		if channel == "" {
+			return errors.New("Invalid channel parameter")
+		} else {
+			call2 = call2.OnBehalfOfContentOwnerChannel(channel)
+		}
+	} else if channel != "" {
+		return errors.New("Invalid channel parameter")
+	}
+
+	// Perform LiveStreams.list and return results
+	return ytapi.DoStreamsList(call2, table, 1)
 }

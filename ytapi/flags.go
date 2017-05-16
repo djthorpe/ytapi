@@ -140,6 +140,9 @@ var (
 	FlagAsset                      = Flag{Name: "asset", Description: "Asset ID", Type: FLAG_STRING}
 	FlagAssetFilter                = Flag{Name: "filter", Description: "Retrieve computed asset information or my asset information", Type: FLAG_ENUM, Extra: "none|effective|mine", Default: "none"}
 	FlagUploader                   = Flag{Name: "uploader", Description: "Content Owner Uploader Name", Type: FLAG_STRING}
+	FlagStreamResolution           = Flag{Name: "resolution", Description: "Stream Resolution", Type: FLAG_ENUM, Extra: "2160p_hfr|2160p|1440p_hfr|1440p|1080p_hfr|1080p|720p_hfr|720p|480p|360p|240p", Default: "1080p"}
+	FlagStreamType                 = Flag{Name: "type", Description: "Stream Ingestion Type", Type: FLAG_ENUM, Extra: "rtmp|dash", Default: "rtmp" }
+	FlagStreamReusable             = Flag{Name: "reusable", Description: "Stream Reusable", Type: FLAG_BOOL }
 )
 
 // Global variables
