@@ -118,12 +118,12 @@ func (this *Flag) asStream(value string) (string, error) {
 	if matched {
 		return value, nil
 	}
-	matched2, _ := regexp.MatchString("^([a-zA-Z0-9]{38})$", value)
+	matched2, _ := regexp.MatchString("^([a-zA-Z0-9\\-]{38})$", value)
 	if matched2 {
 		return value, nil
 	}
 
-	return "", errors.New("Malformed stream value")
+	return "", errors.New(fmt.Sprintf("Malformed stream value: %v",value))
 }
 
 func (this *Flag) asContentOwner(value string) (string, error) {
