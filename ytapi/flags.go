@@ -122,6 +122,9 @@ var (
 	FlagCommentModerationStatus	   = Flag{Name: "status", Description: "Comment moderation status", Type: FLAG_ENUM, Extra: "heldForReview|likelySpam|published"}
 	FlagCommentModerationStatus2   = Flag{Name: "status", Description: "Comment moderation status", Type: FLAG_ENUM, Extra: "heldForReview|published|rejected"}
 	FlagCommentBanAuthor   	       = Flag{Name: "ban", Description: "Ban comment author", Type: FLAG_BOOL}
+	FlagChat                       = Flag{Name: "chat", Description: "Live Chat", Type: FLAG_STRING }
+	FlagChatMessage                = Flag{Name: "message", Description: "Live Chat Message", Type: FLAG_STRING }
+	FlagChatText                   = Flag{Name: "text", Description: "Chat Text", Type: FLAG_STRING }
 	FlagActivityHome               = Flag{Name: "home", Description: "Display Homepage Activity Feed", Type: FLAG_BOOL}
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
 	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}

@@ -86,7 +86,7 @@ func RegisterCommentThreadFormat(values *ytapi.Values, table *ytapi.Table) error
 
 	table.RegisterPart("snippet", []*ytapi.Flag{
 		&ytapi.Flag{Name: "video", Path: "Snippet/VideoId", Type: ytapi.FLAG_VIDEO},
-		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_VIDEO},
+		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
 		&ytapi.Flag{Name: "can_reply", Path: "Snippet/CanReply", Type: ytapi.FLAG_BOOL},
 		&ytapi.Flag{Name: "reply_count", Path: "Snippet/TotalReplyCount", Type: ytapi.FLAG_UINT},
 		&ytapi.Flag{Name: "can_rate", Path: "Snippet/TopLevelComment/Snippet/CanRate", Type: ytapi.FLAG_BOOL},
