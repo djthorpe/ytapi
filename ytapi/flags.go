@@ -157,6 +157,8 @@ var (
 	FlagStreamResolution           = Flag{Name: "resolution", Description: "Stream Resolution", Type: FLAG_ENUM, Extra: "2160p_hfr|2160p|1440p_hfr|1440p|1080p_hfr|1080p|720p_hfr|720p|480p|360p|240p", Default: "1080p"}
 	FlagStreamType                 = Flag{Name: "type", Description: "Stream Ingestion Type", Type: FLAG_ENUM, Extra: "rtmp|dash", Default: "rtmp" }
 	FlagStreamReusable             = Flag{Name: "reusable", Description: "Stream Reusable", Type: FLAG_BOOL }
+	FlagAnalyticsMetrics           = Flag{Name: "metrics", Description: "Analytics Metrics", Type: FLAG_STRING }
+	FlagAnalyticsDimensions        = Flag{Name: "dimensions", Description: "Analytics Dimensions", Type: FLAG_STRING }
 )
 
 // Global variables

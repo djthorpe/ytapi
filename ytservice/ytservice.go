@@ -11,6 +11,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/youtube/v3"
+	"google.golang.org/api/youtubeanalytics/v1"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -19,6 +20,7 @@ import (
 type Service struct {
 	API                 *youtube.Service
 	PAPI                *youtubepartner.Service
+	AAPI                *youtubeanalytics.Service
 	ServiceAccount      bool
 	ServiceAccountEmail string
 	token               *oauth2.Token
@@ -32,7 +34,7 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Serv
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
-	sa_config, err := google.JWTConfigFromJSON(bytes, youtube.YoutubeForceSslScope, youtube.YoutubepartnerScope)
+	sa_config, err := google.JWTConfigFromJSON(bytes, youtube.YoutubeForceSslScope, youtube.YoutubepartnerScope, youtubeanalytics.YtAnalyticsReadonlyScope)
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
@@ -42,11 +44,23 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Serv
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
 	partnerservice, err := youtubepartner.New(sa_config.Client(ctx))
+	if err != nil {
+		return nil, err
+	}
+	analyticsservice, err := youtubeanalytics.New(sa_config.Client(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	// create the service object
 	this := new(Service)
 	this.API = service
 	this.PAPI = partnerservice
+	this.AAPI = analyticsservice
 	this.ServiceAccount = true
 	this.ServiceAccountEmail = sa_config.Email
+
+	// Success
 	return this, nil
 }
 
@@ -56,7 +70,7 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 	if err != nil {
 		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
-	config, err := google.ConfigFromJSON(bytes, youtube.YoutubeForceSslScope)
+	config, err := google.ConfigFromJSON(bytes, youtube.YoutubeForceSslScope, youtubeanalytics.YtAnalyticsReadonlyScope)
 	if err != nil {
 		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
@@ -75,14 +89,21 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
 
-	// create client
+	// create data client
 	service, err := youtube.New(config.Client(ctx, token))
 	if err != nil {
 		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
+	// create analytics client
+	analyticsservice, err := youtubeanalytics.New(config.Client(ctx, token))
+	if err != nil {
+		return nil, NewError(ErrorInvalidClientSecrets, err)
+	}
 
+	// create the service object
 	this := new(Service)
 	this.API = service
+	this.AAPI = analyticsservice
 	this.ServiceAccount = false
 	this.token = token
 	return this, nil
