@@ -111,13 +111,17 @@ var (
 	FlagMonitorStream              = Flag{Name: "monitor", Description: "Enable stream monitoring", Type: FLAG_BOOL}
 	FlagBroadcastDelay             = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
 	FlagLowLatency                 = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
+	FlagProjection                 = Flag{Name: "projection", Description: "Projection format", Type: FLAG_ENUM, Extra: "360|rectangular"}
 	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|likes|favorites|uploads|watchhistory|watchlater", Default: "uploads"}
 	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT}
 	FlagVideoRating                = Flag{Name: "rating", Description: "Video Rating", Type: FLAG_ENUM, Extra: "like|dislike|none"}
 	FlagCommentThread              = Flag{Name: "thread", Description: "Comment Thread", Type: FLAG_STRING }
+	FlagCommentText                = Flag{Name: "text", Description: "Comment Text", Type: FLAG_STRING }
 	FlagCommentFormat              = Flag{Name: "format", Description: "Comment Format", Type: FLAG_ENUM, Extra: "plainText|html", Default: "plainText" }
 	FlagCommentOrder               = Flag{Name: "order", Description: "Comment order", Type: FLAG_ENUM, Extra: "time|relevance"}
 	FlagCommentModerationStatus	   = Flag{Name: "status", Description: "Comment moderation status", Type: FLAG_ENUM, Extra: "heldForReview|likelySpam|published"}
+	FlagCommentModerationStatus2   = Flag{Name: "status", Description: "Comment moderation status", Type: FLAG_ENUM, Extra: "heldForReview|published|rejected"}
+	FlagCommentBanAuthor   	       = Flag{Name: "ban", Description: "Ban comment author", Type: FLAG_BOOL}
 	FlagActivityHome               = Flag{Name: "home", Description: "Display Homepage Activity Feed", Type: FLAG_BOOL}
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
 	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}

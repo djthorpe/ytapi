@@ -91,10 +91,12 @@ func RegisterBroadcastCommands() []*ytapi.Command {
 				&ytapi.FlagRecordFromStart, &ytapi.FlagStartWithSlate,
 				&ytapi.FlagClosedCaptions, &ytapi.FlagMonitorStream,
 				&ytapi.FlagBroadcastDelay, &ytapi.FlagLowLatency,
+				&ytapi.FlagProjection,
 			},
 			Required: []*ytapi.Flag{
 				&ytapi.FlagTitle, &ytapi.FlagStartTime, &ytapi.FlagPrivacyStatus,
 			},
+			Setup:       RegisterBroadcastFormat,
 			Execute: InsertBroadcast,
 		},
 		&ytapi.Command{
@@ -126,7 +128,7 @@ func RegisterBroadcastFormat(values *ytapi.Values, table *ytapi.Table) error {
 		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "description", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
-		&ytapi.Flag{Name: "publishedAt", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "published", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "scheduledStartTime", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "scheduledEndTime", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "actualStartTime", Type: ytapi.FLAG_TIME},
@@ -143,21 +145,23 @@ func RegisterBroadcastFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	table.RegisterPart("contentDetails", []*ytapi.Flag{
 		&ytapi.Flag{Name: "stream", Path: "ContentDetails/BoundStreamId", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "enableMonitorStream", Path: "ContentDetails/MonitorStream/EnableMonitorStream", Type: ytapi.FLAG_BOOL},
-		&ytapi.Flag{Name: "broadcastStreamDelayMs", Path: "ContentDetails/MonitorStream/BroadcastStreamDelayMs", Type: ytapi.FLAG_UINT},
-		&ytapi.Flag{Name: "embedHtml", Path: "ContentDetails/MonitorStream/EmbedHtml", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "stream_updated", Path: "ContentDetails/BoundStreamLastUpdateTimeMs", Type: ytapi.FLAG_TIME},
+		&ytapi.Flag{Name: "enable_monitor_stream", Path: "ContentDetails/MonitorStream/EnableMonitorStream", Type: ytapi.FLAG_BOOL},
+		&ytapi.Flag{Name: "broadcast_delay_ms", Path: "ContentDetails/MonitorStream/BroadcastStreamDelayMs", Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "embed_html", Path: "ContentDetails/MonitorStream/EmbedHtml", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "embed", Path: "ContentDetails/EnableEmbed", Type: ytapi.FLAG_BOOL},
 		&ytapi.Flag{Name: "dvr", Path: "ContentDetails/EnableDvr", Type: ytapi.FLAG_BOOL},
 		&ytapi.Flag{Name: "encryption", Path: "ContentDetails/EnableContentEncryption", Type: ytapi.FLAG_BOOL},
 		&ytapi.Flag{Name: "slate", Path: "ContentDetails/StartWithSlate", Type: ytapi.FLAG_BOOL},
 		&ytapi.Flag{Name: "record", Path: "ContentDetails/RecordFromStart", Type: ytapi.FLAG_BOOL},
 		&ytapi.Flag{Name: "captions", Path: "ContentDetails/EnableClosedCaptions", Type: ytapi.FLAG_BOOL},
-		&ytapi.Flag{Name: "captions.type", Path: "ContentDetails/ClosedCaptionsType", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "captions_type", Path: "ContentDetails/ClosedCaptionsType", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "projection", Path: "ContentDetails/Projection", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "lowlatency", Path: "ContentDetails/EnableLowLatency", Type: ytapi.FLAG_BOOL},
 	})
 
 	table.RegisterPart("statistics", []*ytapi.Flag{
-		&ytapi.Flag{Name: "chatcount", Path: "Statistics/TotalChatCount", Type: ytapi.FLAG_UINT},
+		&ytapi.Flag{Name: "chat_count", Path: "Statistics/TotalChatCount", Type: ytapi.FLAG_UINT},
 	})
 
 	// set default columns
@@ -374,6 +378,7 @@ func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 			EnableContentEncryption: values.GetBool(&ytapi.FlagContentEncryption),
 			EnableEmbed:             values.GetBool(&ytapi.FlagEmbed),
 			EnableLowLatency:        values.GetBool(&ytapi.FlagLowLatency),
+			Projection:              values.GetString(&ytapi.FlagProjection),
 			RecordFromStart:         values.GetBool(&ytapi.FlagRecordFromStart),
 			StartWithSlate:          values.GetBool(&ytapi.FlagStartWithSlate),
 			EnableClosedCaptions:    values.GetBool(&ytapi.FlagClosedCaptions),
@@ -407,15 +412,25 @@ func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 	}
 
 	// Insert broadcast and get response
-	_, err := call.Do()
-	if err != nil {
+	if response, err := call.Do(); err != nil {
 		return err
+	} else {
+		// List comment
+		call := service.API.LiveBroadcasts.List(strings.Join(table.Parts(false), ",")).Id(response.Id)
+		if service.ServiceAccount {
+			call = call.OnBehalfOfContentOwner(contentowner)
+			if channel == "" {
+				return errors.New("Invalid channel parameter")
+			} else {
+				call = call.OnBehalfOfContentOwnerChannel(channel)
+			}
+		} else if channel != "" {
+			return errors.New("Invalid channel parameter")
+		}
+
+		// Perform search, and return results
+		return ytapi.DoBroadcastsList(call, table, 1)
 	}
-
-	// TODO: retrieve broadcast again and print out values
-
-	// success
-	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////

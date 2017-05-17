@@ -12,6 +12,7 @@ import (
 import (
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
+	"google.golang.org/api/youtube/v3"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +43,34 @@ func RegisterCommentsCommands() []*ytapi.Command {
 			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults,&ytapi.FlagCommentFormat},
 			Setup:       RegisterCommentFormat,
 			Execute:     ListCommentsForThread,
+		},
+		&ytapi.Command{
+			Name:        "NewComment",
+			Description: "Add comment to thread",
+			Required:    []*ytapi.Flag{&ytapi.FlagCommentThread,&ytapi.FlagCommentText},
+			Setup:       RegisterCommentFormat,
+			Execute:     InsertCommentForThread,
+		},
+		&ytapi.Command{
+			Name:        "DeleteComment",
+			Description: "Add comment to thread",
+			Required:    []*ytapi.Flag{&ytapi.FlagCommentThread},
+			Execute:     DeleteComment,
+		},
+		&ytapi.Command{
+			Name:        "MarkCommentAsSpam",
+			Description: "Mark comment as spam",
+			Required:    []*ytapi.Flag{&ytapi.FlagCommentThread},
+			Setup:       RegisterCommentFormat,
+			Execute:     MarkCommentAsSpam,
+		},
+		&ytapi.Command{
+			Name:        "SetCommentModerationStatus",
+			Description: "Sets the moderation status of a comment",
+			Required:    []*ytapi.Flag{&ytapi.FlagCommentThread,&ytapi.FlagCommentModerationStatus2},
+			Optional:    []*ytapi.Flag{&ytapi.FlagCommentBanAuthor},
+			Setup:       RegisterCommentFormat,
+			Execute:     SetCommentModerationStatus,
 		},
 	}
 }
@@ -103,7 +132,7 @@ func RegisterCommentFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{ "author", "text", "like_count", "published" })
+	table.SetColumns([]string{ "thread", "author", "text", "like_count", "published" })
 
 	// success
 	return nil
@@ -193,6 +222,86 @@ func ListCommentsForThread(service *ytservice.Service, values *ytapi.Values, tab
 	// Perform search, and return results
 	return ytapi.DoCommentsList(call, table, int64(maxresults))
 }
+
+func MarkCommentAsSpam(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// create call
+	thread := values.GetString(&ytapi.FlagCommentThread)
+	call := service.API.Comments.MarkAsSpam(thread)
+	err := call.Do()
+	if err != nil {
+		return nil
+	}
+
+	// return the comment
+	call2 := service.API.Comments.List(strings.Join(table.Parts(false), ",")).Id(thread)
+
+	// Perform search, and return results
+	return ytapi.DoCommentsList(call2, table, 1)
+}
+
+func SetCommentModerationStatus(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// create call
+	thread := values.GetString(&ytapi.FlagCommentThread)
+	moderation_status := values.GetString(&ytapi.FlagCommentModerationStatus2)
+	call := service.API.Comments.SetModerationStatus(thread,moderation_status)
+
+	// Set ban flag
+	if values.IsSet(&ytapi.FlagCommentBanAuthor) {
+		call.BanAuthor(values.GetBool(&ytapi.FlagCommentBanAuthor))
+	}
+
+	// Execute
+	if err := call.Do(); err != nil {
+		return err
+	}
+
+	// return the comment
+	call2 := service.API.Comments.List(strings.Join(table.Parts(false), ",")).Id(thread)
+
+	// Perform search, and return results
+	return ytapi.DoCommentsList(call2, table, 1)
+}
+
+func InsertCommentForThread(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// create call
+	call := service.API.Comments.Insert("snippet",&youtube.Comment{
+		Snippet: &youtube.CommentSnippet{
+			TextOriginal: values.GetString(&ytapi.FlagCommentText),
+			ParentId: values.GetString(&ytapi.FlagCommentThread),
+		},
+	})
+
+	// Execute
+	if response, err := call.Do(); err != nil {
+		return err
+	} else {
+		// List comment
+		call := service.API.Comments.List(strings.Join(table.Parts(false), ",")).Id(response.Id)
+		// Perform search, and return results
+		return ytapi.DoCommentsList(call, table, 1)
+	}
+}
+
+func DeleteComment(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// create call
+	thread := values.GetString(&ytapi.FlagCommentThread)
+	call := service.API.Comments.Delete(thread)
+
+	// Execute
+	if err := call.Do(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+
+
 
 
 
