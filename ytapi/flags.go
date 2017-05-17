@@ -114,6 +114,10 @@ var (
 	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|likes|favorites|uploads|watchhistory|watchlater", Default: "uploads"}
 	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT}
 	FlagVideoRating                = Flag{Name: "rating", Description: "Video Rating", Type: FLAG_ENUM, Extra: "like|dislike|none"}
+	FlagCommentThread              = Flag{Name: "thread", Description: "Comment Thread", Type: FLAG_STRING }
+	FlagCommentFormat              = Flag{Name: "format", Description: "Comment Format", Type: FLAG_ENUM, Extra: "plainText|html", Default: "plainText" }
+	FlagCommentOrder               = Flag{Name: "order", Description: "Comment order", Type: FLAG_ENUM, Extra: "time|relevance"}
+	FlagCommentModerationStatus	   = Flag{Name: "status", Description: "Comment moderation status", Type: FLAG_ENUM, Extra: "heldForReview|likelySpam|published"}
 	FlagActivityHome               = Flag{Name: "home", Description: "Display Homepage Activity Feed", Type: FLAG_BOOL}
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
 	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}

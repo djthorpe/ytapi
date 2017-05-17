@@ -32,7 +32,7 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Serv
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
-	sa_config, err := google.JWTConfigFromJSON(bytes, youtube.YoutubeScope, youtube.YoutubepartnerScope)
+	sa_config, err := google.JWTConfigFromJSON(bytes, youtube.YoutubeForceSslScope, youtube.YoutubepartnerScope)
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
@@ -56,7 +56,7 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 	if err != nil {
 		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
-	config, err := google.ConfigFromJSON(bytes, youtube.YoutubeScope)
+	config, err := google.ConfigFromJSON(bytes, youtube.YoutubeForceSslScope)
 	if err != nil {
 		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
