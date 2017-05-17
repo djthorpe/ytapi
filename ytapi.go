@@ -60,6 +60,7 @@ func main() {
 		&ytapi.RegisterFunction{Callback: ytcommands.RegisterVideoCommands, Title: "Videos"},
 		&ytapi.RegisterFunction{Callback: ytcommands.RegisterBroadcastCommands, Title: "Broadcasts"},
 		&ytapi.RegisterFunction{Callback: ytcommands.RegisterStreamCommands, Title: "Streams"},
+		&ytapi.RegisterFunction{Callback: cidcommands.RegisterCuepointsCommands, Title: "Cuepoints"},
 		&ytapi.RegisterFunction{Callback: ytcommands.RegisterCaptionCommands, Title: "Video Caption Tracks"},
 		&ytapi.RegisterFunction{Callback: ytcommands.RegisterPlaylistCommands, Title: "Playlists"},
 		&ytapi.RegisterFunction{Callback: ytcommands.RegisterLanguageRegionCommands, Title: "Language and Regions"},

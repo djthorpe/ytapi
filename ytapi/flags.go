@@ -112,6 +112,9 @@ var (
 	FlagBroadcastDelay             = Flag{Name: "delay", Description: "Broadcast delay (ms)", Type: FLAG_UINT}
 	FlagLowLatency                 = Flag{Name: "lowlatency", Description: "Enable low latency", Type: FLAG_BOOL}
 	FlagProjection                 = Flag{Name: "projection", Description: "Projection format", Type: FLAG_ENUM, Extra: "360|rectangular"}
+	FlagCuepointOffset             = Flag{Name: "offset", Description: "Offset time (ms)", Type: FLAG_UINT}
+	FlagCuepointDuration           = Flag{Name: "duration", Description: "Duration (s)", Type: FLAG_UINT}
+	FlagCuepointTime               = Flag{Name: "time", Description: "Walltime", Type: FLAG_TIME}
 	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|likes|favorites|uploads|watchhistory|watchlater", Default: "uploads"}
 	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT}
 	FlagVideoRating                = Flag{Name: "rating", Description: "Video Rating", Type: FLAG_ENUM, Extra: "like|dislike|none"}
