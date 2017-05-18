@@ -57,10 +57,36 @@ func RunChannelAnalyticsQuery(service *ytservice.Service, values *ytapi.Values, 
 	}
 
 	// Execute the call
-	_, err := call.Do()
+	response, err := call.Do()
 	if err != nil {
 		return err
 	}
+
+    // Make parts for columns
+    parts := make(map[string][]*ytapi.Flag)
+    keys := make([]string,0)
+    for _, column := range response.ColumnHeaders {
+        var flags []*ytapi.Flag
+
+        // retrieve the flags for this column type
+        flags,exists := parts[column.ColumnType]
+        if exists == false {
+            flags = make([]*ytapi.Flag,0)
+            parts[column.ColumnType] = flags
+            keys = append(keys,column.ColumnType)
+        }
+
+        // append the flags
+        parts[column.ColumnType] = append(parts[column.ColumnType],&ytapi.Flag{ Name: column.Name, Type: ytapi.FLAG_STRING })
+    }
+
+    // Register with table
+    for _, key := range keys {
+        table.RegisterPart(key,parts[key])
+    }
+
+    table.Append(response.Rows)
+
 	// success
 	return nil
 }
