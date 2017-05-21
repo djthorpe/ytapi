@@ -17,6 +17,7 @@ import (
 type Value struct {
 	v_string       string
 	v_uint         uint64
+    v_float        float64
 	v_bool         bool
 	v_time         time.Time
 	is_set         bool
@@ -52,6 +53,10 @@ func NewValue(flag *Flag, value reflect.Value) (*Value, error) {
 		if err := this.SetInt(value.Int()); err != nil {
 			return nil, err
 		}
+    case reflect.Float64:
+        if err := this.SetFloat(value.Float()); err != nil {
+            return nil, err
+        }
 	case reflect.Slice:
 		if err := this.SetString(value.String()); err != nil {
 			return nil, err
@@ -135,6 +140,14 @@ func (this *Value) SetInt(value int64) error {
 	this.v_string = fmt.Sprint(value)
 	this.is_set = true
 	return nil
+}
+
+
+func (this *Value) SetFloat(value float64) error {
+    // TODO
+    this.v_string = fmt.Sprint(value)
+    this.is_set = true
+    return nil
 }
 
 func (this *Value) SetString(value string) error {

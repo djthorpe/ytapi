@@ -65,6 +65,7 @@ func RunChannelAnalyticsQuery(service *ytservice.Service, values *ytapi.Values, 
     // Make parts for columns
     parts := make(map[string][]*ytapi.Flag)
     keys := make([]string,0)
+    columns := make([]string,0)
     for _, column := range response.ColumnHeaders {
         var flags []*ytapi.Flag
 
@@ -76,16 +77,21 @@ func RunChannelAnalyticsQuery(service *ytservice.Service, values *ytapi.Values, 
             keys = append(keys,column.ColumnType)
         }
 
-        // append the flags
+        // append the flags and column names
         parts[column.ColumnType] = append(parts[column.ColumnType],&ytapi.Flag{ Name: column.Name, Type: ytapi.FLAG_STRING })
+        columns = append(columns,column.Name)
     }
 
-    // Register with table
+    // Register table columns
     for _, key := range keys {
         table.RegisterPart(key,parts[key])
     }
+    table.SetColumns(columns)
 
-    table.Append(response.Rows)
+    // Append columns
+    if err = table.Append(response.Rows); err != nil {
+        return err
+    }
 
 	// success
 	return nil
