@@ -1,4 +1,30 @@
 
+Time periods for analytics:
+
+lifetime
+thisWeek
+lastWeek
+last7Days
+first7Days
+thisMonth
+lastMonth
+last28Days
+last30Days
+first28Days
+thisQuarter
+lastQuarter
+last90Days
+first90Days
+thisYear
+lastYear
+last365Days
+first365Days
+<month>
+<year>
+<month>-<year>
+<year>-<month>
+
+
 Creating a release:
 
 ```
