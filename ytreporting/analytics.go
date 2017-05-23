@@ -29,9 +29,18 @@ func RegisterAnalyticsCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "ContentOwnerAnalytics",
 			Description: "Execute Content Owner Analytics Query",
+			ServiceAccount: true,
 			Required:    []*ytapi.Flag{&ytapi.FlagContentOwner,&ytapi.FlagAnalyticsMetrics,&ytapi.FlagAnalyticsPeriod},
 			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsDimensions,&ytapi.FlagAnalyticsFilter,&ytapi.FlagAnalyticsSort},
 			Execute:     RunContentOwnerAnalyticsQuery,
+		},
+		&ytapi.Command{
+			Name:        "ListReportTypes",
+			Description: "List Report types",
+			ServiceAccount: true,
+			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsIncludeSystem},
+			Setup:       RegisterReportTypeFormat,
+			Execute:     ListReportTypes,
 		},
 	}
 }
@@ -46,9 +55,24 @@ func getTimePeriod(value string) (string, string, error) {
 		return start_date.Format("2006-01-02"),end_date.Format("2006-01-02"),nil
 	}
 }
+////////////////////////////////////////////////////////////////////////////////
+// Register ReportType Format
+
+func RegisterReportTypeFormat(values *ytapi.Values, table *ytapi.Table) error {
+	table.RegisterPart("type", []*ytapi.Flag{
+		&ytapi.Flag{Name: "id", Path: "Id", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "name", Path: "Name", Type: ytapi.FLAG_STRING},
+	})
+
+	// set default columns
+	table.SetColumns([]string{"id", "name"})
+
+	// success
+	return nil
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-// Run Analytics Query
+// Run Analytics Targetted Query
 
 func RunChannelAnalyticsQuery(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
@@ -191,4 +215,32 @@ func RunContentOwnerAnalyticsQuery(service *ytservice.Service, values *ytapi.Val
 	// success
 	return nil
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Bulk Report Types
+
+func ListReportTypes(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	call := service.RAPI.ReportTypes.List().OnBehalfOfContentOwner(contentowner)
+	if values.IsSet(&ytapi.FlagAnalyticsIncludeSystem) {
+		call.IncludeSystemManaged(values.GetBool(&ytapi.FlagAnalyticsIncludeSystem))
+	}
+
+	response, err := call.Do()
+	if err != nil {
+		return err
+	}
+
+	if err := table.Append(response.ReportTypes); err != nil {
+		return err
+	}
+
+	// success
+	return nil
+}
+
+
+
+
 

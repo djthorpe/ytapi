@@ -163,6 +163,7 @@ var (
 	FlagAnalyticsFilter            = Flag{Name: "filter", Description: "Analytics Filters", Type: FLAG_STRING }
 	FlagAnalyticsSort              = Flag{Name: "sort", Description: "Data sort order", Type: FLAG_STRING }
 	FlagAnalyticsCurrency          = Flag{Name: "currency", Description: "Reporting Currency", Type: FLAG_STRING }
+	FlagAnalyticsIncludeSystem     = Flag{Name: "system", Description: "Include system managed reports", Type: FLAG_BOOL }
 )
 
 // Global variables

@@ -12,6 +12,7 @@ import (
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/youtube/v3"
 	"google.golang.org/api/youtubeanalytics/v1"
+	"google.golang.org/api/youtubereporting/v1"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +22,7 @@ type Service struct {
 	API                 *youtube.Service
 	PAPI                *youtubepartner.Service
 	AAPI                *youtubeanalytics.Service
+	RAPI                *youtubereporting.Service
 	ServiceAccount      bool
 	ServiceAccountEmail string
 	token               *oauth2.Token
@@ -51,12 +53,17 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Serv
 	if err != nil {
 		return nil, err
 	}
+	reportingservice, err := youtubereporting.New(sa_config.Client(ctx))
+	if err != nil {
+		return nil, err
+	}
 
 	// create the service object
 	this := new(Service)
 	this.API = service
 	this.PAPI = partnerservice
 	this.AAPI = analyticsservice
+	this.RAPI = reportingservice
 	this.ServiceAccount = true
 	this.ServiceAccountEmail = sa_config.Email
 
@@ -99,11 +106,18 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 	if err != nil {
 		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
+	// create reporting client
+	reportingservice, err := youtubereporting.New(config.Client(ctx, token))
+	if err != nil {
+		return nil, NewError(ErrorInvalidClientSecrets, err)
+	}
+
 
 	// create the service object
 	this := new(Service)
 	this.API = service
 	this.AAPI = analyticsservice
+	this.RAPI = reportingservice
 	this.ServiceAccount = false
 	this.token = token
 	return this, nil
