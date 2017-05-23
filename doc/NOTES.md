@@ -20,9 +20,6 @@ lastYear
 last365Days
 first365Days
 <month>
-<year>
-<month>-<year>
-<year>-<month>
 
 
 Creating a release:

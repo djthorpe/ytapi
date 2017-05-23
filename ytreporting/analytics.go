@@ -11,6 +11,7 @@ import (
 import (
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"	
+	"github.com/djthorpe/ytapi/util"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,33 +39,12 @@ func RegisterAnalyticsCommands() []*ytapi.Command {
 ////////////////////////////////////////////////////////////////////////////////
 // Time Periods
 
-/* TO SUPPORT:
-lifetime
-thisWeek
-lastWeek
-last7Days
-first7Days
-thisMonth
-lastMonth
-last28Days
-last30Days
-first28Days
-thisQuarter
-lastQuarter
-last90Days
-first90Days
-thisYear
-lastYear
-last365Days
-first365Days
-<month>
-<year>
-<month>-<year>
-<year>-<month>
-*/
-
 func getTimePeriod(value string) (string, string, error) {
-	return  "2017-01-01", "2017-03-31", nil
+	if start_date, end_date, err := util.ParseDatePeriod(value); err != nil {
+		return "", "", err
+	} else {
+		return start_date.Format("2006-01-02"),end_date.Format("2006-01-02"),nil
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
