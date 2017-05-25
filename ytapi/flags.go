@@ -81,6 +81,7 @@ var (
 	FlagAuthToken                  = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
 	FlagDebug                      = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
 	FlagFields                     = Flag{Name: "fields", Description: "Comma-separated list of output fields", Type: FLAG_STRING}
+	FlagInput                      = Flag{Name: "in", Description: "Input filename and/or format (csv)", Type: FLAG_STRING, Default: "csv"}
 	FlagOutput                     = Flag{Name: "out", Description: "Output filename and/or format (txt, csv)", Type: FLAG_STRING, Default: "txt"}
 	FlagFile                       = Flag{Name: "file", Description: "Filename", Type: FLAG_STRING}
 	FlagContentOwner               = Flag{Name: "contentowner", Description: "Content Owner ID", Type: FLAG_CONTENTOWNER}
@@ -173,7 +174,7 @@ var (
 	GlobalFlags = []*Flag{
 		&FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret,
 		&FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel,
-		&FlagFields, &FlagOutput,
+		&FlagFields, &FlagOutput, &FlagInput,
 	}
 
 	// Variety of error conditions
@@ -634,6 +635,15 @@ func (this *FlagSet) CloseOutput() error {
 		return this.filehandle.Close()
 	}
 	return nil
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Read input
+
+func (this *FlagSet) ReadInput() error {
+	// TODO
+	return errors.New("NOT IMPLEMENTED YET")
 }
 
 ////////////////////////////////////////////////////////////////////////////////
