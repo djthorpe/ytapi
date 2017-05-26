@@ -23,7 +23,7 @@ func RegisterAnalyticsCommands() []*ytapi.Command {
 			Name:        "ChannelAnalytics",
 			Description: "Execute Channel Analytics Query",
 			Required:    []*ytapi.Flag{&ytapi.FlagAnalyticsMetrics,&ytapi.FlagAnalyticsPeriod},
-			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsDimensions,&ytapi.FlagAnalyticsFilter,&ytapi.FlagAnalyticsSort},
+			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsDimensions,&ytapi.FlagAnalyticsFilter,&ytapi.FlagAnalyticsSort,&ytapi.FlagAnalyticsCurrency},
 			Execute:     RunChannelAnalyticsQuery,
 		},
 		&ytapi.Command{
@@ -31,7 +31,7 @@ func RegisterAnalyticsCommands() []*ytapi.Command {
 			Description: "Execute Content Owner Analytics Query",
 			ServiceAccount: true,
 			Required:    []*ytapi.Flag{&ytapi.FlagContentOwner,&ytapi.FlagAnalyticsMetrics,&ytapi.FlagAnalyticsPeriod},
-			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsDimensions,&ytapi.FlagAnalyticsFilter,&ytapi.FlagAnalyticsSort},
+			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsDimensions,&ytapi.FlagAnalyticsFilter,&ytapi.FlagAnalyticsSort,&ytapi.FlagAnalyticsCurrency},
 			Execute:     RunContentOwnerAnalyticsQuery,
 		},
 		&ytapi.Command{
@@ -72,7 +72,7 @@ func RegisterReportTypeFormat(values *ytapi.Values, table *ytapi.Table) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Run Analytics Targetted Query
+// Run Analytics Targetted Queries
 
 func RunChannelAnalyticsQuery(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 

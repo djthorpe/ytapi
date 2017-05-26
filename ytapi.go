@@ -148,6 +148,14 @@ func main() {
 	}
 	defer flags.CloseOutput()
 
+	// Open input file
+	if flags.Values.IsSet(&ytapi.FlagInput) {
+		if err := flags.ReadInput(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
 	// Create a service. If the content owner is set, then create an API object
 	// from service account, or else create the API object from client secrets
 	// and oauth token

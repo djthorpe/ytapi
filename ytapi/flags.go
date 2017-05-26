@@ -56,6 +56,7 @@ type FlagSet struct {
 	flagset        *flag.FlagSet
 	sections       []*Section
 	Values         *Values
+	Input          *Input
 	Output         *Table
 	ClientSecrets  string
 	ServiceAccount string
@@ -196,6 +197,7 @@ func NewFlagSet() *FlagSet {
 	this.sections = make([]*Section, 0)
 	this.Values = NewValues()
 	this.Output = NewTable()
+	this.Input = NewInput()
 	return this
 }
 
@@ -642,8 +644,41 @@ func (this *FlagSet) CloseOutput() error {
 // Read input
 
 func (this *FlagSet) ReadInput() error {
-	// TODO
-	return errors.New("NOT IMPLEMENTED YET")
+	// Determine input filename and format
+	input := this.Values.GetString(&FlagInput)
+	ext := filepath.Ext(input)
+	format := INPUT_CSV
+	switch {
+	case input=="csv" || input=="CSV":
+		input = "-"
+	case ext==".csv" || ext==".CSV":
+		format = INPUT_CSV
+	case input=="-":
+		format = INPUT_CSV
+	default:
+		return errors.New("Invalid input format, only files with .csv extension supported")
+	}
+
+	// Open input file
+	if input == "-" || input == "" {
+		this.Input.SetDataSource(os.Stdin, format)
+	} else {
+		if fh, err := os.Open(input); err != nil {
+			return err
+		} else {
+			this.Input.SetDataSource(fh, format)
+		}
+	}
+	defer this.Input.Close()
+
+	// Read the data
+	err := this.Input.ReadAll()
+	if err != nil {
+		return err
+	}
+
+	// Success
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
