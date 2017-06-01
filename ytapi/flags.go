@@ -100,7 +100,7 @@ var (
 	FlagStatsViewable              = Flag{Name: "statsviewable", Description: "Extended video statistics are publicly viewable", Type: FLAG_BOOL}
 	FlagPrivacyStatus              = Flag{Name: "status", Description: "Privacy status", Type: FLAG_ENUM, Extra: "private|public|unlisted"}
 	FlagDate                       = Flag{Name: "date", Description: "Publish date and time", Type: FLAG_TIME}
-	FlagBroadcastStatus            = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|live|completed"}
+	FlagBroadcastStatus            = Flag{Name: "status", Description: "Broadcast status", Type: FLAG_ENUM, Extra: "all|upcoming|active|completed"}
 	FlagBroadcastTransition        = Flag{Name: "status", Description: "Broadcast transition", Type: FLAG_ENUM, Extra: "complete|live|testing"}
 	FlagStartTime                  = Flag{Name: "start", Description: "Scheduled start time", Type: FLAG_TIME}
 	FlagEndTime                    = Flag{Name: "end", Description: "Scheduled end time", Type: FLAG_TIME}
