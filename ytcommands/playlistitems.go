@@ -105,6 +105,9 @@ func DeletePlaylistVideo(service *ytservice.Service, values *ytapi.Values, table
 	// delete the items from the playlist
 	for _, playlistItem := range playlistItems {
 		call := service.API.PlaylistItems.Delete(playlistItem.Id)
+		if service.ServiceAccount {
+			call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		}
 		err := call.Do()
 		if err != nil {
 			return err
