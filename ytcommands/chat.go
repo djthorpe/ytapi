@@ -245,6 +245,29 @@ func ListChatModerators(service *ytservice.Service, values *ytapi.Values, table 
 
 func NewChatModerator(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
+	// Get parameters
+	channel := values.GetString(&ytapi.FlagChannel)
+	chat, err := GetChatId(service,values)
+	if err != nil {
+		return err
+	}
+
+	// create call
+	call := service.API.LiveChatModerators.Insert("id",&youtube.LiveChatModerator{
+		Snippet: &youtube.LiveChatModeratorSnippet{
+			ModeratorDetails: &youtube.ChannelProfileDetails{
+				ChannelId: channel,
+			},
+			LiveChatId: chat,
+		},
+	})
+
+	// execute
+	_, err = call.Do()
+	if err != nil {
+		return err
+	}
+
 	// Success
 	return nil
 }
