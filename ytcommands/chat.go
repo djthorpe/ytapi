@@ -44,12 +44,14 @@ func RegisterLiveChatCommands() []*ytapi.Command {
 			Name:        "ListChatModerators",
 			Description: "List chat moderators",
 			Required:    []*ytapi.Flag{&ytapi.FlagChat},
+			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults},
 			Setup:       RegisterChatModeratorFormat,
 			Execute:     ListChatModerators,
 		},
 		&ytapi.Command{
 			Name:        "NewChatModerator",
 			Description: "Add chat moderator",
+			Required:    []*ytapi.Flag{&ytapi.FlagChat,&ytapi.FlagChannel},
 			Execute:     NewChatModerator,
 		},
 		&ytapi.Command{
@@ -119,16 +121,42 @@ func RegisterChatModeratorFormat(values *ytapi.Values, table *ytapi.Table) error
 // Return chat-id - lookup if video-id is provided instead
 
 func GetChatId(service *ytservice.Service, values *ytapi.Values) (string, error) {
+
 	// Return error if no chat parameter
 	if values.IsSet(&ytapi.FlagChat) == false {
 		return "", errors.New("Missing --chat parameter")
 	}
+
+	// Get value
+	value := values.GetString(&ytapi.FlagChat)
+
 	// Return ID if not of kind video
 	if values.IsKindOf(&ytapi.FlagChat,ytapi.FLAG_VIDEO) == false {
-		return values.GetString(&ytapi.FlagChat), nil
+		return value, nil
 	}
-	// Lookup chatId from videoId
-	return "", errors.New("TODO: Lookup chat-id")
+
+	// Set the call parameters
+	call := service.API.LiveBroadcasts.List("snippet")
+	call = call.Id(value)
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+		if values.IsSet(&ytapi.FlagChannel) {
+			call = call.OnBehalfOfContentOwnerChannel(values.GetString(&ytapi.FlagChannel))
+		}
+	}
+
+	response, err := call.Do()
+	if err != nil {
+		return "", err
+	}
+
+	if broadcasts := response.Items; len(broadcasts) != 1 {
+		return "", errors.New("Broadcast not found")
+	} else {
+		value = broadcasts[0].Snippet.LiveChatId
+	}
+
+	return value, nil
 }
 
 
@@ -206,19 +234,13 @@ func ListChatModerators(service *ytservice.Service, values *ytapi.Values, table 
 	if err != nil {
 		return err
 	}
-	//maxresults := values.GetUint(&ytapi.FlagMaxResults)
+	maxresults := values.GetUint(&ytapi.FlagMaxResults)
 
 	// create call
 	call := service.API.LiveChatModerators.List(chat,strings.Join(table.Parts(false), ","))
 
-	// execute
-	_, err = call.Do()
-	if err != nil {
-		return err
-	}
-
-	// Success
-	return nil
+	// Perform search, and return results
+	return ytapi.DoChatModeratorsList(call, table, int64(maxresults))
 }
 
 func NewChatModerator(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {

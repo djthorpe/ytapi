@@ -471,4 +471,45 @@ func DoChatMessagesList(call *youtube.LiveChatMessagesListCall, table *Table, ma
 }
 
 
+func DoChatModeratorsList(call *youtube.LiveChatModeratorsListCall, table *Table, maxresults int64) error {
+	var numresults int64 = 0
+	var nextPageToken string = ""
+
+	// Page through results
+	for {
+		// test to see if we have all the items we now need
+		if maxresults > 0 && numresults >= maxresults {
+			break
+		}
+
+		// determine how many items we should rerieve in this pass
+		var retrieveitems int64 = 0
+		if maxresults == 0 {
+			retrieveitems = int64(YouTubeMaxPagingResults)
+		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
+			retrieveitems = int64(YouTubeMaxPagingResults)
+		} else {
+			retrieveitems = (maxresults - numresults)
+		}
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		if err != nil {
+			return err
+		}
+		if err = table.Append(response.Items); err != nil {
+			return err
+		}
+		numresults += int64(len(response.Items))
+		nextPageToken = response.NextPageToken
+		if nextPageToken == "" || int64(len(response.Items)) < retrieveitems {
+			break
+		}
+	}
+
+	// Success
+	return nil
+}
+
+
+
+
 
