@@ -6,6 +6,7 @@ package ytcommands
 
 import (
 	"strings"
+	"errors"
 )
 
 import (
@@ -38,6 +39,23 @@ func RegisterLiveChatCommands() []*ytapi.Command {
 			Description: "Delete chat message",
 			Required:    []*ytapi.Flag{&ytapi.FlagChatMessage},
 			Execute:     DeleteChatMessage,
+		},
+		&ytapi.Command{
+			Name:        "ListChatModerators",
+			Description: "List chat moderators",
+			Required:    []*ytapi.Flag{&ytapi.FlagChat},
+			Setup:       RegisterChatModeratorFormat,
+			Execute:     ListChatModerators,
+		},
+		&ytapi.Command{
+			Name:        "NewChatModerator",
+			Description: "Add chat moderator",
+			Execute:     NewChatModerator,
+		},
+		&ytapi.Command{
+			Name:        "DeleteChatModerator",
+			Description: "Remove chat moderator",
+			Execute:     DeleteChatModerator,
 		},
 	}
 }
@@ -76,13 +94,54 @@ func RegisterChatMessageFormat(values *ytapi.Values, table *ytapi.Table) error {
 	return nil
 }
 
+func RegisterChatModeratorFormat(values *ytapi.Values, table *ytapi.Table) error {
+
+	table.RegisterPart("id", []*ytapi.Flag{
+		&ytapi.Flag{Name: "moderator", Path: "Id", Type: ytapi.FLAG_STRING},
+	})
+
+	table.RegisterPart("snippet", []*ytapi.Flag{
+		&ytapi.Flag{Name: "channel", Path: "Snippet/ModeratorDetails/ChannelId", Type: ytapi.FLAG_CHANNEL},
+		&ytapi.Flag{Name: "url", Path: "Snippet/ModeratorDetails/ChannelUrl", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "name", Path: "Snippet/ModeratorDetails/DisplayName", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "image", Path: "Snippet/ModeratorDetails/ProfileImageUrl", Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "chat", Path: "Snippet/LiveChatId", Type: ytapi.FLAG_STRING},
+	})
+
+	// set default columns
+	table.SetColumns([]string{ "moderator", "name" })
+
+	// success
+	return nil
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Return chat-id - lookup if video-id is provided instead
+
+func GetChatId(service *ytservice.Service, values *ytapi.Values) (string, error) {
+	// Return error if no chat parameter
+	if values.IsSet(&ytapi.FlagChat) == false {
+		return "", errors.New("Missing --chat parameter")
+	}
+	// Return ID if not of kind video
+	if values.IsKindOf(&ytapi.FlagChat,ytapi.FLAG_VIDEO) == false {
+		return values.GetString(&ytapi.FlagChat), nil
+	}
+	// Lookup chatId from videoId
+	return "", errors.New("TODO: Lookup chat-id")
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // ChatMessage methods
 
 func ListChatMessages(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
-	chat := values.GetString(&ytapi.FlagChat)
+	chat, err := GetChatId(service,values)
+	if err != nil {
+		return err
+	}
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
 
 	// create call
@@ -94,7 +153,10 @@ func ListChatMessages(service *ytservice.Service, values *ytapi.Values, table *y
 
 func InsertChatMessage(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 	// Get parameters
-	chat := values.GetString(&ytapi.FlagChat)
+	chat, err := GetChatId(service,values)
+	if err != nil {
+		return err
+	}
 	text := values.GetString(&ytapi.FlagChatText)
 
 	// create call
@@ -109,7 +171,7 @@ func InsertChatMessage(service *ytservice.Service, values *ytapi.Values, table *
 	})
 
 	// Insert chat message, return the message
-	_, err := call.Do()
+	_, err = call.Do()
 	if err != nil {
 		return err
 	}
@@ -133,6 +195,44 @@ func DeleteChatMessage(service *ytservice.Service, values *ytapi.Values, table *
 	// Success
 	return nil
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// ChatModerator methods
+
+func ListChatModerators(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Get parameters
+	chat, err := GetChatId(service,values)
+	if err != nil {
+		return err
+	}
+	//maxresults := values.GetUint(&ytapi.FlagMaxResults)
+
+	// create call
+	call := service.API.LiveChatModerators.List(chat,strings.Join(table.Parts(false), ","))
+
+	// execute
+	_, err = call.Do()
+	if err != nil {
+		return err
+	}
+
+	// Success
+	return nil
+}
+
+func NewChatModerator(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Success
+	return nil
+}
+
+func DeleteChatModerator(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// Success
+	return nil
+}
+
 
 
 

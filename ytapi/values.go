@@ -303,6 +303,60 @@ func (this *Values) IsSet(flag *Flag) bool {
 	return v.is_set
 }
 
+func (this *Values) IsKindOf(flag *Flag,kind int) bool {
+	if this.IsSet(flag) == false {
+		return false
+	}
+	value := this.GetString(flag)
+	switch(kind) {
+		case FLAG_VIDEO:
+			if _, err := flag.asVideo(value); err != nil {
+				return false
+			}
+		case FLAG_UINT:
+			if _, err := flag.asUint(value); err != nil {
+				return false
+			}
+		case FLAG_BOOL:
+			if _, err := flag.asBool(value); err != nil {
+				return false
+			}
+		case FLAG_ENUM:
+			if _, err := flag.asBool(value); err != nil {
+				return false
+			}
+		case FLAG_CHANNEL:
+			if _, err := flag.asChannel(value); err != nil {
+				return false
+			}
+		case FLAG_PLAYLIST:
+			if _, err := flag.asPlaylist(value); err != nil {
+				return false
+			}
+		case FLAG_LANGUAGE:
+			if _, err := flag.asLanguage(value); err != nil {
+				return false
+			}
+		case FLAG_REGION:
+			if _, err := flag.asRegion(value); err != nil {
+				return false
+			}
+		case FLAG_STREAM:
+			if _, err := flag.asStream(value); err != nil {
+				return false
+			}
+		case FLAG_CONTENTOWNER:
+			if _, err := flag.asContentOwner(value); err != nil {
+				return false
+			}
+		case FLAG_TIME:
+			if _, err := flag.asTime(value); err != nil {
+				return false
+			}
+	}
+	return true
+}
+
 func (this *Values) SetDefault(flag *Flag, value string) error {
 	v, exists := this.values[flag]
 	if exists == false {
