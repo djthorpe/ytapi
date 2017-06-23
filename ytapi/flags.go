@@ -168,6 +168,7 @@ var (
 	FlagAnalyticsIncludeSystem     = Flag{Name: "system", Description: "Include system managed reports", Type: FLAG_BOOL }
 )
 
+////////////////////////////////////////////////////////////////////////////////
 // Global variables
 var (
 
