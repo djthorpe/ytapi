@@ -292,33 +292,32 @@ func RegisterVideoRatingFormat(values *ytapi.Values, table *ytapi.Table) error {
 ////////////////////////////////////////////////////////////////////////////////
 // Return default playlists for a channel
 
-func DefaultPlaylistsForChannel(service *ytservice.Service, values *ytapi.Values) (*youtube.ChannelContentDetailsRelatedPlaylists,error) {
+func DefaultPlaylistsForChannel(service *ytservice.Service, values *ytapi.Values) (*youtube.ChannelContentDetailsRelatedPlaylists, error) {
 
-    // Obtain parameters
-    contentowner := values.GetString(&ytapi.FlagContentOwner)
-    channel := values.GetString(&ytapi.FlagChannel)
+	// Obtain parameters
+	contentowner := values.GetString(&ytapi.FlagContentOwner)
+	channel := values.GetString(&ytapi.FlagChannel)
 
-    // create call and set parameters
-    call := service.API.Channels.List("contentDetails")
-    if values.IsSet(&ytapi.FlagChannel) {
-        call = call.Id(channel)
-    } else {
-        call = call.Mine(true)
-    }
-    if service.ServiceAccount {
-        call = call.OnBehalfOfContentOwner(contentowner)
-    }
-    response, err := call.Do()
-    if err != nil {
-        return nil,err
-    }
-    if len(response.Items) != 1 {
-        return nil,errors.New("Unexpected number of channels returned")
-    }
+	// create call and set parameters
+	call := service.API.Channels.List("contentDetails")
+	if values.IsSet(&ytapi.FlagChannel) {
+		call = call.Id(channel)
+	} else {
+		call = call.Mine(true)
+	}
+	if service.ServiceAccount {
+		call = call.OnBehalfOfContentOwner(contentowner)
+	}
+	response, err := call.Do()
+	if err != nil {
+		return nil, err
+	}
+	if len(response.Items) != 1 {
+		return nil, errors.New("Unexpected number of channels returned")
+	}
 
-    return response.Items[0].ContentDetails.RelatedPlaylists,nil
+	return response.Items[0].ContentDetails.RelatedPlaylists, nil
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Videos
@@ -475,45 +474,45 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 			return errors.New("Category cannot be set when listing uploaded videos")
 		}
 
-        playlists,err := DefaultPlaylistsForChannel(service,values)
-        if err != nil {
-            return err
-        }
+		playlists, err := DefaultPlaylistsForChannel(service, values)
+		if err != nil {
+			return err
+		}
 
-        switch(filter) {
-            case "uploads":
-                if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist,playlists.Uploads); err != nil {
-                    return err
-                } else {
-                    values.Set(playlist)
-                }
-            case "likes":
-                if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist,playlists.Likes); err != nil {
-                    return err
-                } else {
-                    values.Set(playlist)
-                }
-            case "favorites":
-                if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist,playlists.Favorites); err != nil {
-                    return err
-                } else {
-                    values.Set(playlist)
-                }
-            case "watchhistory":
-                if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist,playlists.WatchHistory); err != nil {
-                    return err
-                } else {
-                    values.Set(playlist)
-                }
-            case "watchlater":
-                if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist,playlists.WatchLater); err != nil {
-                    return err
-                } else {
-                    values.Set(playlist)
-                }
-        }
+		switch filter {
+		case "uploads":
+			if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist, playlists.Uploads); err != nil {
+				return err
+			} else {
+				values.Set(playlist)
+			}
+		case "likes":
+			if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist, playlists.Likes); err != nil {
+				return err
+			} else {
+				values.Set(playlist)
+			}
+		case "favorites":
+			if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist, playlists.Favorites); err != nil {
+				return err
+			} else {
+				values.Set(playlist)
+			}
+		case "watchhistory":
+			if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist, playlists.WatchHistory); err != nil {
+				return err
+			} else {
+				values.Set(playlist)
+			}
+		case "watchlater":
+			if playlist, err := ytapi.NewValueWithString(&ytapi.FlagPlaylist, playlists.WatchLater); err != nil {
+				return err
+			} else {
+				values.Set(playlist)
+			}
+		}
 
-        return ListVideosForPlaylist(service,values,table)
+		return ListVideosForPlaylist(service, values, table)
 	}
 
 	// create call and set parameters

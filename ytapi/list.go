@@ -13,7 +13,7 @@ import (
 
 // Constants
 const (
-	YouTubeMaxPagingResults = 50
+	YouTubeMaxPagingResults         = 50
 	YouTubeMaxLiveChatPagingResults = 200
 )
 
@@ -316,7 +316,6 @@ func DoClaimsList(call *youtubepartner.ClaimsListCall, table *Table, maxresults 
 	return nil
 }
 
-
 func DoActivityList(call *youtube.ActivitiesListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""
@@ -354,7 +353,6 @@ func DoActivityList(call *youtube.ActivitiesListCall, table *Table, maxresults i
 	// Success
 	return nil
 }
-
 
 func DoCommentThreadsList(call *youtube.CommentThreadsListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
@@ -470,7 +468,6 @@ func DoChatMessagesList(call *youtube.LiveChatMessagesListCall, table *Table, ma
 	return nil
 }
 
-
 func DoChatModeratorsList(call *youtube.LiveChatModeratorsListCall, table *Table, maxresults int64) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""
@@ -508,8 +505,3 @@ func DoChatModeratorsList(call *youtube.LiveChatModeratorsListCall, table *Table
 	// Success
 	return nil
 }
-
-
-
-
-

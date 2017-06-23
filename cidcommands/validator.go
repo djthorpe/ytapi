@@ -9,9 +9,9 @@ import (
 )
 
 import (
+	"github.com/djthorpe/ytapi/youtubepartner/v1"
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
-	"github.com/djthorpe/ytapi/youtubepartner/v1"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ func ValidateMetadata(service *ytservice.Service, values *ytapi.Values, table *y
 	// TODO: assume UTF-8 for the moment, need to fix this not to assume that
 	call := service.PAPI.Validator.Validate(&youtubepartner.ValidateRequest{
 		UploaderName: values.GetString(&ytapi.FlagUploader),
-		Content: string(bytes),
+		Content:      string(bytes),
 	})
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 

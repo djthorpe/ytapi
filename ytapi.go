@@ -13,8 +13,8 @@ import (
 	"github.com/djthorpe/ytapi/cidcommands"
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytcommands"
-	"github.com/djthorpe/ytapi/ytservice"
 	"github.com/djthorpe/ytapi/ytreporting"
+	"github.com/djthorpe/ytapi/ytservice"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,6 @@ func main() {
 		&ytapi.RegisterFunction{Callback: cidcommands.RegisterReferenceCommands, Title: "Asset References"},
 		&ytapi.RegisterFunction{Callback: cidcommands.RegisterValidatorCommands, Title: "Validate Metadata"},
 		&ytapi.RegisterFunction{Callback: ytreporting.RegisterAnalyticsCommands, Title: "Reporting"},
-
 	})
 	if err != nil {
 		// Error occured in command setup

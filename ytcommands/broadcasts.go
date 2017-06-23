@@ -96,7 +96,7 @@ func RegisterBroadcastCommands() []*ytapi.Command {
 			Required: []*ytapi.Flag{
 				&ytapi.FlagTitle, &ytapi.FlagStartTime, &ytapi.FlagPrivacyStatus,
 			},
-			Setup:       RegisterBroadcastFormat,
+			Setup:   RegisterBroadcastFormat,
 			Execute: InsertBroadcast,
 		},
 		&ytapi.Command{

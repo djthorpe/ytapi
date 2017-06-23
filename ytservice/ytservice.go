@@ -112,7 +112,6 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 		return nil, NewError(ErrorInvalidClientSecrets, err)
 	}
 
-
 	// create the service object
 	this := new(Service)
 	this.API = service

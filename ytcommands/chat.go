@@ -5,8 +5,8 @@
 package ytcommands
 
 import (
-	"strings"
 	"errors"
+	"strings"
 )
 
 import (
@@ -31,7 +31,7 @@ func RegisterLiveChatCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "NewChatMessage",
 			Description: "Insert chat message",
-			Required:    []*ytapi.Flag{&ytapi.FlagChat,&ytapi.FlagChatText},
+			Required:    []*ytapi.Flag{&ytapi.FlagChat, &ytapi.FlagChatText},
 			Execute:     InsertChatMessage,
 		},
 		&ytapi.Command{
@@ -51,7 +51,7 @@ func RegisterLiveChatCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "NewChatModerator",
 			Description: "Add chat moderator",
-			Required:    []*ytapi.Flag{&ytapi.FlagChat,&ytapi.FlagChannel},
+			Required:    []*ytapi.Flag{&ytapi.FlagChat, &ytapi.FlagChannel},
 			Execute:     NewChatModerator,
 		},
 		&ytapi.Command{
@@ -90,7 +90,7 @@ func RegisterChatMessageFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{ "type", "author", "text", "published" })
+	table.SetColumns([]string{"type", "author", "text", "published"})
 
 	// success
 	return nil
@@ -111,7 +111,7 @@ func RegisterChatModeratorFormat(values *ytapi.Values, table *ytapi.Table) error
 	})
 
 	// set default columns
-	table.SetColumns([]string{ "moderator", "name" })
+	table.SetColumns([]string{"moderator", "name"})
 
 	// success
 	return nil
@@ -131,7 +131,7 @@ func GetChatId(service *ytservice.Service, values *ytapi.Values) (string, error)
 	value := values.GetString(&ytapi.FlagChat)
 
 	// Return ID if not of kind video
-	if values.IsKindOf(&ytapi.FlagChat,ytapi.FLAG_VIDEO) == false {
+	if values.IsKindOf(&ytapi.FlagChat, ytapi.FLAG_VIDEO) == false {
 		return value, nil
 	}
 
@@ -159,21 +159,20 @@ func GetChatId(service *ytservice.Service, values *ytapi.Values) (string, error)
 	return value, nil
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // ChatMessage methods
 
 func ListChatMessages(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
-	chat, err := GetChatId(service,values)
+	chat, err := GetChatId(service, values)
 	if err != nil {
 		return err
 	}
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
 
 	// create call
-	call := service.API.LiveChatMessages.List(chat,strings.Join(table.Parts(false), ","))
+	call := service.API.LiveChatMessages.List(chat, strings.Join(table.Parts(false), ","))
 
 	// Perform search, and return results
 	return ytapi.DoChatMessagesList(call, table, int64(maxresults))
@@ -181,17 +180,17 @@ func ListChatMessages(service *ytservice.Service, values *ytapi.Values, table *y
 
 func InsertChatMessage(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 	// Get parameters
-	chat, err := GetChatId(service,values)
+	chat, err := GetChatId(service, values)
 	if err != nil {
 		return err
 	}
 	text := values.GetString(&ytapi.FlagChatText)
 
 	// create call
-	call := service.API.LiveChatMessages.Insert("snippet",&youtube.LiveChatMessage{
+	call := service.API.LiveChatMessages.Insert("snippet", &youtube.LiveChatMessage{
 		Snippet: &youtube.LiveChatMessageSnippet{
 			LiveChatId: chat,
-			Type: "textMessageEvent",
+			Type:       "textMessageEvent",
 			TextMessageDetails: &youtube.LiveChatTextMessageDetails{
 				MessageText: text,
 			},
@@ -230,14 +229,14 @@ func DeleteChatMessage(service *ytservice.Service, values *ytapi.Values, table *
 func ListChatModerators(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Get parameters
-	chat, err := GetChatId(service,values)
+	chat, err := GetChatId(service, values)
 	if err != nil {
 		return err
 	}
 	maxresults := values.GetUint(&ytapi.FlagMaxResults)
 
 	// create call
-	call := service.API.LiveChatModerators.List(chat,strings.Join(table.Parts(false), ","))
+	call := service.API.LiveChatModerators.List(chat, strings.Join(table.Parts(false), ","))
 
 	// Perform search, and return results
 	return ytapi.DoChatModeratorsList(call, table, int64(maxresults))
@@ -247,13 +246,13 @@ func NewChatModerator(service *ytservice.Service, values *ytapi.Values, table *y
 
 	// Get parameters
 	channel := values.GetString(&ytapi.FlagChannel)
-	chat, err := GetChatId(service,values)
+	chat, err := GetChatId(service, values)
 	if err != nil {
 		return err
 	}
 
 	// create call
-	call := service.API.LiveChatModerators.Insert("id",&youtube.LiveChatModerator{
+	call := service.API.LiveChatModerators.Insert("id", &youtube.LiveChatModerator{
 		Snippet: &youtube.LiveChatModeratorSnippet{
 			ModeratorDetails: &youtube.ChannelProfileDetails{
 				ChannelId: channel,
@@ -277,8 +276,3 @@ func DeleteChatModerator(service *ytservice.Service, values *ytapi.Values, table
 	// Success
 	return nil
 }
-
-
-
-
-

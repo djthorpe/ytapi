@@ -36,8 +36,8 @@ func RegisterStreamCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "NewStream",
 			Description: "Create live stream",
-			Required:    []*ytapi.Flag{&ytapi.FlagTitle,&ytapi.FlagStreamResolution},
-			Optional:    []*ytapi.Flag{&ytapi.FlagDescription,&ytapi.FlagStreamType,&ytapi.FlagStreamReusable},
+			Required:    []*ytapi.Flag{&ytapi.FlagTitle, &ytapi.FlagStreamResolution},
+			Optional:    []*ytapi.Flag{&ytapi.FlagDescription, &ytapi.FlagStreamType, &ytapi.FlagStreamReusable},
 			Setup:       RegisterStreamFormat,
 			Execute:     InsertStream,
 		},
@@ -156,14 +156,14 @@ func InsertStream(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	// Create call, set parameters
 	call := service.API.LiveStreams.Insert("snippet,cdn,contentDetails", &youtube.LiveStream{
 		Snippet: &youtube.LiveStreamSnippet{
-			Title:              values.GetString(&ytapi.FlagTitle),
-			Description:        values.GetString(&ytapi.FlagDescription),
+			Title:       values.GetString(&ytapi.FlagTitle),
+			Description: values.GetString(&ytapi.FlagDescription),
 		},
 		Cdn: &youtube.CdnSettings{
-			Format: values.GetString(&ytapi.FlagStreamResolution),
+			Format:        values.GetString(&ytapi.FlagStreamResolution),
 			IngestionType: values.GetString(&ytapi.FlagStreamType),
 			ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
-				"format": &ytapi.FlagStreamResolution,
+				"format":        &ytapi.FlagStreamResolution,
 				"ingestionType": &ytapi.FlagStreamType,
 			}),
 		},

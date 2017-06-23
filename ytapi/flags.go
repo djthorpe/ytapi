@@ -120,16 +120,16 @@ var (
 	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|likes|favorites|uploads|watchhistory|watchlater", Default: "uploads"}
 	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT}
 	FlagVideoRating                = Flag{Name: "rating", Description: "Video Rating", Type: FLAG_ENUM, Extra: "like|dislike|none"}
-	FlagCommentThread              = Flag{Name: "thread", Description: "Comment Thread", Type: FLAG_STRING }
-	FlagCommentText                = Flag{Name: "text", Description: "Comment Text", Type: FLAG_STRING }
-	FlagCommentFormat              = Flag{Name: "format", Description: "Comment Format", Type: FLAG_ENUM, Extra: "plainText|html", Default: "plainText" }
+	FlagCommentThread              = Flag{Name: "thread", Description: "Comment Thread", Type: FLAG_STRING}
+	FlagCommentText                = Flag{Name: "text", Description: "Comment Text", Type: FLAG_STRING}
+	FlagCommentFormat              = Flag{Name: "format", Description: "Comment Format", Type: FLAG_ENUM, Extra: "plainText|html", Default: "plainText"}
 	FlagCommentOrder               = Flag{Name: "order", Description: "Comment order", Type: FLAG_ENUM, Extra: "time|relevance"}
-	FlagCommentModerationStatus	   = Flag{Name: "status", Description: "Comment moderation status", Type: FLAG_ENUM, Extra: "heldForReview|likelySpam|published"}
+	FlagCommentModerationStatus    = Flag{Name: "status", Description: "Comment moderation status", Type: FLAG_ENUM, Extra: "heldForReview|likelySpam|published"}
 	FlagCommentModerationStatus2   = Flag{Name: "status", Description: "Comment moderation status", Type: FLAG_ENUM, Extra: "heldForReview|published|rejected"}
-	FlagCommentBanAuthor   	       = Flag{Name: "ban", Description: "Ban comment author", Type: FLAG_BOOL}
-	FlagChat                       = Flag{Name: "chat", Description: "Live Chat or Broadcast ID", Type: FLAG_STRING }
-	FlagChatMessage                = Flag{Name: "message", Description: "Live Chat Message", Type: FLAG_STRING }
-	FlagChatText                   = Flag{Name: "text", Description: "Chat Text", Type: FLAG_STRING }
+	FlagCommentBanAuthor           = Flag{Name: "ban", Description: "Ban comment author", Type: FLAG_BOOL}
+	FlagChat                       = Flag{Name: "chat", Description: "Live Chat or Broadcast ID", Type: FLAG_STRING}
+	FlagChatMessage                = Flag{Name: "message", Description: "Live Chat Message", Type: FLAG_STRING}
+	FlagChatText                   = Flag{Name: "text", Description: "Chat Text", Type: FLAG_STRING}
 	FlagActivityHome               = Flag{Name: "home", Description: "Display Homepage Activity Feed", Type: FLAG_BOOL}
 	FlagPlaylistPosition           = Flag{Name: "position", Description: "Playlist position", Type: FLAG_UINT}
 	FlagPlaylistNote               = Flag{Name: "note", Description: "Playlist note", Type: FLAG_STRING}
@@ -157,15 +157,15 @@ var (
 	FlagAssetFilter                = Flag{Name: "filter", Description: "Retrieve computed asset information or my asset information", Type: FLAG_ENUM, Extra: "none|effective|mine", Default: "none"}
 	FlagUploader                   = Flag{Name: "uploader", Description: "Content Owner Uploader Name", Type: FLAG_STRING}
 	FlagStreamResolution           = Flag{Name: "resolution", Description: "Stream Resolution", Type: FLAG_ENUM, Extra: "2160p_hfr|2160p|1440p_hfr|1440p|1080p_hfr|1080p|720p_hfr|720p|480p|360p|240p", Default: "1080p"}
-	FlagStreamType                 = Flag{Name: "type", Description: "Stream Ingestion Type", Type: FLAG_ENUM, Extra: "rtmp|dash", Default: "rtmp" }
-	FlagStreamReusable             = Flag{Name: "reusable", Description: "Stream Reusable", Type: FLAG_BOOL }
-	FlagAnalyticsPeriod            = Flag{Name: "period", Description: "Time period", Type: FLAG_STRING, Default: "last28Days" }
-	FlagAnalyticsMetrics           = Flag{Name: "metrics", Description: "Analytics Metrics", Type: FLAG_STRING }
-	FlagAnalyticsDimensions        = Flag{Name: "dimensions", Description: "Analytics Dimensions", Type: FLAG_STRING }
-	FlagAnalyticsFilter            = Flag{Name: "filter", Description: "Analytics Filters", Type: FLAG_STRING }
-	FlagAnalyticsSort              = Flag{Name: "sort", Description: "Data sort order", Type: FLAG_STRING }
-	FlagAnalyticsCurrency          = Flag{Name: "currency", Description: "Reporting Currency", Type: FLAG_STRING }
-	FlagAnalyticsIncludeSystem     = Flag{Name: "system", Description: "Include system managed reports", Type: FLAG_BOOL }
+	FlagStreamType                 = Flag{Name: "type", Description: "Stream Ingestion Type", Type: FLAG_ENUM, Extra: "rtmp|dash", Default: "rtmp"}
+	FlagStreamReusable             = Flag{Name: "reusable", Description: "Stream Reusable", Type: FLAG_BOOL}
+	FlagAnalyticsPeriod            = Flag{Name: "period", Description: "Time period", Type: FLAG_STRING, Default: "last28Days"}
+	FlagAnalyticsMetrics           = Flag{Name: "metrics", Description: "Analytics Metrics", Type: FLAG_STRING}
+	FlagAnalyticsDimensions        = Flag{Name: "dimensions", Description: "Analytics Dimensions", Type: FLAG_STRING}
+	FlagAnalyticsFilter            = Flag{Name: "filter", Description: "Analytics Filters", Type: FLAG_STRING}
+	FlagAnalyticsSort              = Flag{Name: "sort", Description: "Data sort order", Type: FLAG_STRING}
+	FlagAnalyticsCurrency          = Flag{Name: "currency", Description: "Reporting Currency", Type: FLAG_STRING}
+	FlagAnalyticsIncludeSystem     = Flag{Name: "system", Description: "Include system managed reports", Type: FLAG_BOOL}
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -640,7 +640,6 @@ func (this *FlagSet) CloseOutput() error {
 	return nil
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Read input
 
@@ -650,11 +649,11 @@ func (this *FlagSet) ReadInput() error {
 	ext := filepath.Ext(input)
 	format := INPUT_CSV
 	switch {
-	case input=="csv" || input=="CSV":
+	case input == "csv" || input == "CSV":
 		input = "-"
-	case ext==".csv" || ext==".CSV":
+	case ext == ".csv" || ext == ".CSV":
 		format = INPUT_CSV
-	case input=="-":
+	case input == "-":
 		format = INPUT_CSV
 	default:
 		return errors.New("Invalid input format, only files with .csv extension supported")

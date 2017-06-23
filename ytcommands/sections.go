@@ -31,24 +31,24 @@ func RegisterChannelSectionCommands() []*ytapi.Command {
 			Name:        "NewChannelSection",
 			Description: "Create a new channel section",
 			Required:    []*ytapi.Flag{&ytapi.FlagSectionType},
-			Optional:    []*ytapi.Flag{
+			Optional: []*ytapi.Flag{
 				&ytapi.FlagSectionStyle, &ytapi.FlagLanguage, &ytapi.FlagTitle,
 				&ytapi.FlagSectionPosition, &ytapi.FlagPlaylist,
 			},
-			Setup:       RegisterChannelSectionFormat,
-			Execute:     NewChannelSection,
+			Setup:   RegisterChannelSectionFormat,
+			Execute: NewChannelSection,
 		},
 		&ytapi.Command{
 			Name:        "UpdateChannelSection",
 			Description: "Update channel section",
-			Required:    []*ytapi.Flag{
+			Required: []*ytapi.Flag{
 				&ytapi.FlagSectionPosition,
 			},
-			Optional:    []*ytapi.Flag{
+			Optional: []*ytapi.Flag{
 				&ytapi.FlagSectionStyle, &ytapi.FlagLanguage, &ytapi.FlagTitle,
 			},
-			Setup:       RegisterChannelSectionFormat,
-			Execute:     UpdateChannelSection,
+			Setup:   RegisterChannelSectionFormat,
+			Execute: UpdateChannelSection,
 		},
 		&ytapi.Command{
 			Name:        "DeleteChannelSection",
@@ -79,12 +79,12 @@ func RegisterChannelSectionFormat(values *ytapi.Values, table *ytapi.Table) erro
 	})
 
 	table.RegisterPart("contentDetails", []*ytapi.Flag{
-		&ytapi.Flag{ Name: "playlists", Type: ytapi.FLAG_STRING, Array: true },
-		&ytapi.Flag{ Name: "channels", Type: ytapi.FLAG_STRING, Array: true },
+		&ytapi.Flag{Name: "playlists", Type: ytapi.FLAG_STRING, Array: true},
+		&ytapi.Flag{Name: "channels", Type: ytapi.FLAG_STRING, Array: true},
 	})
 
 	// set default columns
-	table.SetColumns([]string{"position", "title", "style", "language", "playlists", "channels" })
+	table.SetColumns([]string{"position", "title", "style", "language", "playlists", "channels"})
 
 	// success
 	return nil
@@ -151,42 +151,42 @@ func ListChannelSections(service *ytservice.Service, values *ytapi.Values, table
 	}
 
 	// Fudge the title column where the type isn't multipleChannels or multiplePlaylists
-	for _,resource := range response.Items {
-		switch(resource.Snippet.Type) {
-			case "allPlaylists":
-				resource.Snippet.Title = "Playlists by [Channel Name]"
-			case "singlePlaylist":
-				resource.Snippet.Title = "[Single Playlist]"
-			case "likes":
-				resource.Snippet.Title = "Liked videos"
-			case "liveEvents":
-				resource.Snippet.Title = "Live Events"
-			case "completedEvents":
-				resource.Snippet.Title = "Completed Events"
-			case "upcomingEvents":
-				resource.Snippet.Title = "Upcoming Events"
-			case "likedPlaylists":
-				resource.Snippet.Title = "Saved playlists"
-			case "multipleChannels":
-				resource.Snippet.Title = resource.Snippet.Title
-			case "multiplePlaylists":
-				resource.Snippet.Title = resource.Snippet.Title
-			case "popularUploads":
-				resource.Snippet.Title = "Popular uploads"
-			case "postedPlaylists":
-				resource.Snippet.Title = "Posted playlists"
-			case "postedVideos":
-				resource.Snippet.Title = "Posted videos"
-			case "recentActivity":
-				resource.Snippet.Title = "Recent activities"
-			case "recentPosts":
-				resource.Snippet.Title = "Recent posts"
-			case "recentUploads":
-				resource.Snippet.Title = "Uploads"
-			case "subscriptions":
-				resource.Snippet.Title = "Subscriptions"
-			default:
-				resource.Snippet.Title = resource.Snippet.Type
+	for _, resource := range response.Items {
+		switch resource.Snippet.Type {
+		case "allPlaylists":
+			resource.Snippet.Title = "Playlists by [Channel Name]"
+		case "singlePlaylist":
+			resource.Snippet.Title = "[Single Playlist]"
+		case "likes":
+			resource.Snippet.Title = "Liked videos"
+		case "liveEvents":
+			resource.Snippet.Title = "Live Events"
+		case "completedEvents":
+			resource.Snippet.Title = "Completed Events"
+		case "upcomingEvents":
+			resource.Snippet.Title = "Upcoming Events"
+		case "likedPlaylists":
+			resource.Snippet.Title = "Saved playlists"
+		case "multipleChannels":
+			resource.Snippet.Title = resource.Snippet.Title
+		case "multiplePlaylists":
+			resource.Snippet.Title = resource.Snippet.Title
+		case "popularUploads":
+			resource.Snippet.Title = "Popular uploads"
+		case "postedPlaylists":
+			resource.Snippet.Title = "Posted playlists"
+		case "postedVideos":
+			resource.Snippet.Title = "Posted videos"
+		case "recentActivity":
+			resource.Snippet.Title = "Recent activities"
+		case "recentPosts":
+			resource.Snippet.Title = "Recent posts"
+		case "recentUploads":
+			resource.Snippet.Title = "Uploads"
+		case "subscriptions":
+			resource.Snippet.Title = "Subscriptions"
+		default:
+			resource.Snippet.Title = resource.Snippet.Type
 		}
 	}
 
@@ -230,7 +230,7 @@ func NewChannelSection(service *ytservice.Service, values *ytapi.Values, table *
 
 	// Single Playlist
 	if sectionType == "singlePlaylist" {
-		if values.IsSet(&ytapi.FlagPlaylist)==false {
+		if values.IsSet(&ytapi.FlagPlaylist) == false {
 			return errors.New("Required flag: playlist")
 		}
 		part = "snippet,contentDetails"
@@ -242,7 +242,7 @@ func NewChannelSection(service *ytservice.Service, values *ytapi.Values, table *
 	}
 
 	// create call and set parameters
-	call := service.API.ChannelSections.Insert(part,body)
+	call := service.API.ChannelSections.Insert(part, body)
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 		if values.IsSet(&ytapi.FlagChannel) {
@@ -286,7 +286,6 @@ func DeleteChannelSection(service *ytservice.Service, values *ytapi.Values, tabl
 	return ListChannelSections(service, values, table)
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Update Channel Section
 
@@ -303,4 +302,3 @@ func UpdateChannelSection(service *ytservice.Service, values *ytapi.Values, tabl
 	// success
 	return ListChannelSections(service, values, table)
 }
-

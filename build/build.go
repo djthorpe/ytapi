@@ -5,13 +5,13 @@
 package main
 
 import (
-	"encoding/json"
 	"encoding/base64"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"text/template"
-	"io/ioutil"
 )
 
 type Settings struct {
@@ -26,12 +26,12 @@ type Settings struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-func decodefile(filename string) (string,error) {
+func decodefile(filename string) (string, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return "",err
+		return "", err
 	}
-	return base64.StdEncoding.EncodeToString(data),nil
+	return base64.StdEncoding.EncodeToString(data), nil
 }
 
 func main() {
@@ -59,13 +59,13 @@ func main() {
 
 	// Convert Client Secret and Service Account
 	if settings.ClientSecret != "" {
-		if settings.ClientSecret,err = decodefile(settings.ClientSecret); err != nil {
+		if settings.ClientSecret, err = decodefile(settings.ClientSecret); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 	}
 	if settings.ServiceAccount != "" {
-		if settings.ServiceAccount,err = decodefile(settings.ServiceAccount); err != nil {
+		if settings.ServiceAccount, err = decodefile(settings.ServiceAccount); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}

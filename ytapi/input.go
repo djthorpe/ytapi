@@ -5,21 +5,21 @@
 package ytapi
 
 import (
+	"encoding/csv"
+	"errors"
+	"fmt"
 	"io"
 	"os"
-	"fmt"
 	"strings"
-	"errors"
-	"encoding/csv"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
 // TYPES
 
 type Input struct {
-	handle io.ReadCloser
-	format InputFormat
-	fields []string
+	handle  io.ReadCloser
+	format  InputFormat
+	fields  []string
 	records []map[string]string
 }
 
@@ -50,7 +50,7 @@ func NewInput() *Input {
 	this.handle = os.Stdin
 	this.format = INPUT_CSV
 	this.fields = nil
-	this.records = make([]map[string]string,0)
+	this.records = make([]map[string]string, 0)
 
 	// Success
 	return this
@@ -90,7 +90,7 @@ func (this *Input) ReadAll() error {
 		if fields == nil {
 			// If fields is empty, then we create the field names
 			fields = this.setFieldNames(record)
-		} else if err := this.append(fields,record); err != nil {
+		} else if err := this.append(fields, record); err != nil {
 			return err
 		}
 	}
@@ -102,33 +102,32 @@ func (this *Input) ReadAll() error {
 // PRIVATE METHODS
 
 func (this *Input) setFieldNames(fields []string) []string {
-	fieldNames := make([]string,len(fields))
+	fieldNames := make([]string, len(fields))
 	for i, field := range fields {
 		field = strings.TrimSpace(strings.ToLower(field))
-		field = strings.Replace(field," ","_",-1)
+		field = strings.Replace(field, " ", "_", -1)
 		fieldNames[i] = field
 	}
 	return fieldNames
 }
 
-func (this *Input) append(fields []string,record []string) error {
+func (this *Input) append(fields []string, record []string) error {
 	if len(fields) != len(record) {
 		return ErrFieldMismatch
 	}
-	fmt.Println(fields,"=>",record)
+	fmt.Println(fields, "=>", record)
 	return nil
 }
 
 func (this *Input) isComment(record []string) bool {
-	if len(record)==0 {
+	if len(record) == 0 {
 		return true
 	}
-	if strings.HasPrefix(record[0],"#") {
+	if strings.HasPrefix(record[0], "#") {
 		return true
 	}
-	if strings.HasPrefix(record[0],"//") {
+	if strings.HasPrefix(record[0], "//") {
 		return true
 	}
 	return false
 }
-

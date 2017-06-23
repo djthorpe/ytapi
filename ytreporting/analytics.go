@@ -9,9 +9,9 @@ import (
 )
 
 import (
-	"github.com/djthorpe/ytapi/ytapi"
-	"github.com/djthorpe/ytapi/ytservice"	
 	"github.com/djthorpe/ytapi/util"
+	"github.com/djthorpe/ytapi/ytapi"
+	"github.com/djthorpe/ytapi/ytservice"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,25 +22,25 @@ func RegisterAnalyticsCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "ChannelAnalytics",
 			Description: "Execute Channel Analytics Query",
-			Required:    []*ytapi.Flag{&ytapi.FlagAnalyticsMetrics,&ytapi.FlagAnalyticsPeriod},
-			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsDimensions,&ytapi.FlagAnalyticsFilter,&ytapi.FlagAnalyticsSort,&ytapi.FlagAnalyticsCurrency},
+			Required:    []*ytapi.Flag{&ytapi.FlagAnalyticsMetrics, &ytapi.FlagAnalyticsPeriod},
+			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsDimensions, &ytapi.FlagAnalyticsFilter, &ytapi.FlagAnalyticsSort, &ytapi.FlagAnalyticsCurrency},
 			Execute:     RunChannelAnalyticsQuery,
 		},
 		&ytapi.Command{
-			Name:        "ContentOwnerAnalytics",
-			Description: "Execute Content Owner Analytics Query",
+			Name:           "ContentOwnerAnalytics",
+			Description:    "Execute Content Owner Analytics Query",
 			ServiceAccount: true,
-			Required:    []*ytapi.Flag{&ytapi.FlagContentOwner,&ytapi.FlagAnalyticsMetrics,&ytapi.FlagAnalyticsPeriod},
-			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsDimensions,&ytapi.FlagAnalyticsFilter,&ytapi.FlagAnalyticsSort,&ytapi.FlagAnalyticsCurrency},
-			Execute:     RunContentOwnerAnalyticsQuery,
+			Required:       []*ytapi.Flag{&ytapi.FlagContentOwner, &ytapi.FlagAnalyticsMetrics, &ytapi.FlagAnalyticsPeriod},
+			Optional:       []*ytapi.Flag{&ytapi.FlagAnalyticsDimensions, &ytapi.FlagAnalyticsFilter, &ytapi.FlagAnalyticsSort, &ytapi.FlagAnalyticsCurrency},
+			Execute:        RunContentOwnerAnalyticsQuery,
 		},
 		&ytapi.Command{
-			Name:        "ListReportTypes",
-			Description: "List Report types",
+			Name:           "ListReportTypes",
+			Description:    "List Report types",
 			ServiceAccount: true,
-			Optional:    []*ytapi.Flag{&ytapi.FlagAnalyticsIncludeSystem},
-			Setup:       RegisterReportTypeFormat,
-			Execute:     ListReportTypes,
+			Optional:       []*ytapi.Flag{&ytapi.FlagAnalyticsIncludeSystem},
+			Setup:          RegisterReportTypeFormat,
+			Execute:        ListReportTypes,
 		},
 	}
 }
@@ -52,9 +52,10 @@ func getTimePeriod(value string) (string, string, error) {
 	if start_date, end_date, err := util.ParseDatePeriod(value); err != nil {
 		return "", "", err
 	} else {
-		return start_date.Format("2006-01-02"),end_date.Format("2006-01-02"),nil
+		return start_date.Format("2006-01-02"), end_date.Format("2006-01-02"), nil
 	}
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Register ReportType Format
 
@@ -88,7 +89,7 @@ func RunChannelAnalyticsQuery(service *ytservice.Service, values *ytapi.Values, 
 	}
 
 	// Create the call
-	call := service.AAPI.Reports.Query(channel,start_date,end_date,metrics)
+	call := service.AAPI.Reports.Query(channel, start_date, end_date, metrics)
 
 	/// Set parameters
 	if values.IsSet(&ytapi.FlagAnalyticsDimensions) {
@@ -110,43 +111,42 @@ func RunChannelAnalyticsQuery(service *ytservice.Service, values *ytapi.Values, 
 		return err
 	}
 
-    // Make parts for columns
-    parts := make(map[string][]*ytapi.Flag)
-    keys := make([]string,0)
-    columns := make([]string,0)
-    for _, column := range response.ColumnHeaders {
-        var flags []*ytapi.Flag
+	// Make parts for columns
+	parts := make(map[string][]*ytapi.Flag)
+	keys := make([]string, 0)
+	columns := make([]string, 0)
+	for _, column := range response.ColumnHeaders {
+		var flags []*ytapi.Flag
 
-        // retrieve the flags for this column type
-        flags,exists := parts[column.ColumnType]
-        if exists == false {
-            flags = make([]*ytapi.Flag,0)
-            parts[column.ColumnType] = flags
-            keys = append(keys,column.ColumnType)
-        }
+		// retrieve the flags for this column type
+		flags, exists := parts[column.ColumnType]
+		if exists == false {
+			flags = make([]*ytapi.Flag, 0)
+			parts[column.ColumnType] = flags
+			keys = append(keys, column.ColumnType)
+		}
 
-        // append the flags and column names
-        parts[column.ColumnType] = append(parts[column.ColumnType],&ytapi.Flag{ Name: column.Name, Type: ytapi.FLAG_STRING })
-        columns = append(columns,column.Name)
-    }
+		// append the flags and column names
+		parts[column.ColumnType] = append(parts[column.ColumnType], &ytapi.Flag{Name: column.Name, Type: ytapi.FLAG_STRING})
+		columns = append(columns, column.Name)
+	}
 
-    // Register table columns
-    for _, key := range keys {
-        table.RegisterPart(key,parts[key])
-    }
-    table.SetColumns(columns)
+	// Register table columns
+	for _, key := range keys {
+		table.RegisterPart(key, parts[key])
+	}
+	table.SetColumns(columns)
 
-    // Append columns
-    if err = table.Append(response.Rows); err != nil {
-        return err
-    }
+	// Append columns
+	if err = table.Append(response.Rows); err != nil {
+		return err
+	}
 
 	// success
 	return nil
 }
 
 func RunContentOwnerAnalyticsQuery(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-
 
 	// Get parameters
 	if values.IsSet(&ytapi.FlagContentOwner) == false {
@@ -159,7 +159,7 @@ func RunContentOwnerAnalyticsQuery(service *ytservice.Service, values *ytapi.Val
 	}
 
 	// Create the call
-	call := service.AAPI.Reports.Query(content_owner,start_date,end_date,values.GetString(&ytapi.FlagAnalyticsMetrics))
+	call := service.AAPI.Reports.Query(content_owner, start_date, end_date, values.GetString(&ytapi.FlagAnalyticsMetrics))
 
 	/// Set parameters
 	if values.IsSet(&ytapi.FlagAnalyticsDimensions) {
@@ -181,36 +181,36 @@ func RunContentOwnerAnalyticsQuery(service *ytservice.Service, values *ytapi.Val
 		return err
 	}
 
-    // Make parts for columns
-    parts := make(map[string][]*ytapi.Flag)
-    keys := make([]string,0)
-    columns := make([]string,0)
-    for _, column := range response.ColumnHeaders {
-        var flags []*ytapi.Flag
+	// Make parts for columns
+	parts := make(map[string][]*ytapi.Flag)
+	keys := make([]string, 0)
+	columns := make([]string, 0)
+	for _, column := range response.ColumnHeaders {
+		var flags []*ytapi.Flag
 
-        // retrieve the flags for this column type
-        flags,exists := parts[column.ColumnType]
-        if exists == false {
-            flags = make([]*ytapi.Flag,0)
-            parts[column.ColumnType] = flags
-            keys = append(keys,column.ColumnType)
-        }
+		// retrieve the flags for this column type
+		flags, exists := parts[column.ColumnType]
+		if exists == false {
+			flags = make([]*ytapi.Flag, 0)
+			parts[column.ColumnType] = flags
+			keys = append(keys, column.ColumnType)
+		}
 
-        // append the flags and column names
-        parts[column.ColumnType] = append(parts[column.ColumnType],&ytapi.Flag{ Name: column.Name, Type: ytapi.FLAG_STRING })
-        columns = append(columns,column.Name)
-    }
+		// append the flags and column names
+		parts[column.ColumnType] = append(parts[column.ColumnType], &ytapi.Flag{Name: column.Name, Type: ytapi.FLAG_STRING})
+		columns = append(columns, column.Name)
+	}
 
-    // Register table columns
-    for _, key := range keys {
-        table.RegisterPart(key,parts[key])
-    }
-    table.SetColumns(columns)
+	// Register table columns
+	for _, key := range keys {
+		table.RegisterPart(key, parts[key])
+	}
+	table.SetColumns(columns)
 
-    // Append columns
-    if err = table.Append(response.Rows); err != nil {
-        return err
-    }
+	// Append columns
+	if err = table.Append(response.Rows); err != nil {
+		return err
+	}
 
 	// success
 	return nil
@@ -239,8 +239,3 @@ func ListReportTypes(service *ytservice.Service, values *ytapi.Values, table *yt
 	// success
 	return nil
 }
-
-
-
-
-

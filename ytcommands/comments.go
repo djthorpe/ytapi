@@ -5,8 +5,8 @@
 package ytcommands
 
 import (
-	"strings"
 	"errors"
+	"strings"
 )
 
 import (
@@ -24,7 +24,7 @@ func RegisterCommentsCommands() []*ytapi.Command {
 			Name:        "ListVideoCommentThreads",
 			Description: "List comment threads for a video",
 			Required:    []*ytapi.Flag{&ytapi.FlagVideo},
-			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults,&ytapi.FlagCommentFormat,&ytapi.FlagCommentModerationStatus,&ytapi.FlagCommentOrder,&ytapi.FlagSearchQuery},
+			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults, &ytapi.FlagCommentFormat, &ytapi.FlagCommentModerationStatus, &ytapi.FlagCommentOrder, &ytapi.FlagSearchQuery},
 			Setup:       RegisterCommentThreadFormat,
 			Execute:     ListVideoCommentThreads,
 		},
@@ -32,7 +32,7 @@ func RegisterCommentsCommands() []*ytapi.Command {
 			Name:        "ListChannelCommentThreads",
 			Description: "List comment threads for a channel",
 			Required:    []*ytapi.Flag{&ytapi.FlagChannel},
-			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults,&ytapi.FlagCommentFormat,&ytapi.FlagCommentModerationStatus,&ytapi.FlagCommentOrder,&ytapi.FlagSearchQuery},
+			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults, &ytapi.FlagCommentFormat, &ytapi.FlagCommentModerationStatus, &ytapi.FlagCommentOrder, &ytapi.FlagSearchQuery},
 			Setup:       RegisterCommentThreadFormat,
 			Execute:     ListChannelCommentThreads,
 		},
@@ -40,14 +40,14 @@ func RegisterCommentsCommands() []*ytapi.Command {
 			Name:        "ListComments",
 			Description: "List comments for a thread",
 			Required:    []*ytapi.Flag{&ytapi.FlagCommentThread},
-			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults,&ytapi.FlagCommentFormat},
+			Optional:    []*ytapi.Flag{&ytapi.FlagMaxResults, &ytapi.FlagCommentFormat},
 			Setup:       RegisterCommentFormat,
 			Execute:     ListCommentsForThread,
 		},
 		&ytapi.Command{
 			Name:        "NewComment",
 			Description: "Add comment to thread",
-			Required:    []*ytapi.Flag{&ytapi.FlagCommentThread,&ytapi.FlagCommentText},
+			Required:    []*ytapi.Flag{&ytapi.FlagCommentThread, &ytapi.FlagCommentText},
 			Setup:       RegisterCommentFormat,
 			Execute:     InsertCommentForThread,
 		},
@@ -67,7 +67,7 @@ func RegisterCommentsCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "SetCommentModerationStatus",
 			Description: "Sets the moderation status of a comment",
-			Required:    []*ytapi.Flag{&ytapi.FlagCommentThread,&ytapi.FlagCommentModerationStatus2},
+			Required:    []*ytapi.Flag{&ytapi.FlagCommentThread, &ytapi.FlagCommentModerationStatus2},
 			Optional:    []*ytapi.Flag{&ytapi.FlagCommentBanAuthor},
 			Setup:       RegisterCommentFormat,
 			Execute:     SetCommentModerationStatus,
@@ -103,7 +103,7 @@ func RegisterCommentThreadFormat(values *ytapi.Values, table *ytapi.Table) error
 	})
 
 	// set default columns
-	table.SetColumns([]string{ "thread",  "public", "author", "text", "published", "reply_count", "can_reply" })
+	table.SetColumns([]string{"thread", "public", "author", "text", "published", "reply_count", "can_reply"})
 
 	// success
 	return nil
@@ -132,12 +132,11 @@ func RegisterCommentFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{ "thread", "author", "text", "like_count", "published" })
+	table.SetColumns([]string{"thread", "author", "text", "like_count", "published"})
 
 	// success
 	return nil
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Comment Threads
@@ -245,7 +244,7 @@ func SetCommentModerationStatus(service *ytservice.Service, values *ytapi.Values
 	// create call
 	thread := values.GetString(&ytapi.FlagCommentThread)
 	moderation_status := values.GetString(&ytapi.FlagCommentModerationStatus2)
-	call := service.API.Comments.SetModerationStatus(thread,moderation_status)
+	call := service.API.Comments.SetModerationStatus(thread, moderation_status)
 
 	// Set ban flag
 	if values.IsSet(&ytapi.FlagCommentBanAuthor) {
@@ -267,10 +266,10 @@ func SetCommentModerationStatus(service *ytservice.Service, values *ytapi.Values
 func InsertCommentForThread(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// create call
-	call := service.API.Comments.Insert("snippet",&youtube.Comment{
+	call := service.API.Comments.Insert("snippet", &youtube.Comment{
 		Snippet: &youtube.CommentSnippet{
 			TextOriginal: values.GetString(&ytapi.FlagCommentText),
-			ParentId: values.GetString(&ytapi.FlagCommentThread),
+			ParentId:     values.GetString(&ytapi.FlagCommentThread),
 		},
 	})
 
@@ -298,11 +297,3 @@ func DeleteComment(service *ytservice.Service, values *ytapi.Values, table *ytap
 
 	return nil
 }
-
-
-
-
-
-
-
-

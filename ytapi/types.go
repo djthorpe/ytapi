@@ -123,7 +123,7 @@ func (this *Flag) asStream(value string) (string, error) {
 		return value, nil
 	}
 
-	return "", errors.New(fmt.Sprintf("Malformed stream value: %v",value))
+	return "", errors.New(fmt.Sprintf("Malformed stream value: %v", value))
 }
 
 func (this *Flag) asContentOwner(value string) (string, error) {

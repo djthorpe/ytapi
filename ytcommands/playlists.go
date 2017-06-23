@@ -72,7 +72,7 @@ func RegisterPlaylistCommands() []*ytapi.Command {
 			Required:    []*ytapi.Flag{&ytapi.FlagPlaylist, &ytapi.FlagVideo},
 			Setup:       RegisterPlaylistItemFormat,
 			Execute:     DeletePlaylistVideo,
-		},		
+		},
 	}
 }
 

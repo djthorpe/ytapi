@@ -72,7 +72,7 @@ func RegisterChannelCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "ListActivities",
 			Description: "List Channel Activities",
-			Optional:    []*ytapi.Flag{&ytapi.FlagRegion,&ytapi.FlagActivityHome,&ytapi.FlagMaxResults},
+			Optional:    []*ytapi.Flag{&ytapi.FlagRegion, &ytapi.FlagActivityHome, &ytapi.FlagMaxResults},
 			Setup:       RegisterActivityFormat,
 			Execute:     ListActivities,
 		},
@@ -168,16 +168,16 @@ func RegisterActivityFormat(values *ytapi.Values, table *ytapi.Table) error {
 
 	table.RegisterPart("snippet", []*ytapi.Flag{
 		&ytapi.Flag{Name: "title", Type: ytapi.FLAG_STRING},
-		&ytapi.Flag{Name: "description",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "description", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "publishedAt", Path: "Snippet/PublishedAt", Type: ytapi.FLAG_TIME},
 		&ytapi.Flag{Name: "channel", Path: "Snippet/ChannelId", Type: ytapi.FLAG_CHANNEL},
-		&ytapi.Flag{Name: "type",  Type: ytapi.FLAG_STRING},
+		&ytapi.Flag{Name: "type", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "group", Path: "Snippet/GroupId", Type: ytapi.FLAG_STRING},
 		&ytapi.Flag{Name: "channelTitle", Type: ytapi.FLAG_STRING},
 	})
 
 	// set default columns
-	table.SetColumns([]string{"type", "title", "publishedAt" })
+	table.SetColumns([]string{"type", "title", "publishedAt"})
 
 	// success
 	return nil
@@ -484,7 +484,6 @@ func DeleteLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	return GetLocalizedChannelMetadata(service, values, table)
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Activities & Bulletins
 
@@ -503,7 +502,7 @@ func ListActivities(service *ytservice.Service, values *ytapi.Values, table *yta
 	if values.IsSet(&ytapi.FlagActivityHome) {
 		call = call.Home(values.GetBool(&ytapi.FlagActivityHome))
 	} else {
-			call = call.Mine(true)
+		call = call.Mine(true)
 	}
 
 	// Set Region
@@ -518,7 +517,7 @@ func ListActivities(service *ytservice.Service, values *ytapi.Values, table *yta
 func PostBulletin(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// create call
-	call := service.API.Activities.Insert("snippet",&youtube.Activity{
+	call := service.API.Activities.Insert("snippet", &youtube.Activity{
 		Snippet: &youtube.ActivitySnippet{
 			Description: values.GetString(&ytapi.FlagDescription),
 		},
@@ -526,7 +525,7 @@ func PostBulletin(service *ytservice.Service, values *ytapi.Values, table *ytapi
 
 	// TODO: Add --video as content Detils resource
 
-	_,err := call.Do()
+	_, err := call.Do()
 	if err != nil {
 		return err
 	}
@@ -536,4 +535,3 @@ func PostBulletin(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	// success
 	return nil
 }
-

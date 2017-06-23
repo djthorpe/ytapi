@@ -234,26 +234,25 @@ func (this *Table) Append(items interface{}) error {
 		return errors.New(fmt.Sprint("Append expects array type, got ", arrayType.Kind()))
 	}
 	for i := 0; i < arrayType.Len(); i++ {
-        item := arrayType.Index(i)
-        if item.Kind() == reflect.Ptr {
-            item = item.Elem()
-        }
-        if item.Kind() == reflect.Struct {
-            if err := this.appendStructItem(item); err != nil {
-                return err
-            }
-        } else if item.Kind() == reflect.Array || item.Kind() == reflect.Slice {
-            if err := this.appendArrayItem(item); err != nil {
-                return err
-            }
-        } else {
-            return errors.New(fmt.Sprint("ytapi.Append expects array, slice or struct type, got ", item.Kind()))
-        }
+		item := arrayType.Index(i)
+		if item.Kind() == reflect.Ptr {
+			item = item.Elem()
+		}
+		if item.Kind() == reflect.Struct {
+			if err := this.appendStructItem(item); err != nil {
+				return err
+			}
+		} else if item.Kind() == reflect.Array || item.Kind() == reflect.Slice {
+			if err := this.appendArrayItem(item); err != nil {
+				return err
+			}
+		} else {
+			return errors.New(fmt.Sprint("ytapi.Append expects array, slice or struct type, got ", item.Kind()))
+		}
 	}
 	// success
 	return nil
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Output methods
@@ -345,14 +344,13 @@ func valueForPath(item reflect.Value, field *Flag, path []string) (*Value, error
 }
 
 func valueForIndex(item reflect.Value, field *Flag, index int) (*Value, error) {
-    value := item.Index(index)
-    if value.Kind() == reflect.Interface {
-        return NewValue(field,value.Elem())
-    } else {
-        return NewValue(field,value)
-    }
+	value := item.Index(index)
+	if value.Kind() == reflect.Interface {
+		return NewValue(field, value.Elem())
+	} else {
+		return NewValue(field, value)
+	}
 }
-
 
 func (this *Table) appendStructItem(item reflect.Value) error {
 	// get a new row
@@ -360,11 +358,11 @@ func (this *Table) appendStructItem(item reflect.Value) error {
 
 	// set row elements
 	for _, key := range this.colkey {
-        if field, exists := this.fields[key]; exists == false {
+		if field, exists := this.fields[key]; exists == false {
 			return errors.New(fmt.Sprint("Missing column: '", key, "'"))
 		} else if path, exists := this.paths[key]; exists == false {
 			return errors.New(fmt.Sprint("Missing column: '", key, "'"))
-        } else if value, err := valueForPath(item, field, path); err != nil {
+		} else if value, err := valueForPath(item, field, path); err != nil {
 			return err
 		} else if value != nil {
 			row.Set(value)
@@ -375,23 +373,21 @@ func (this *Table) appendStructItem(item reflect.Value) error {
 	return nil
 }
 
-
 func (this *Table) appendArrayItem(item reflect.Value) error {
-    // get a new row
-    row := this.NewRow()
+	// get a new row
+	row := this.NewRow()
 
-    // set row elements
-    for i, key := range this.colkey {
-        if field, exists := this.fields[key]; exists == false {
-            return errors.New(fmt.Sprint("Missing column: '", key, "'"))
-        } else if value, err := valueForIndex(item, field, i); err != nil {
-            return err
-        } else if value != nil {
-            row.Set(value)
-        }
-    }
+	// set row elements
+	for i, key := range this.colkey {
+		if field, exists := this.fields[key]; exists == false {
+			return errors.New(fmt.Sprint("Missing column: '", key, "'"))
+		} else if value, err := valueForIndex(item, field, i); err != nil {
+			return err
+		} else if value != nil {
+			row.Set(value)
+		}
+	}
 
-    // success
-    return nil
+	// success
+	return nil
 }
-

@@ -9,9 +9,9 @@ import (
 )
 
 import (
+	"github.com/djthorpe/ytapi/youtubepartner/v1"
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
-	"github.com/djthorpe/ytapi/youtubepartner/v1"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ func RegisterCuepointsCommands() []*ytapi.Command {
 			Description:    "Inserts a cuepoint into a live broadcast",
 			ServiceAccount: true,
 			Required:       []*ytapi.Flag{&ytapi.FlagVideo},
-			Optional:       []*ytapi.Flag{&ytapi.FlagCuepointOffset,&ytapi.FlagCuepointDuration,&ytapi.FlagCuepointTime},
+			Optional:       []*ytapi.Flag{&ytapi.FlagCuepointOffset, &ytapi.FlagCuepointDuration, &ytapi.FlagCuepointTime},
 			Setup:          RegisterCuepointFormat,
 			Execute:        InsertCuepoint,
 		},
@@ -50,14 +50,11 @@ func RegisterCuepointFormat(values *ytapi.Values, table *ytapi.Table) error {
 	})
 
 	// set default columns
-	table.SetColumns([]string{ "id", "video", "type", "duration_secs" })
+	table.SetColumns([]string{"id", "video", "type", "duration_secs"})
 
 	// success
 	return nil
 }
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // List Content Owners
@@ -67,25 +64,23 @@ func InsertCuepoint(service *ytservice.Service, values *ytapi.Values, table *yta
 	if values.IsSet(&ytapi.FlagChannel) == false {
 		return errors.New("Missing channel value")
 	}
-	call := service.PAPI.LiveCuepoints.Insert(values.GetString(&ytapi.FlagChannel),&youtubepartner.LiveCuepoint{
+	call := service.PAPI.LiveCuepoints.Insert(values.GetString(&ytapi.FlagChannel), &youtubepartner.LiveCuepoint{
 		BroadcastId: values.GetString(&ytapi.FlagVideo),
 		Settings: &youtubepartner.CuepointSettings{
-			CueType: "ad",
+			CueType:      "ad",
 			OffsetTimeMs: values.GetInt(&ytapi.FlagCuepointOffset),
-			Walltime: values.GetTimeInISOFormat(&ytapi.FlagCuepointTime),
+			Walltime:     values.GetTimeInISOFormat(&ytapi.FlagCuepointTime),
 			DurationSecs: values.GetInt(&ytapi.FlagCuepointDuration),
 		},
 	})
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
-
 	response, err := call.Do()
 	if err != nil {
 		return err
 	}
-	if err = table.Append([]*youtubepartner.LiveCuepoint{ response }); err != nil {
+	if err = table.Append([]*youtubepartner.LiveCuepoint{response}); err != nil {
 		return err
 	}
 	return nil
 }
-
