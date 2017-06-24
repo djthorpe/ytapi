@@ -13,7 +13,7 @@ in a number of forms (text, CSV). You can distribute the binary widely and it
 will use the authentication credentials you specify when building your binary 
 package.
 
-Future versions of the tool nay also:
+Future versions of the tool may also:
 
   * Output SQL & JSON as well as CSV
   * Allow batch input of information
