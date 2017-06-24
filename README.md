@@ -151,6 +151,8 @@ In order to gain other permissions, use the `-scope` flag. For example,
 
 Here is the list of scopes of operation:
 
+| Scope  | Permissions |
+| ------ | ----------- |
 | data | Manage YouTube channel account |
 | dataread | Read-only access to YouTube channel account |
 | upload | Ability to upload to YouTube channel account |
