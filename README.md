@@ -1,6 +1,25 @@
 
 # ytapi: YouTube API Command-Line Interface
 
+## Introduction
+
+This command-line utility operates on the YouTube API's in 
+order to list, update, delete and search various YouTube objects (for example,
+channels, videos, playlists, live streams, analytics reports, claims, assets,
+policies....)
+
+It implements most of the API calls and allows you to tailor the resulting data 
+in a number of forms (text, CSV). You can distribute the binary widely and it 
+will use the authentication credentials you specify when building your binary 
+package.
+
+Future versions of the tool nay also:
+
+  * Output SQL & JSON as well as CSV
+  * Allow batch input of information
+
+## Usage
+
 Usage:
   * `ytapi <flags> <call>` Execute an API call
 
@@ -21,20 +40,6 @@ The following commands affect the input and output of data:
   * `-out=(<filename>.)<csv|ascii>` Output format for displaying results 
   * `-fields=(+|-)(<field|part>),...` Which fields to include or exclude in output
 
-## Introduction
-
-This command-line utility operates on the YouTube Data API and Partner API in 
-order to list, update, delete and search various YouTube objects. 
-It implements most of the API calls and allows you to tailor the resulting data 
-in a number of forms (text, CSV). You can distribute the binary widely and it 
-will use the authentication credentials you specify when building your binary 
-package.
-
-Future versions of the tool will also:
-
-  * Output SQL & JSON as well as CSV
-  * Allow batch input of information
-
 ## A note on authentication credentials
 
 The software allows you to authenticate in two ways against YouTube to read,
@@ -51,8 +56,10 @@ create, modify and delete information on YouTube:
    YouTube Data API. It requires installation of service account credentials
    which can be downloaded from the Google Developers Console
    
-In either case, you will need to enable the YouTube Data API and YouTube Partner
-API in your project, also accessible through the Google Developers Console.
+In either case, you will need to enable the YouTube API's in your project, 
+also accessible through the Google Developers Console. If using service
+accounts, you will also need to add the service account email to your YouTube
+Content ID user access list.
 
 ## Building the tool
 
@@ -68,7 +75,7 @@ If you have git and go installed, you can then build the software as follows:
   ytapi% build/build.sh
 ```
 
-In some cases, you might want to distribute your binary tool with credentials
+In most cases, you might want to distribute your binary tool with credentials
 "baked in" so that your users can start using the tool without going through
 additional installation steps. In order to "bake in" credentials for client 
 secrets and service accounts, you can specify the location of those files on 
@@ -98,7 +105,7 @@ time, they can use the "Install" command to create the local credentials. For ex
 
 ```
   home% ytapi Install
-  home% ytapi SearchVideos
+  home% ytapi ListVideos
 ```
 
 If you wish to have several different sets of credentials, you can use the
@@ -107,11 +114,12 @@ you can select a different set of credentials as follows:
 
 ```
   home% ytapi -credentials=.ytapi2 Install
-  home% ytapi -credentials=.ytapi2 SearchVideos
+  home% ytapi -credentials=.ytapi2 ListVideos
 ```
 
-The `Authenticate` command will refresh the OAuth or Service Account information.
-In order to authenticate against a YouTube channel, use the following form:
+The `Authenticate` command will refresh the OAuth or Service Account tokens
+and allow you to set required scopes of operation. In order to authenticate
+against a YouTube channel, use the following form:
 
 ```
   home% ytapi Authenticate
@@ -121,7 +129,7 @@ To authenticate using service account credentials against a named content
 owner, use the following form:
 
 ```
-  home% ytapi -contentowner=<contentowner> Authenticate
+  home% ytapi -contentowner=<contentowner> -serviceaccount Authenticate
 ```
 
 This will display a list of channels which the content owner manages. Subsequent
@@ -133,7 +141,26 @@ a default channel when using service accounts:
   home% ytapi -contentowner=<contentowner> -channel=<channel> Authenticate
 ```
 
-This sets the default channel on which to operate YouTube Data API calls.
+This sets the default channel on which to operate YouTube API calls. By default,
+authentication will set the scopes (or "permissions") of operation to the Data API.
+In order to gain other permissions, use the `-scope` flag. For example,
+
+```
+  home% ytapi -contentowner=<contentowner> -scope=data,partner Authenticate
+```
+
+Here is the list of scopes of operation:
+
+data | Manage YouTube channel account
+dataread | Read-only access to YouTube channel account
+upload | Ability to upload to YouTube channel account
+partner | Manage YouTube partner account
+audit | View private information of your YouTube channel relevant during the audit process with a YouTube partner
+analytics | Access YouTube analytics
+revenue | Access YouTube analytics revenue data
+all | All YouTube permissions
+
+By default, the scope set is only "data"
 
 ## Parameters to make API calls
 

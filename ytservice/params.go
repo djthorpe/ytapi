@@ -31,7 +31,7 @@ const (
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Flag
+// Flag represents a parameter name and type
 type Flag struct {
 	Name  string
 	Type  uint32
@@ -59,13 +59,13 @@ type Params struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Returns a new Params object
+// NewParams returns a new Params object
 func NewParams() *Params {
 	this := new(Params)
 	return this
 }
 
-// Returns a params object from a JSON file
+// NewParamsFromJSON returns a params object from a JSON file
 func NewParamsFromJSON(filename string) (*Params, error) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -136,7 +136,7 @@ func (this *Params) isIgnoreFlag(name string) bool {
 	return false
 }
 
-// Check parameters
+// CheckFlags checks all parameters
 func (this *Params) CheckFlags(command string) error {
 	var err error
 
@@ -171,6 +171,7 @@ func (this *Params) CheckFlags(command string) error {
 	return nil
 }
 
+// Commands returns the list of command names
 func (this *Params) Commands() []string {
 	return this.commands
 }
@@ -181,7 +182,7 @@ func (this *Params) Flags(command string) map[string]Flag {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Makes a copy of the object
+// Copy nakes a copy of the object
 func (this *Params) Copy() *Params {
 	copy := NewParams()
 	copy.MaxResults = this.MaxResults

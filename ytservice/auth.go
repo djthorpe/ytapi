@@ -1,3 +1,4 @@
+// Package ytservice encapsulates all the YouTube API services
 /*
   Copyright David Thorpe 2015-2016 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
@@ -58,7 +59,7 @@ func saveToken(filename string, token *oauth2.Token) error {
 }
 
 // Creates a webserver for user interaction with Google
-func tokenFromWeb(config *oauth2.Config, ctx context.Context) (*oauth2.Token, error) {
+func tokenFromWeb(ctx context.Context, config *oauth2.Config) (*oauth2.Token, error) {
 	ch := make(chan string)
 	randState := fmt.Sprintf("st%d", time.Now().UnixNano())
 	ts := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {

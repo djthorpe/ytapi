@@ -93,7 +93,7 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 	// Attempt to get token from cache
 	token, err := tokenFromFile(tokencache)
 	if err != nil {
-		token, err = tokenFromWeb(config, ctx)
+		token, err = tokenFromWeb(ctx, config)
 		if err != nil {
 			return nil, err
 		}
