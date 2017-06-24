@@ -19,13 +19,20 @@ import (
 
 // Service object which contains the main context for calling the YouTube API
 type Service struct {
-	API                 *youtube.Service
-	PAPI                *youtubepartner.Service
-	AAPI                *youtubeanalytics.Service
-	RAPI                *youtubereporting.Service
-	ServiceAccount      bool
+	// Data API
+	API *youtube.Service
+	// Partner API
+	PAPI *youtubepartner.Service
+	// Analytics API
+	AAPI *youtubeanalytics.Service
+	// Bulk Reporting API
+	RAPI *youtubereporting.Service
+	// Whether this is a service account
+	ServiceAccount bool
+	// The email address of the service account
 	ServiceAccountEmail string
-	token               *oauth2.Token
+	// the private OAuth token
+	token *oauth2.Token
 }
 
 ////////////////////////////////////////////////////////////////////////////////
