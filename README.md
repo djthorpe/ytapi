@@ -151,14 +151,14 @@ In order to gain other permissions, use the `-scope` flag. For example,
 
 Here is the list of scopes of operation:
 
-data | Manage YouTube channel account
-dataread | Read-only access to YouTube channel account
-upload | Ability to upload to YouTube channel account
-partner | Manage YouTube partner account
-audit | View private information of your YouTube channel relevant during the audit process with a YouTube partner
-analytics | Access YouTube analytics
-revenue | Access YouTube analytics revenue data
-all | All YouTube permissions
+| data | Manage YouTube channel account |
+| dataread | Read-only access to YouTube channel account |
+| upload | Ability to upload to YouTube channel account |
+| partner | Manage YouTube partner account |
+| audit | View private information during the audit process with a partner |
+| analytics | Access YouTube analytics |
+| revenue | Access YouTube analytics revenue data |
+| all | All YouTube permissions |
 
 By default, the scope set is only "data"
 
