@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"errors"
@@ -20,6 +21,7 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Thumbnail defines thumbnail returned from video metadata
 type Thumbnail struct {
 	Name   string
 	Url    string
@@ -308,7 +310,7 @@ func DefaultPlaylistsForChannel(service *ytservice.Service, values *ytapi.Values
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(contentowner)
 	}
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +369,7 @@ func UploadVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	}
 
 	// request and response
-	response, err := call.Media(file).Do()
+	response, err := call.Media(file).Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -379,7 +381,7 @@ func UploadVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	}
 
 	// Execute
-	response2, err := call2.Do()
+	response2, err := call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -405,8 +407,8 @@ func ListVideosForPlaylist(service *ytservice.Service, values *ytapi.Values, tab
 	}
 
 	// iterate through to obtain the videos
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -416,7 +418,7 @@ func ListVideosForPlaylist(service *ytservice.Service, values *ytapi.Values, tab
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(ytapi.YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > ytapi.YouTubeMaxPagingResults {
@@ -424,7 +426,7 @@ func ListVideosForPlaylist(service *ytservice.Service, values *ytapi.Values, tab
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(service.CallOptions()...)
 		if err != nil {
 			return err
 		}
@@ -440,7 +442,7 @@ func ListVideosForPlaylist(service *ytservice.Service, values *ytapi.Values, tab
 		if service.ServiceAccount {
 			call2 = call2.OnBehalfOfContentOwner(contentowner)
 		}
-		response2, err := call2.Do()
+		response2, err := call2.Do(service.CallOptions()...)
 		if err != nil {
 			return err
 		}
@@ -562,7 +564,7 @@ func GetVideoMetadata(service *ytservice.Service, values *ytapi.Values, table *y
 	}
 
 	// Execute
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -586,7 +588,7 @@ func DeleteVideo(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	}
 
 	// execute and return error, if any
-	return call.Do()
+	return call.Do(service.CallOptions()...)
 }
 
 func UpdateVideoMetadata(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -602,7 +604,7 @@ func UpdateVideoMetadata(service *ytservice.Service, values *ytapi.Values, table
 	}
 
 	// Execute
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -630,7 +632,7 @@ func UpdateVideoMetadata(service *ytservice.Service, values *ytapi.Values, table
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
 
-	_, err = call2.Do()
+	_, err = call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -652,7 +654,7 @@ func SetVideoStatus(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// Execute
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -683,7 +685,7 @@ func SetVideoStatus(service *ytservice.Service, values *ytapi.Values, table *yta
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
 
-	_, err = call2.Do()
+	_, err = call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -705,7 +707,7 @@ func SetVideoPublishDate(service *ytservice.Service, values *ytapi.Values, table
 	}
 
 	// Execute
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -725,7 +727,7 @@ func SetVideoPublishDate(service *ytservice.Service, values *ytapi.Values, table
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
 
-	_, err = call2.Do()
+	_, err = call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -744,7 +746,7 @@ func SetVideoRating(service *ytservice.Service, values *ytapi.Values, table *yta
 	call := service.API.Videos.Rate(video, rating)
 
 	// Execute
-	err := call.Do()
+	err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -762,7 +764,7 @@ func GetVideoRating(service *ytservice.Service, values *ytapi.Values, table *yta
 	call := service.API.Videos.GetRating(video)
 
 	// Execute
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -787,7 +789,7 @@ func ListCategories(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// request and response
-	response, err := call.RegionCode(region).Do()
+	response, err := call.RegionCode(region).Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -815,7 +817,7 @@ func GetVideoThumbnail(service *ytservice.Service, values *ytapi.Values, table *
 	}
 
 	// Create Request
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -861,7 +863,7 @@ func SetVideoThumbnail(service *ytservice.Service, values *ytapi.Values, table *
 	}
 
 	// Request and Response
-	response, err := call.Media(file).Do()
+	response, err := call.Media(file).Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -903,7 +905,7 @@ func GetLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Values,
 	}
 
 	// Call
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -938,7 +940,7 @@ func UpdateLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Valu
 	}
 
 	// Call
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -967,7 +969,7 @@ func UpdateLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Valu
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
-	_, err = call2.Do()
+	_, err = call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -990,7 +992,7 @@ func DeleteLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Valu
 	}
 
 	// Call
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -1019,7 +1021,7 @@ func DeleteLocalizedVideoMetadata(service *ytservice.Service, values *ytapi.Valu
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
-	_, err = call2.Do()
+	_, err = call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

@@ -1,8 +1,9 @@
+package ytapi
+
 /*
-Copyright David Thorpe 2015-2016 All Rights Reserved
+Copyright David Thorpe 2015-2017 All Rights Reserved
 Please see file LICENSE for information on distribution, etc
 */
-package ytapi
 
 import (
 	"github.com/djthorpe/ytapi/youtubepartner/v1"
@@ -20,8 +21,8 @@ const (
 ////////////////////////////////////////////////////////////////////////////////
 
 func DoSearchList(call *youtube.SearchListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -31,7 +32,7 @@ func DoSearchList(call *youtube.SearchListCall, table *Table, maxresults int64) 
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
@@ -58,8 +59,8 @@ func DoSearchList(call *youtube.SearchListCall, table *Table, maxresults int64) 
 }
 
 func DoChannelsList(call *youtube.ChannelsListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -69,7 +70,7 @@ func DoChannelsList(call *youtube.ChannelsListCall, table *Table, maxresults int
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
@@ -96,8 +97,8 @@ func DoChannelsList(call *youtube.ChannelsListCall, table *Table, maxresults int
 }
 
 func DoVideosList(call *youtube.VideosListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -107,7 +108,7 @@ func DoVideosList(call *youtube.VideosListCall, table *Table, maxresults int64) 
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
@@ -134,8 +135,8 @@ func DoVideosList(call *youtube.VideosListCall, table *Table, maxresults int64) 
 }
 
 func DoBroadcastsList(call *youtube.LiveBroadcastsListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -145,7 +146,7 @@ func DoBroadcastsList(call *youtube.LiveBroadcastsListCall, table *Table, maxres
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
@@ -172,8 +173,8 @@ func DoBroadcastsList(call *youtube.LiveBroadcastsListCall, table *Table, maxres
 }
 
 func DoStreamsList(call *youtube.LiveStreamsListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -183,7 +184,7 @@ func DoStreamsList(call *youtube.LiveStreamsListCall, table *Table, maxresults i
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
@@ -210,8 +211,8 @@ func DoStreamsList(call *youtube.LiveStreamsListCall, table *Table, maxresults i
 }
 
 func DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -221,7 +222,7 @@ func DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults i
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
@@ -248,8 +249,8 @@ func DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults i
 }
 
 func DoPlaylistItemsList(call *youtube.PlaylistItemsListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -259,7 +260,7 @@ func DoPlaylistItemsList(call *youtube.PlaylistItemsListCall, table *Table, maxr
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
@@ -286,8 +287,8 @@ func DoPlaylistItemsList(call *youtube.PlaylistItemsListCall, table *Table, maxr
 }
 
 func DoClaimsList(call *youtubepartner.ClaimsListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -317,8 +318,8 @@ func DoClaimsList(call *youtubepartner.ClaimsListCall, table *Table, maxresults 
 }
 
 func DoActivityList(call *youtube.ActivitiesListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -328,7 +329,7 @@ func DoActivityList(call *youtube.ActivitiesListCall, table *Table, maxresults i
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
@@ -393,8 +394,8 @@ func DoCommentThreadsList(call *youtube.CommentThreadsListCall, table *Table, ma
 }
 
 func DoCommentsList(call *youtube.CommentsListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -404,7 +405,7 @@ func DoCommentsList(call *youtube.CommentsListCall, table *Table, maxresults int
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {
@@ -431,8 +432,8 @@ func DoCommentsList(call *youtube.CommentsListCall, table *Table, maxresults int
 }
 
 func DoChatMessagesList(call *youtube.LiveChatMessagesListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -442,7 +443,7 @@ func DoChatMessagesList(call *youtube.LiveChatMessagesListCall, table *Table, ma
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxLiveChatPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxLiveChatPagingResults {
@@ -469,8 +470,8 @@ func DoChatMessagesList(call *youtube.LiveChatMessagesListCall, table *Table, ma
 }
 
 func DoChatModeratorsList(call *youtube.LiveChatModeratorsListCall, table *Table, maxresults int64) error {
-	var numresults int64 = 0
-	var nextPageToken string = ""
+	var numresults int64
+	var nextPageToken string
 
 	// Page through results
 	for {
@@ -480,7 +481,7 @@ func DoChatModeratorsList(call *youtube.LiveChatModeratorsListCall, table *Table
 		}
 
 		// determine how many items we should rerieve in this pass
-		var retrieveitems int64 = 0
+		var retrieveitems int64
 		if maxresults == 0 {
 			retrieveitems = int64(YouTubeMaxPagingResults)
 		} else if (maxresults - numresults) > YouTubeMaxPagingResults {

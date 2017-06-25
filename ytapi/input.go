@@ -1,8 +1,9 @@
+package ytapi
+
 /*
   Copyright David Thorpe 2015-2017 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytapi
 
 import (
 	"encoding/csv"
@@ -42,7 +43,7 @@ var (
 ////////////////////////////////////////////////////////////////////////////////
 // PUBLIC METHODS
 
-// Returns a new table object
+// NewInput returns a new table object
 func NewInput() *Input {
 	this := &Input{}
 
@@ -56,7 +57,7 @@ func NewInput() *Input {
 	return this
 }
 
-// Close
+// Close closes the input file handle
 func (this *Input) Close() {
 	if this.handle != os.Stdin {
 		this.handle.Close()
@@ -64,7 +65,7 @@ func (this *Input) Close() {
 	}
 }
 
-// Set Incoming data source
+// SetDataSource sets Incoming data source
 func (this *Input) SetDataSource(handle io.ReadCloser, format InputFormat) {
 	if this.handle != os.Stdin {
 		this.handle.Close()
@@ -73,7 +74,7 @@ func (this *Input) SetDataSource(handle io.ReadCloser, format InputFormat) {
 	this.format = format
 }
 
-// Read everything
+// ReadAll will read everything
 func (this *Input) ReadAll() error {
 	var fields []string
 	reader := csv.NewReader(this.handle)

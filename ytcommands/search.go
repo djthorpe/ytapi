@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"strings"

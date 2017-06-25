@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"errors"
@@ -239,7 +240,7 @@ func DeleteBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 	}
 
 	// Perform search, and return results
-	err := call.Do()
+	err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -267,7 +268,7 @@ func TransitionBroadcast(service *ytservice.Service, values *ytapi.Values, table
 	}
 
 	// Execute call
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -322,7 +323,7 @@ func BindBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytap
 	}
 
 	// Bind broadcast
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -345,7 +346,7 @@ func UnbindBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 	}
 
 	// Unbind broadcast
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -412,7 +413,7 @@ func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 	}
 
 	// Insert broadcast and get response
-	if response, err := call.Do(); err != nil {
+	if response, err := call.Do(service.CallOptions()...); err != nil {
 		return err
 	} else {
 		// List comment
@@ -448,7 +449,7 @@ func UpdateBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 		}
 	}
 
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -519,7 +520,7 @@ func UpdateBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 		}
 	}
 
-	_, err = call2.Do()
+	_, err = call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

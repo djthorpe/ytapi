@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"errors"
@@ -55,7 +56,7 @@ func InsertVideoIntoPlaylist(service *ytservice.Service, values *ytapi.Values, t
 	if service.ServiceAccount {
 		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 	}
-	_, err := call.Do()
+	_, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -83,7 +84,7 @@ func DeletePlaylistVideo(service *ytservice.Service, values *ytapi.Values, table
 	var playlistItems []*youtube.PlaylistItem = make([]*youtube.PlaylistItem, 0)
 	var nextPageToken string
 	for {
-		response, err := call.PageToken(nextPageToken).Do()
+		response, err := call.PageToken(nextPageToken).Do(service.CallOptions()...)
 		if err != nil {
 			return err
 		}
@@ -108,7 +109,7 @@ func DeletePlaylistVideo(service *ytservice.Service, values *ytapi.Values, table
 		if service.ServiceAccount {
 			call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 		}
-		err := call.Do()
+		err := call.Do(service.CallOptions()...)
 		if err != nil {
 			return err
 		}

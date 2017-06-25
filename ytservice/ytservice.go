@@ -1,8 +1,9 @@
+package ytservice
+
 /*
   Copyright David Thorpe 2015-2016 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytservice
 
 import (
 	"io/ioutil"
@@ -10,6 +11,7 @@ import (
 	"github.com/djthorpe/ytapi/youtubepartner/v1"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/youtube/v3"
 	"google.golang.org/api/youtubeanalytics/v1"
 	"google.golang.org/api/youtubereporting/v1"
@@ -33,34 +35,36 @@ type Service struct {
 	ServiceAccountEmail string
 	// the private OAuth token
 	token *oauth2.Token
+	// call options
+	callopts []googleapi.CallOption
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Returns a service object given service account details
+// NewYouTubeServiceFromServiceAccountJSON returns a service object given service account details
 func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Service, error) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
-	sa_config, err := google.JWTConfigFromJSON(bytes, youtube.YoutubeForceSslScope, youtube.YoutubepartnerScope, youtubeanalytics.YtAnalyticsReadonlyScope)
+	saConfig, err := google.JWTConfigFromJSON(bytes, youtube.YoutubeForceSslScope, youtube.YoutubepartnerScope, youtubeanalytics.YtAnalyticsReadonlyScope)
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
 	ctx := getContext(debug)
-	service, err := youtube.New(sa_config.Client(ctx))
+	service, err := youtube.New(saConfig.Client(ctx))
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
-	partnerservice, err := youtubepartner.New(sa_config.Client(ctx))
+	partnerservice, err := youtubepartner.New(saConfig.Client(ctx))
 	if err != nil {
 		return nil, err
 	}
-	analyticsservice, err := youtubeanalytics.New(sa_config.Client(ctx))
+	analyticsservice, err := youtubeanalytics.New(saConfig.Client(ctx))
 	if err != nil {
 		return nil, err
 	}
-	reportingservice, err := youtubereporting.New(sa_config.Client(ctx))
+	reportingservice, err := youtubereporting.New(saConfig.Client(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +76,14 @@ func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Serv
 	this.AAPI = analyticsservice
 	this.RAPI = reportingservice
 	this.ServiceAccount = true
-	this.ServiceAccountEmail = sa_config.Email
+	this.ServiceAccountEmail = saConfig.Email
+	this.callopts = make([]googleapi.CallOption, 0)
 
 	// Success
 	return this, nil
 }
 
-// Returns a service object given client secrets details
+// NewYouTubeServiceFromClientSecretsJSON returns a service object given client secrets details
 func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache string, debug bool) (*Service, error) {
 	bytes, err := ioutil.ReadFile(clientsecrets)
 	if err != nil {
@@ -126,5 +131,26 @@ func NewYouTubeServiceFromClientSecretsJSON(clientsecrets string, tokencache str
 	this.RAPI = reportingservice
 	this.ServiceAccount = false
 	this.token = token
+	this.callopts = make([]googleapi.CallOption, 0)
 	return this, nil
+}
+
+// SetQuotaUser sets the quota user parameter for all API requests
+func (this *Service) SetQuotaUser(value string) {
+	this.callopts = append(this.callopts, googleapi.QuotaUser(value))
+}
+
+// SetUserIP sets the userid parameter for all API requests
+func (this *Service) SetUserIP(value string) {
+	this.callopts = append(this.callopts, googleapi.UserIP(value))
+}
+
+// SetTraceToken sets the tracetoken parameter for all API requests
+func (this *Service) SetTraceToken(value string) {
+	this.callopts = append(this.callopts, googleapi.Trace(value))
+}
+
+// CallOptions returns the array of call options
+func (this *Service) CallOptions() []googleapi.CallOption {
+	return this.callopts
 }

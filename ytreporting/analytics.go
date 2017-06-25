@@ -1,8 +1,9 @@
+package ytreporting
+
 /*
   Copyright David Thorpe 2017 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytreporting
 
 import (
 	"errors"
@@ -106,7 +107,7 @@ func RunChannelAnalyticsQuery(service *ytservice.Service, values *ytapi.Values, 
 	}
 
 	// Execute the call
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -176,7 +177,7 @@ func RunContentOwnerAnalyticsQuery(service *ytservice.Service, values *ytapi.Val
 	}
 
 	// Execute the call
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -227,7 +228,7 @@ func ListReportTypes(service *ytservice.Service, values *ytapi.Values, table *yt
 		call.IncludeSystemManaged(values.GetBool(&ytapi.FlagAnalyticsIncludeSystem))
 	}
 
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

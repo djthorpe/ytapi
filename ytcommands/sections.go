@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"errors"
@@ -109,7 +110,7 @@ func sectionFromPosition(service *ytservice.Service, values *ytapi.Values) (stri
 	}
 
 	// obtain the sections
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return "", err
 	}
@@ -145,7 +146,7 @@ func ListChannelSections(service *ytservice.Service, values *ytapi.Values, table
 		call = call.Mine(true)
 	}
 
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -168,9 +169,9 @@ func ListChannelSections(service *ytservice.Service, values *ytapi.Values, table
 		case "likedPlaylists":
 			resource.Snippet.Title = "Saved playlists"
 		case "multipleChannels":
-			resource.Snippet.Title = resource.Snippet.Title
+			// resource.Snippet.Title = resource.Snippet.Title
 		case "multiplePlaylists":
-			resource.Snippet.Title = resource.Snippet.Title
+			// resource.Snippet.Title = resource.Snippet.Title
 		case "popularUploads":
 			resource.Snippet.Title = "Popular uploads"
 		case "postedPlaylists":
@@ -251,7 +252,7 @@ func NewChannelSection(service *ytservice.Service, values *ytapi.Values, table *
 	}
 
 	// create the call
-	_, err := call.Do()
+	_, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -277,7 +278,7 @@ func DeleteChannelSection(service *ytservice.Service, values *ytapi.Values, tabl
 		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 	}
 
-	err = call.Do()
+	err = call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

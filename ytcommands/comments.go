@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"errors"
@@ -227,7 +228,7 @@ func MarkCommentAsSpam(service *ytservice.Service, values *ytapi.Values, table *
 	// create call
 	thread := values.GetString(&ytapi.FlagCommentThread)
 	call := service.API.Comments.MarkAsSpam(thread)
-	err := call.Do()
+	err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return nil
 	}
@@ -252,7 +253,7 @@ func SetCommentModerationStatus(service *ytservice.Service, values *ytapi.Values
 	}
 
 	// Execute
-	if err := call.Do(); err != nil {
+	if err := call.Do(service.CallOptions()...); err != nil {
 		return err
 	}
 
@@ -291,7 +292,7 @@ func DeleteComment(service *ytservice.Service, values *ytapi.Values, table *ytap
 	call := service.API.Comments.Delete(thread)
 
 	// Execute
-	if err := call.Do(); err != nil {
+	if err := call.Do(service.CallOptions()...); err != nil {
 		return err
 	}
 

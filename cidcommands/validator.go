@@ -1,8 +1,9 @@
+package cidcommands
+
 /*
   Copyright David Thorpe 2016 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package cidcommands
 
 import (
 	"io/ioutil"
@@ -74,7 +75,7 @@ func ValidateMetadata(service *ytservice.Service, values *ytapi.Values, table *y
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
 	// Get response
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

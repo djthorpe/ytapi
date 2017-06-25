@@ -1,8 +1,9 @@
-/*
-Copyright David Thorpe 2015-2016 All Rights Reserved
-Please see file LICENSE for information on distribution, etc
-*/
 package ytapi
+
+/*
+  Copyright David Thorpe 2015-2017 All Rights Reserved
+  Please see file LICENSE for information on distribution, etc
+*/
 
 import (
 	"errors"
@@ -34,7 +35,7 @@ const (
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Defines a flag
+// Flag structure defines a parameter type
 type Flag struct {
 	Name        string
 	Description string
@@ -108,7 +109,7 @@ func (this *Flag) asEnum(value string) (string, error) {
 func (this *Flag) asVideo(value string) (string, error) {
 	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\-\\_]{11})$", value)
 	if matched == false {
-		return "", errors.New(fmt.Sprintf("Malformed video value: %s", value))
+		return "", fmt.Errorf("Malformed video value: %s", value)
 	}
 	return value, nil
 }
@@ -123,7 +124,7 @@ func (this *Flag) asStream(value string) (string, error) {
 		return value, nil
 	}
 
-	return "", errors.New(fmt.Sprintf("Malformed stream value: %v", value))
+	return "", fmt.Errorf("Malformed stream value: %v", value)
 }
 
 func (this *Flag) asContentOwner(value string) (string, error) {
@@ -155,7 +156,7 @@ func (this *Flag) asPlaylist(value string) (string, error) {
 	if matched3 {
 		return value, nil
 	}
-	return "", errors.New(fmt.Sprintf("Malformed playlist value: %s", value))
+	return "", fmt.Errorf("Malformed playlist value: %s", value)
 }
 
 func (this *Flag) asLanguage(value string) (string, error) {
@@ -167,7 +168,7 @@ func (this *Flag) asLanguage(value string) (string, error) {
 	if matched {
 		return value, nil
 	}
-	return "", errors.New(fmt.Sprintf("Malformed language value: %s", value))
+	return "", fmt.Errorf("Malformed language value: %s", value)
 }
 
 func (this *Flag) asRegion(value string) (string, error) {

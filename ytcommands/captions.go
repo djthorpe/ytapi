@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"io"
@@ -97,7 +98,7 @@ func ListCaptionTracks(service *ytservice.Service, values *ytapi.Values, table *
 	}
 
 	// request and response
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -153,7 +154,7 @@ func UploadCaptionTrack(service *ytservice.Service, values *ytapi.Values, table 
 	}
 
 	// request and response
-	_, err = call.Media(file).Do()
+	_, err = call.Media(file).Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -165,7 +166,7 @@ func UploadCaptionTrack(service *ytservice.Service, values *ytapi.Values, table 
 	}
 
 	// request and response
-	response2, err := call2.Do()
+	response2, err := call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -190,7 +191,7 @@ func DeleteCaptionTrack(service *ytservice.Service, values *ytapi.Values, table 
 	}
 
 	// Delete the caption track
-	err := call.Do()
+	err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

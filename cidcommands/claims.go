@@ -1,8 +1,9 @@
+package cidcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package cidcommands
 
 import (
 	"github.com/djthorpe/ytapi/youtubepartner/v1"
@@ -130,7 +131,7 @@ func GetClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Tab
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
 	// Execute
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -149,7 +150,7 @@ func GetClaimHistory(service *ytservice.Service, values *ytapi.Values, table *yt
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
 	// Execute
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -175,7 +176,7 @@ func InsertClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
 	// Execute
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -188,7 +189,7 @@ func InsertClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 		})
 		call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 		// Execute
-		response, err = call.Do()
+		response, err = call.Do(service.CallOptions()...)
 		if err != nil {
 			return err
 		}

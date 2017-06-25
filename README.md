@@ -129,7 +129,7 @@ To authenticate using service account credentials against a named content
 owner, use the following form:
 
 ```
-  home% ytapi -contentowner=<contentowner> -serviceaccount Authenticate
+  home% ytapi -sa -contentowner=<contentowner> Authenticate
 ```
 
 This will display a list of channels which the content owner manages. Subsequent

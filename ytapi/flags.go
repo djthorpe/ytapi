@@ -1,8 +1,9 @@
-/*
-Copyright David Thorpe 2015-2016 All Rights Reserved
-Please see file LICENSE for information on distribution, etc
-*/
 package ytapi
+
+/*
+  Copyright David Thorpe 2015-2017 All Rights Reserved
+  Please see file LICENSE for information on distribution, etc
+*/
 
 import (
 	"encoding/base64"
@@ -28,7 +29,7 @@ const (
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Defines a command
+// Command structure defines a command
 type Command struct {
 	Name           string
 	Description    string
@@ -39,19 +40,19 @@ type Command struct {
 	Execute        func(*ytservice.Service, *Values, *Table) error
 }
 
-// Defines a group of commands
+// Section structure defines a group of commands
 type Section struct {
 	Title    string
 	Commands []*Command
 }
 
-// Registration function
+// RegisterFunction defines a registration function
 type RegisterFunction struct {
 	Title    string
 	Callback func() []*Command
 }
 
-// FlagSet is the main object for execution of a set of instructions
+// FlagSet structure defines the main object for execution of a set of instructions
 type FlagSet struct {
 	flagset        *flag.FlagSet
 	sections       []*Section
@@ -65,7 +66,7 @@ type FlagSet struct {
 	filehandle     *os.File
 }
 
-// Default values read from store
+// Defaults structure defines values read from store
 type Defaults struct {
 	ContentOwner string `json:"contentowner,omitempty"`
 	Channel      string `json:"channel,omitempty"`
@@ -81,6 +82,10 @@ var (
 	FlagServiceAccount             = Flag{Name: "serviceaccount", Description: "Service account filename", Type: FLAG_STRING, Default: "service_account.json"}
 	FlagAuthToken                  = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
 	FlagDebug                      = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
+	FlagQuotaUser                  = Flag{Name: "quotauser", Description: "Set Quota User for API calls", Type: FLAG_STRING}
+	FlagTraceToken                 = Flag{Name: "tracetoken", Description: "Set Trace Token for API calls", Type: FLAG_STRING}
+	FlagServiceAccount2            = Flag{Name: "sa", Description: "Obtain token using service account information", Type: FLAG_BOOL, Default: "false"}
+	FlagScope                      = Flag{Name: "scope", Description: "Permissions granted during authentication", Type: FLAG_ENUM, Default: "data", Extra: "data|dataread|partner|audit|analytics|revenue|all"}
 	FlagFields                     = Flag{Name: "fields", Description: "Comma-separated list of output fields", Type: FLAG_STRING}
 	FlagInput                      = Flag{Name: "in", Description: "Input filename and/or format (csv)", Type: FLAG_STRING, Default: "csv"}
 	FlagOutput                     = Flag{Name: "out", Description: "Output filename and/or format (txt, csv)", Type: FLAG_STRING, Default: "txt"}
@@ -174,7 +179,8 @@ var (
 
 	// Global flags which are defined for every invocation of the tool
 	GlobalFlags = []*Flag{
-		&FlagDebug, &FlagCredentials, &FlagDefaults, &FlagClientSecret,
+		&FlagDebug, &FlagQuotaUser, &FlagTraceToken,
+		&FlagCredentials, &FlagDefaults, &FlagClientSecret,
 		&FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel,
 		&FlagFields, &FlagOutput, &FlagInput,
 	}
@@ -191,6 +197,7 @@ var (
 ////////////////////////////////////////////////////////////////////////////////
 // FlagSet implementation
 
+// NewFlagSet returns a new set of flags
 func NewFlagSet() *FlagSet {
 	this := new(FlagSet)
 	this.flagset = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
@@ -202,6 +209,7 @@ func NewFlagSet() *FlagSet {
 	return this
 }
 
+// AddFlag adds a flag to the flagset
 func (this *FlagSet) AddFlag(flag *Flag) error {
 
 	// Skip if flag has already been added
@@ -236,9 +244,9 @@ func (this *FlagSet) AddFlags(flags []*Flag) error {
 }
 
 func (this *FlagSet) RegisterCommands(funcs []*RegisterFunction) error {
-	var commands map[string]bool = make(map[string]bool, 0)
 
 	// call functions to retrieve sets of commands
+	commands := make(map[string]bool, 0)
 	for _, f := range funcs {
 		section := &Section{
 			Title:    f.Title,

@@ -1,8 +1,9 @@
+package ytapi
+
 /*
-  Copyright David Thorpe 2015-2016 All Rights Reserved
+  Copyright David Thorpe 2015-2017 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytapi
 
 import (
 	"errors"
@@ -13,7 +14,7 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Value
+// Value structure defines a generic value
 type Value struct {
 	v_string string
 	v_uint   uint64
@@ -24,7 +25,7 @@ type Value struct {
 	flag     *Flag
 }
 
-// Values
+// Values structure defines a set of values
 type Values struct {
 	values map[*Flag]*Value
 }
@@ -212,9 +213,8 @@ func (this *Value) Set(value string) error {
 func (this *Value) String() string {
 	if this.is_set {
 		return this.v_string
-	} else {
-		return this.flag.Default
 	}
+	return this.flag.Default
 }
 
 func (this *Value) Bool() bool {
@@ -411,9 +411,8 @@ func (this *Values) GetTimeInISOFormat(flag *Flag) string {
 	value := this.GetTime(flag).UTC()
 	if value.Equal(time.Time{}) {
 		return ""
-	} else {
-		return value.Format(time.RFC3339Nano)
 	}
+	return value.Format(time.RFC3339Nano)
 }
 
 func (this *Values) SetFields(fieldmap map[string]*Flag) []string {

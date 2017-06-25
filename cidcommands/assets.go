@@ -1,8 +1,9 @@
+package cidcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package cidcommands
 
 import (
 	"github.com/djthorpe/ytapi/youtubepartner/v1"
@@ -72,7 +73,7 @@ func GetAsset(service *ytservice.Service, values *ytapi.Values, table *ytapi.Tab
 	}
 
 	// get assets
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

@@ -207,7 +207,7 @@ func (this *Table) Parts(all bool) []string {
 
 	// now output part values
 	var partvalue = make([]string, 0)
-	for key, _ := range partmap {
+	for key := range partmap {
 		partvalue = append(partvalue, key)
 	}
 
@@ -310,6 +310,7 @@ func (this *Table) SetDataFormat(handle io.Writer, format int) {
 ////////////////////////////////////////////////////////////////////////////////
 // Logging output
 
+// Info outputs message to the output stream
 func (this *Table) Info(message string) {
 	fmt.Fprintln(this.infoOutput, message)
 }
@@ -347,9 +348,8 @@ func valueForIndex(item reflect.Value, field *Flag, index int) (*Value, error) {
 	value := item.Index(index)
 	if value.Kind() == reflect.Interface {
 		return NewValue(field, value.Elem())
-	} else {
-		return NewValue(field, value)
 	}
+	return NewValue(field, value)
 }
 
 func (this *Table) appendStructItem(item reflect.Value) error {

@@ -7,6 +7,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
 
@@ -170,6 +171,22 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
+	}
+
+	// Set Quota User
+	if flags.Values.IsSet(&ytapi.FlagQuotaUser) {
+		if username := flags.Values.GetString(&ytapi.FlagQuotaUser); username != "" {
+			service.SetQuotaUser(username)
+		}
+	} else {
+		if currentUser, err := user.Current(); err != nil {
+			service.SetQuotaUser(currentUser.Username)
+		}
+	}
+
+	// Set Trace Token
+	if flags.Values.IsSet(&ytapi.FlagTraceToken) {
+		service.SetTraceToken(flags.Values.GetString(&ytapi.FlagTraceToken))
 	}
 
 	// Execute command

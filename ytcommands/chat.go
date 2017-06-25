@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2017 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"errors"
@@ -145,7 +146,7 @@ func GetChatId(service *ytservice.Service, values *ytapi.Values) (string, error)
 		}
 	}
 
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return "", err
 	}
@@ -153,10 +154,8 @@ func GetChatId(service *ytservice.Service, values *ytapi.Values) (string, error)
 	if broadcasts := response.Items; len(broadcasts) != 1 {
 		return "", errors.New("Broadcast not found")
 	} else {
-		value = broadcasts[0].Snippet.LiveChatId
+		return broadcasts[0].Snippet.LiveChatId, nil
 	}
-
-	return value, nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -198,7 +197,7 @@ func InsertChatMessage(service *ytservice.Service, values *ytapi.Values, table *
 	})
 
 	// Insert chat message, return the message
-	_, err = call.Do()
+	_, err = call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -215,7 +214,7 @@ func DeleteChatMessage(service *ytservice.Service, values *ytapi.Values, table *
 	call := service.API.LiveChatMessages.Delete(message)
 
 	// Delete chat message
-	if err := call.Do(); err != nil {
+	if err := call.Do(service.CallOptions()...); err != nil {
 		return err
 	}
 
@@ -262,7 +261,7 @@ func NewChatModerator(service *ytservice.Service, values *ytapi.Values, table *y
 	})
 
 	// execute
-	_, err = call.Do()
+	_, err = call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

@@ -1,8 +1,9 @@
+package cidcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package cidcommands
 
 import (
 	"github.com/djthorpe/ytapi/ytapi"
@@ -51,7 +52,7 @@ func ListContentOwners(service *ytservice.Service, values *ytapi.Values, table *
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
 	// Get response
-	response, err := call.FetchMine(true).Do()
+	response, err := call.FetchMine(true).Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

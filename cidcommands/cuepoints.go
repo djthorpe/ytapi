@@ -1,8 +1,9 @@
+package cidcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package cidcommands
 
 import (
 	"errors"
@@ -75,7 +76,7 @@ func InsertCuepoint(service *ytservice.Service, values *ytapi.Values, table *yta
 	})
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"github.com/djthorpe/ytapi/ytapi"
@@ -84,7 +85,7 @@ func ListLanguages(service *ytservice.Service, values *ytapi.Values, table *ytap
 	}
 
 	// request and response
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -112,7 +113,7 @@ func ListRegions(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	}
 
 	// request and response
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}

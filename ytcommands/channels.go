@@ -1,8 +1,9 @@
+package ytcommands
+
 /*
   Copyright David Thorpe 2015 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytcommands
 
 import (
 	"errors"
@@ -233,7 +234,7 @@ func UpdateChannelBanner(service *ytservice.Service, values *ytapi.Values, table
 	}
 
 	// Upload channel banner and retrieve URL for the banner
-	response, err := call.Media(file).Do()
+	response, err := call.Media(file).Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -253,7 +254,7 @@ func UpdateChannelBanner(service *ytservice.Service, values *ytapi.Values, table
 	}
 
 	// Execute call
-	response2, err := call2.Do()
+	response2, err := call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -273,7 +274,7 @@ func UpdateChannelBanner(service *ytservice.Service, values *ytapi.Values, table
 	if service.ServiceAccount {
 		call3 = call3.OnBehalfOfContentOwner(contentowner)
 	}
-	_, err = call3.Do()
+	_, err = call3.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -300,7 +301,7 @@ func UpdateChannelMetadata(service *ytservice.Service, values *ytapi.Values, tab
 	}
 
 	// Execute call
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -330,7 +331,7 @@ func UpdateChannelMetadata(service *ytservice.Service, values *ytapi.Values, tab
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
-	_, err = call2.Do()
+	_, err = call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -358,7 +359,7 @@ func GetLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Value
 	}
 
 	// Execute call
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -395,7 +396,7 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	}
 
 	// Execute call
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -424,7 +425,7 @@ func UpdateLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
-	_, err = call2.Do()
+	_, err = call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -452,7 +453,7 @@ func DeleteLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	}
 
 	// Execute
-	response, err := call.Do()
+	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -475,7 +476,7 @@ func DeleteLocalizedChannelMetadata(service *ytservice.Service, values *ytapi.Va
 	if service.ServiceAccount {
 		call2 = call2.OnBehalfOfContentOwner(contentowner)
 	}
-	_, err = call2.Do()
+	_, err = call2.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
@@ -525,7 +526,7 @@ func PostBulletin(service *ytservice.Service, values *ytapi.Values, table *ytapi
 
 	// TODO: Add --video as content Detils resource
 
-	_, err := call.Do()
+	_, err := call.Do(service.CallOptions()...)
 	if err != nil {
 		return err
 	}
