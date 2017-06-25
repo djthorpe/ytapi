@@ -27,6 +27,13 @@ const (
 	credentialsFileMode = 0644
 )
 
+const (
+	filenameClientSecret   = "client_secret.json"
+	filenameServiceAccount = "service_account.json"
+	filenameAuthToken      = "auth_token"
+	filenameDefaults       = "defaults.json"
+)
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Command structure defines a command
@@ -77,14 +84,10 @@ type Defaults struct {
 // Command-line flags
 var (
 	FlagCredentials                = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".ytapi"}
-	FlagDefaults                   = Flag{Name: "defaults", Description: "Defaults filename", Type: FLAG_STRING, Default: "defaults.json"}
-	FlagClientSecret               = Flag{Name: "clientsecret", Description: "Client secret filename", Type: FLAG_STRING, Default: "client_secret.json"}
-	FlagServiceAccount             = Flag{Name: "serviceaccount", Description: "Service account filename", Type: FLAG_STRING, Default: "service_account.json"}
-	FlagAuthToken                  = Flag{Name: "authtoken", Description: "OAuth token filename", Type: FLAG_STRING, Default: "oauth_token"}
 	FlagDebug                      = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
 	FlagQuotaUser                  = Flag{Name: "quotauser", Description: "Set Quota User for API calls", Type: FLAG_STRING}
 	FlagTraceToken                 = Flag{Name: "tracetoken", Description: "Set Trace Token for API calls", Type: FLAG_STRING}
-	FlagServiceAccount2            = Flag{Name: "sa", Description: "Obtain token using service account information", Type: FLAG_BOOL, Default: "false"}
+	FlagServiceAccount             = Flag{Name: "serviceaccount", Description: "Obtain token using service account information", Type: FLAG_BOOL, Default: "false"}
 	FlagScope                      = Flag{Name: "scope", Description: "Permissions granted during authentication", Type: FLAG_ENUM, Default: "data", Extra: "data|dataread|partner|audit|analytics|revenue|all"}
 	FlagFields                     = Flag{Name: "fields", Description: "Comma-separated list of output fields", Type: FLAG_STRING}
 	FlagInput                      = Flag{Name: "in", Description: "Input filename and/or format (csv)", Type: FLAG_STRING, Default: "csv"}
@@ -179,9 +182,8 @@ var (
 
 	// Global flags which are defined for every invocation of the tool
 	GlobalFlags = []*Flag{
-		&FlagDebug, &FlagQuotaUser, &FlagTraceToken,
-		&FlagCredentials, &FlagDefaults, &FlagClientSecret,
-		&FlagServiceAccount, &FlagAuthToken, &FlagContentOwner, &FlagChannel,
+		&FlagDebug, &FlagQuotaUser, &FlagTraceToken, &FlagCredentials,
+		&FlagContentOwner, &FlagChannel,
 		&FlagFields, &FlagOutput, &FlagInput,
 	}
 
@@ -289,19 +291,19 @@ func (this *FlagSet) setPaths() error {
 	}
 
 	// client secrets
-	clientSecretsPath, _ := util.ResolvePath(this.Values.GetString(&FlagClientSecret), credentialsPath)
+	clientSecretsPath, _ := util.ResolvePath(filenameClientSecret, credentialsPath)
 	this.ClientSecrets = clientSecretsPath
 
 	// service account
-	serviceAccountPath, _ := util.ResolvePath(this.Values.GetString(&FlagServiceAccount), credentialsPath)
+	serviceAccountPath, _ := util.ResolvePath(filenameServiceAccount, credentialsPath)
 	this.ServiceAccount = serviceAccountPath
 
 	// oauth token
-	authTokenPath, _ := util.ResolvePath(this.Values.GetString(&FlagAuthToken), credentialsPath)
+	authTokenPath, _ := util.ResolvePath(filenameAuthToken, credentialsPath)
 	this.AuthToken = authTokenPath
 
 	// defaults file
-	defaultsPath, _ := util.ResolvePath(this.Values.GetString(&FlagDefaults), credentialsPath)
+	defaultsPath, _ := util.ResolvePath(filenameDefaults, credentialsPath)
 	this.Defaults = defaultsPath
 
 	// success

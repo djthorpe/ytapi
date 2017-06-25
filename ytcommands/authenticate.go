@@ -22,7 +22,7 @@ func RegisterAuthenticateCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "Authenticate",
 			Description: "Authenticate against service account or YouTube account",
-			Optional:    []*ytapi.Flag{&ytapi.FlagServiceAccount2, &ytapi.FlagScope},
+			Optional:    []*ytapi.Flag{&ytapi.FlagServiceAccount, &ytapi.FlagScope},
 			Setup:       AuthenticateSetup,
 			Execute:     AuthenticateExecute,
 		},
@@ -65,7 +65,7 @@ func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 	}
 
 	// If service account authentication, then require -contentowner flag
-	if values.GetBool(&ytapi.FlagServiceAccount2) && values.IsSet(&ytapi.FlagContentOwner) == false {
+	if values.GetBool(&ytapi.FlagServiceAccount) && values.IsSet(&ytapi.FlagContentOwner) == false {
 		return errors.New("Cannot set -sa flag without -contentowner flag")
 	}
 
