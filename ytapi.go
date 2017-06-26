@@ -100,8 +100,7 @@ func main() {
 			flags.UsageCommandList()
 		}
 		os.Exit(0)
-	}
-	if err != nil {
+	} else if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
