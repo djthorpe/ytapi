@@ -27,7 +27,7 @@ func ListPlaylistItems(service *ytservice.Service, values *ytapi.Values, table *
 	}
 
 	// Perform channels.list and return results
-	return ytapi.DoPlaylistItemsList(call, table, int64(values.GetUint(&ytapi.FlagMaxResults)))
+	return ytapi.DoPlaylistItemsList(call, table, int64(values.GetUint(&ytapi.FlagMaxResults)), service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ func InsertVideoIntoPlaylist(service *ytservice.Service, values *ytapi.Values, t
 		call2 = call2.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 	}
 	// Perform playlistitems.list and return results
-	return ytapi.DoPlaylistItemsList(call2, table, 0)
+	return ytapi.DoPlaylistItemsList(call2, table, 0, service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -121,5 +121,5 @@ func DeletePlaylistVideo(service *ytservice.Service, values *ytapi.Values, table
 		call2 = call2.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 	}
 	// Perform playlistitems.list and return results
-	return ytapi.DoPlaylistItemsList(call2, table, 0)
+	return ytapi.DoPlaylistItemsList(call2, table, 0, service.CallOptions()...)
 }

@@ -211,7 +211,7 @@ func ListChannels(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	}
 
 	// Perform search, and return results
-	return ytapi.DoChannelsList(call, table, int64(maxresults))
+	return ytapi.DoChannelsList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 func UpdateChannelBanner(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -512,7 +512,7 @@ func ListActivities(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// Perform search, and return results
-	return ytapi.DoActivityList(call, table, int64(maxresults))
+	return ytapi.DoActivityList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 func PostBulletin(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {

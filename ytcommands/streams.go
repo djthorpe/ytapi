@@ -111,7 +111,7 @@ func ListStreams(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	call = call.Mine(true)
 
 	// Perform search, and return results
-	return ytapi.DoStreamsList(call, table, int64(maxresults))
+	return ytapi.DoStreamsList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -207,5 +207,5 @@ func InsertStream(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	}
 
 	// Perform LiveStreams.list and return results
-	return ytapi.DoStreamsList(call2, table, 1)
+	return ytapi.DoStreamsList(call2, table, 1, service.CallOptions()...)
 }

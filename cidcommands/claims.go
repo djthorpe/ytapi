@@ -119,7 +119,7 @@ func ListClaims(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	call := service.PAPI.Claims.List()
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
-	return ytapi.DoClaimsList(call, table, values.GetInt(&ytapi.FlagMaxResults))
+	return ytapi.DoClaimsList(call, table, values.GetInt(&ytapi.FlagMaxResults), service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

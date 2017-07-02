@@ -541,7 +541,7 @@ func ListVideos(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 	}
 
 	// Perform search, and return results
-	return ytapi.DoVideosList(call, table, int64(maxresults))
+	return ytapi.DoVideosList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 func GetVideoMetadata(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {

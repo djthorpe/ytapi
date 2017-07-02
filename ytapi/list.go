@@ -7,6 +7,7 @@ Please see file LICENSE for information on distribution, etc
 
 import (
 	"github.com/djthorpe/ytapi/youtubepartner/v1"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -20,7 +21,7 @@ const (
 
 ////////////////////////////////////////////////////////////////////////////////
 
-func DoSearchList(call *youtube.SearchListCall, table *Table, maxresults int64) error {
+func DoSearchList(call *youtube.SearchListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -40,7 +41,7 @@ func DoSearchList(call *youtube.SearchListCall, table *Table, maxresults int64) 
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -58,7 +59,7 @@ func DoSearchList(call *youtube.SearchListCall, table *Table, maxresults int64) 
 	return nil
 }
 
-func DoChannelsList(call *youtube.ChannelsListCall, table *Table, maxresults int64) error {
+func DoChannelsList(call *youtube.ChannelsListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -78,7 +79,7 @@ func DoChannelsList(call *youtube.ChannelsListCall, table *Table, maxresults int
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -96,7 +97,7 @@ func DoChannelsList(call *youtube.ChannelsListCall, table *Table, maxresults int
 	return nil
 }
 
-func DoVideosList(call *youtube.VideosListCall, table *Table, maxresults int64) error {
+func DoVideosList(call *youtube.VideosListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -116,7 +117,7 @@ func DoVideosList(call *youtube.VideosListCall, table *Table, maxresults int64) 
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -134,7 +135,7 @@ func DoVideosList(call *youtube.VideosListCall, table *Table, maxresults int64) 
 	return nil
 }
 
-func DoBroadcastsList(call *youtube.LiveBroadcastsListCall, table *Table, maxresults int64) error {
+func DoBroadcastsList(call *youtube.LiveBroadcastsListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -154,7 +155,7 @@ func DoBroadcastsList(call *youtube.LiveBroadcastsListCall, table *Table, maxres
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -172,7 +173,7 @@ func DoBroadcastsList(call *youtube.LiveBroadcastsListCall, table *Table, maxres
 	return nil
 }
 
-func DoStreamsList(call *youtube.LiveStreamsListCall, table *Table, maxresults int64) error {
+func DoStreamsList(call *youtube.LiveStreamsListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -192,7 +193,7 @@ func DoStreamsList(call *youtube.LiveStreamsListCall, table *Table, maxresults i
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -210,7 +211,7 @@ func DoStreamsList(call *youtube.LiveStreamsListCall, table *Table, maxresults i
 	return nil
 }
 
-func DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults int64) error {
+func DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -230,7 +231,7 @@ func DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults i
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -248,7 +249,7 @@ func DoPlaylistsList(call *youtube.PlaylistsListCall, table *Table, maxresults i
 	return nil
 }
 
-func DoPlaylistItemsList(call *youtube.PlaylistItemsListCall, table *Table, maxresults int64) error {
+func DoPlaylistItemsList(call *youtube.PlaylistItemsListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -268,7 +269,7 @@ func DoPlaylistItemsList(call *youtube.PlaylistItemsListCall, table *Table, maxr
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -286,7 +287,7 @@ func DoPlaylistItemsList(call *youtube.PlaylistItemsListCall, table *Table, maxr
 	return nil
 }
 
-func DoClaimsList(call *youtubepartner.ClaimsListCall, table *Table, maxresults int64) error {
+func DoClaimsList(call *youtubepartner.ClaimsListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -298,7 +299,7 @@ func DoClaimsList(call *youtubepartner.ClaimsListCall, table *Table, maxresults 
 		}
 
 		// retrieve next page of results
-		response, err := call.PageToken(nextPageToken).Do()
+		response, err := call.PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -317,7 +318,7 @@ func DoClaimsList(call *youtubepartner.ClaimsListCall, table *Table, maxresults 
 	return nil
 }
 
-func DoActivityList(call *youtube.ActivitiesListCall, table *Table, maxresults int64) error {
+func DoActivityList(call *youtube.ActivitiesListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -337,7 +338,7 @@ func DoActivityList(call *youtube.ActivitiesListCall, table *Table, maxresults i
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -355,7 +356,7 @@ func DoActivityList(call *youtube.ActivitiesListCall, table *Table, maxresults i
 	return nil
 }
 
-func DoCommentThreadsList(call *youtube.CommentThreadsListCall, table *Table, maxresults int64) error {
+func DoCommentThreadsList(call *youtube.CommentThreadsListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64 = 0
 	var nextPageToken string = ""
 
@@ -375,7 +376,7 @@ func DoCommentThreadsList(call *youtube.CommentThreadsListCall, table *Table, ma
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -393,7 +394,7 @@ func DoCommentThreadsList(call *youtube.CommentThreadsListCall, table *Table, ma
 	return nil
 }
 
-func DoCommentsList(call *youtube.CommentsListCall, table *Table, maxresults int64) error {
+func DoCommentsList(call *youtube.CommentsListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -413,7 +414,7 @@ func DoCommentsList(call *youtube.CommentsListCall, table *Table, maxresults int
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -431,7 +432,7 @@ func DoCommentsList(call *youtube.CommentsListCall, table *Table, maxresults int
 	return nil
 }
 
-func DoChatMessagesList(call *youtube.LiveChatMessagesListCall, table *Table, maxresults int64) error {
+func DoChatMessagesList(call *youtube.LiveChatMessagesListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -451,7 +452,7 @@ func DoChatMessagesList(call *youtube.LiveChatMessagesListCall, table *Table, ma
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}
@@ -469,7 +470,7 @@ func DoChatMessagesList(call *youtube.LiveChatMessagesListCall, table *Table, ma
 	return nil
 }
 
-func DoChatModeratorsList(call *youtube.LiveChatModeratorsListCall, table *Table, maxresults int64) error {
+func DoChatModeratorsList(call *youtube.LiveChatModeratorsListCall, table *Table, maxresults int64, callopts ...googleapi.CallOption) error {
 	var numresults int64
 	var nextPageToken string
 
@@ -489,7 +490,7 @@ func DoChatModeratorsList(call *youtube.LiveChatModeratorsListCall, table *Table
 		} else {
 			retrieveitems = (maxresults - numresults)
 		}
-		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do()
+		response, err := call.MaxResults(retrieveitems).PageToken(nextPageToken).Do(callopts...)
 		if err != nil {
 			return err
 		}

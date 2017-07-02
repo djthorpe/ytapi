@@ -168,7 +168,7 @@ func ListVideoCommentThreads(service *ytservice.Service, values *ytapi.Values, t
 	}
 
 	// Perform search, and return results
-	return ytapi.DoCommentThreadsList(call, table, int64(maxresults))
+	return ytapi.DoCommentThreadsList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 func ListChannelCommentThreads(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -197,7 +197,7 @@ func ListChannelCommentThreads(service *ytservice.Service, values *ytapi.Values,
 	}
 
 	// Perform search, and return results
-	return ytapi.DoCommentThreadsList(call, table, int64(maxresults))
+	return ytapi.DoCommentThreadsList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,7 +220,7 @@ func ListCommentsForThread(service *ytservice.Service, values *ytapi.Values, tab
 	}
 
 	// Perform search, and return results
-	return ytapi.DoCommentsList(call, table, int64(maxresults))
+	return ytapi.DoCommentsList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 func MarkCommentAsSpam(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -237,7 +237,7 @@ func MarkCommentAsSpam(service *ytservice.Service, values *ytapi.Values, table *
 	call2 := service.API.Comments.List(strings.Join(table.Parts(false), ",")).Id(thread)
 
 	// Perform search, and return results
-	return ytapi.DoCommentsList(call2, table, 1)
+	return ytapi.DoCommentsList(call2, table, 1, service.CallOptions()...)
 }
 
 func SetCommentModerationStatus(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -261,7 +261,7 @@ func SetCommentModerationStatus(service *ytservice.Service, values *ytapi.Values
 	call2 := service.API.Comments.List(strings.Join(table.Parts(false), ",")).Id(thread)
 
 	// Perform search, and return results
-	return ytapi.DoCommentsList(call2, table, 1)
+	return ytapi.DoCommentsList(call2, table, 1, service.CallOptions()...)
 }
 
 func InsertCommentForThread(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -275,13 +275,13 @@ func InsertCommentForThread(service *ytservice.Service, values *ytapi.Values, ta
 	})
 
 	// Execute
-	if response, err := call.Do(); err != nil {
+	if response, err := call.Do(service.CallOptions()...); err != nil {
 		return err
 	} else {
 		// List comment
 		call := service.API.Comments.List(strings.Join(table.Parts(false), ",")).Id(response.Id)
 		// Perform search, and return results
-		return ytapi.DoCommentsList(call, table, 1)
+		return ytapi.DoCommentsList(call, table, 1, service.CallOptions()...)
 	}
 }
 

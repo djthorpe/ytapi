@@ -198,7 +198,7 @@ func ListBroadcasts(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// Perform search, and return results
-	return ytapi.DoBroadcastsList(call, table, int64(maxresults))
+	return ytapi.DoBroadcastsList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 func GetBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -214,7 +214,7 @@ func GetBroadcast(service *ytservice.Service, values *ytapi.Values, table *ytapi
 	}
 
 	// Perform search, and return results
-	return ytapi.DoBroadcastsList(call, table, 1)
+	return ytapi.DoBroadcastsList(call, table, 1, service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -430,7 +430,7 @@ func InsertBroadcast(service *ytservice.Service, values *ytapi.Values, table *yt
 		}
 
 		// Perform search, and return results
-		return ytapi.DoBroadcastsList(call, table, 1)
+		return ytapi.DoBroadcastsList(call, table, 1, service.CallOptions()...)
 	}
 }
 

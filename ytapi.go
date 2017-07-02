@@ -7,7 +7,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/user"
 	"path/filepath"
 	"strings"
 
@@ -172,20 +171,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Set Quota User
-	if flags.Values.IsSet(&ytapi.FlagQuotaUser) {
-		if username := flags.Values.GetString(&ytapi.FlagQuotaUser); username != "" {
-			service.SetQuotaUser(username)
-		}
-	} else {
-		if currentUser, err := user.Current(); err != nil {
-			service.SetQuotaUser(currentUser.Username)
-		}
+	// Set Quota User, Address and Trace Token
+	if username := flags.Values.GetString(&ytapi.FlagQuotaUser); username != "" {
+		service.SetQuotaUser(username)
 	}
-
-	// Set Trace Token
-	if flags.Values.IsSet(&ytapi.FlagTraceToken) {
-		service.SetTraceToken(flags.Values.GetString(&ytapi.FlagTraceToken))
+	if address := flags.Values.GetString(&ytapi.FlagQuotaAddress); address != "" {
+		service.SetQuotaAddress(address)
+	}
+	if tracetoken := flags.Values.GetString(&ytapi.FlagTraceToken); tracetoken != "" {
+		service.SetTraceToken(tracetoken)
 	}
 
 	// Execute command

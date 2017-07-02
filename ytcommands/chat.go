@@ -174,7 +174,7 @@ func ListChatMessages(service *ytservice.Service, values *ytapi.Values, table *y
 	call := service.API.LiveChatMessages.List(chat, strings.Join(table.Parts(false), ","))
 
 	// Perform search, and return results
-	return ytapi.DoChatMessagesList(call, table, int64(maxresults))
+	return ytapi.DoChatMessagesList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 func InsertChatMessage(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -238,7 +238,7 @@ func ListChatModerators(service *ytservice.Service, values *ytapi.Values, table 
 	call := service.API.LiveChatModerators.List(chat, strings.Join(table.Parts(false), ","))
 
 	// Perform search, and return results
-	return ytapi.DoChatModeratorsList(call, table, int64(maxresults))
+	return ytapi.DoChatModeratorsList(call, table, int64(maxresults), service.CallOptions()...)
 }
 
 func NewChatModerator(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {

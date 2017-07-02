@@ -140,7 +140,7 @@ func VideoSearch(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 	}
 
 	// Perform search, and return results
-	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults))
+	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults), service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@ func BroadcastSearch(service *ytservice.Service, values *ytapi.Values, table *yt
 	}
 
 	// Perform search, and return results
-	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults))
+	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults), service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +195,7 @@ func PlaylistSearch(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// Perform search, and return results
-	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults))
+	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults), service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,5 +220,5 @@ func ChannelSearch(service *ytservice.Service, values *ytapi.Values, table *ytap
 	}
 
 	// Perform search, and return results
-	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults))
+	return ytapi.DoSearchList(call, table, values.GetInt(&ytapi.FlagMaxResults), service.CallOptions()...)
 }

@@ -22,7 +22,7 @@ func RegisterAuthenticateCommands() []*ytapi.Command {
 		&ytapi.Command{
 			Name:        "Authenticate",
 			Description: "Authenticate against service account or YouTube account",
-			Optional:    []*ytapi.Flag{&ytapi.FlagServiceAccount, &ytapi.FlagScope},
+			Optional:    []*ytapi.Flag{&ytapi.FlagServiceAccount, &ytapi.FlagScope, &ytapi.FlagQuotaAddress, &ytapi.FlagQuotaUser, &ytapi.FlagTraceToken},
 			Setup:       AuthenticateSetup,
 			Execute:     AuthenticateExecute,
 		},
@@ -51,7 +51,7 @@ func retrieveChannelDetails(service *ytservice.Service, values *ytapi.Values, ta
 	}
 
 	// Perform search, and return results
-	return ytapi.DoChannelsList(call, table, 0)
+	return ytapi.DoChannelsList(call, table, 0, service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 
 	// If service account authentication, then require -contentowner flag
 	if values.GetBool(&ytapi.FlagServiceAccount) && values.IsSet(&ytapi.FlagContentOwner) == false {
-		return errors.New("Cannot set -sa flag without -contentowner flag")
+		return errors.New("Cannot set -serviceaccount flag without -contentowner flag")
 	}
 
 	// set up output format
@@ -85,6 +85,7 @@ func AuthenticateSetup(values *ytapi.Values, table *ytapi.Table) error {
 	return ytapi.ErrorRemoveAuthToken
 }
 
+// AuthenticateExecute simply outputs information about the authentication
 func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
 	// Display authentication settings
@@ -95,6 +96,15 @@ func AuthenticateExecute(service *ytservice.Service, values *ytapi.Values, table
 		}
 		if values.IsSet(&ytapi.FlagChannel) {
 			table.Info(fmt.Sprint("        Channel: ", values.GetString(&ytapi.FlagChannel)))
+		}
+		if values.IsSet(&ytapi.FlagQuotaUser) {
+			table.Info(fmt.Sprint("     Quota User: ", values.GetString(&ytapi.FlagQuotaUser)))
+		}
+		if values.IsSet(&ytapi.FlagQuotaAddress) {
+			table.Info(fmt.Sprint("  Quota Address: ", values.GetString(&ytapi.FlagQuotaAddress)))
+		}
+		if values.IsSet(&ytapi.FlagTraceToken) {
+			table.Info(fmt.Sprint("    Trace Token: ", values.GetString(&ytapi.FlagTraceToken)))
 		}
 	}
 

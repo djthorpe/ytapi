@@ -163,7 +163,7 @@ func ListPlaylists(service *ytservice.Service, values *ytapi.Values, table *ytap
 	}
 
 	// Perform channels.list and return results
-	return ytapi.DoPlaylistsList(call, table, int64(values.GetUint(&ytapi.FlagMaxResults)))
+	return ytapi.DoPlaylistsList(call, table, int64(values.GetUint(&ytapi.FlagMaxResults)), service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +201,7 @@ func InsertPlaylist(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// Perform channels.list and return results
-	return ytapi.DoPlaylistsList(call2, table, 1)
+	return ytapi.DoPlaylistsList(call2, table, 1, service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -263,7 +263,7 @@ func UpdatePlaylist(service *ytservice.Service, values *ytapi.Values, table *yta
 	}
 
 	// Perform channels.list and return results
-	return ytapi.DoPlaylistsList(call3, table, 1)
+	return ytapi.DoPlaylistsList(call3, table, 1, service.CallOptions()...)
 }
 
 ////////////////////////////////////////////////////////////////////////////////

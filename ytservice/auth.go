@@ -1,9 +1,9 @@
-// Package ytservice encapsulates all the YouTube API services
+package ytservice
+
 /*
-  Copyright David Thorpe 2015-2016 All Rights Reserved
+  Copyright David Thorpe 2015-2017 All Rights Reserved
   Please see file LICENSE for information on distribution, etc
 */
-package ytservice
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -7,7 +7,6 @@ package ytapi
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -73,12 +72,6 @@ type FlagSet struct {
 	filehandle     *os.File
 }
 
-// Defaults structure defines values read from store
-type Defaults struct {
-	ContentOwner string `json:"contentowner,omitempty"`
-	Channel      string `json:"channel,omitempty"`
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // Command-line flags
@@ -86,6 +79,7 @@ var (
 	FlagCredentials                = Flag{Name: "credentials", Description: "Folder containing credentials", Type: FLAG_STRING, Default: ".ytapi"}
 	FlagDebug                      = Flag{Name: "debug", Description: "Show API requests and responses on stderr", Type: FLAG_BOOL, Default: "false"}
 	FlagQuotaUser                  = Flag{Name: "quotauser", Description: "Set Quota User for API calls", Type: FLAG_STRING}
+	FlagQuotaAddress               = Flag{Name: "quotaip", Description: "Set Quota Address for API calls", Type: FLAG_STRING}
 	FlagTraceToken                 = Flag{Name: "tracetoken", Description: "Set Trace Token for API calls", Type: FLAG_STRING}
 	FlagServiceAccount             = Flag{Name: "serviceaccount", Description: "Obtain token using service account information", Type: FLAG_BOOL, Default: "false"}
 	FlagScope                      = Flag{Name: "scope", Description: "Permissions granted during authentication", Type: FLAG_ENUM, Default: "data", Extra: "data|dataread|partner|audit|analytics|revenue|all"}
@@ -182,8 +176,9 @@ var (
 
 	// Global flags which are defined for every invocation of the tool
 	GlobalFlags = []*Flag{
-		&FlagDebug, &FlagQuotaUser, &FlagTraceToken, &FlagCredentials,
+		&FlagDebug, &FlagCredentials,
 		&FlagContentOwner, &FlagChannel,
+		&FlagQuotaUser, &FlagQuotaAddress, &FlagTraceToken,
 		&FlagFields, &FlagOutput, &FlagInput,
 	}
 
@@ -459,60 +454,6 @@ func (this *FlagSet) UsageFields() {
 			fmt.Fprintf(os.Stderr, "\t%s (%s)\n", field.Name, field.TypeString())
 		}
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Read and write Defaults
-
-func (this *FlagSet) ReadDefaults() error {
-	var err error
-	// if a file exists, then read it
-	if _, err := os.Stat(this.Defaults); os.IsNotExist(err) {
-		// file doesn't exist, so just return
-		return err
-	}
-	// read in the file
-	bytes, err := ioutil.ReadFile(this.Defaults)
-	if err != nil {
-		return err
-	}
-	defaults := &Defaults{}
-	err = json.Unmarshal(bytes, defaults)
-	if err != nil {
-		return err
-	}
-	// ContentOwner
-	if err == nil && defaults.ContentOwner != "" {
-		err = this.Values.SetDefault(&FlagContentOwner, string(defaults.ContentOwner))
-	}
-	// Channel
-	if err == nil && defaults.Channel != "" {
-		err = this.Values.SetDefault(&FlagChannel, string(defaults.Channel))
-	}
-	if err != nil {
-		return err
-	}
-	// success
-	return nil
-}
-
-func (this *FlagSet) WriteDefaults() error {
-	defaults := &Defaults{}
-	if this.Values.IsSet(&FlagContentOwner) {
-		defaults.ContentOwner = this.Values.GetString(&FlagContentOwner)
-	}
-	if this.Values.IsSet(&FlagChannel) && this.Values.IsSet(&FlagContentOwner) {
-		defaults.Channel = this.Values.GetString(&FlagChannel)
-	}
-	json, err := json.MarshalIndent(defaults, "", "  ")
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(this.Defaults, json, credentialsFileMode)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (this *FlagSet) RemoveAuthToken() error {
