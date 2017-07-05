@@ -159,10 +159,11 @@ func main() {
 	// and oauth token
 	var service *ytservice.Service
 	debugFlag := flags.Values.GetBool(&ytapi.FlagDebug)
+	scopeFlags := flags.Values.GetStringArray(&ytapi.FlagScope)
 	if command.Name == "Install" {
 		// Empty service object
 	} else if flags.Values.IsSet(&ytapi.FlagContentOwner) {
-		service, err = ytservice.NewYouTubeServiceFromServiceAccountJSON(flags.ServiceAccount, debugFlag)
+		service, err = ytservice.NewYouTubeServiceFromServiceAccountJSON(flags.ServiceAccount, scopeFlags, debugFlag)
 	} else {
 		service, err = ytservice.NewYouTubeServiceFromClientSecretsJSON(flags.ClientSecrets, flags.AuthToken, debugFlag)
 	}

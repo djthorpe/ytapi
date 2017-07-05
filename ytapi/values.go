@@ -9,7 +9,9 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
+	"unicode"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -373,6 +375,16 @@ func (this *Values) GetString(flag *Flag) string {
 		panic(fmt.Sprint("Missing flag value: ", flag.Name))
 	}
 	return value.String()
+}
+
+func (this *Values) GetStringArray(flag *Flag) []string {
+	value, exists := this.values[flag]
+	if exists == false {
+		panic(fmt.Sprint("Missing flag value: ", flag.Name))
+	}
+	return strings.FieldsFunc(value.String(), func(c rune) bool {
+		return !unicode.IsSpace(c)
+	})
 }
 
 func (this *Values) GetBool(flag *Flag) bool {

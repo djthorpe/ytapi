@@ -41,13 +41,19 @@ type Service struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// NewYouTubeServiceFromServiceAccountJSON returns a service object given service account details
-func NewYouTubeServiceFromServiceAccountJSON(filename string, debug bool) (*Service, error) {
+// NewYouTubeServiceFromServiceAccountJSON returns a service object given
+// service account filename, an array of scopes and a debug flag
+func NewYouTubeServiceFromServiceAccountJSON(filename string, scope_flags []string, debug bool) (*Service, error) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
-	saConfig, err := google.JWTConfigFromJSON(bytes, youtube.YoutubeForceSslScope, youtube.YoutubepartnerScope, youtubeanalytics.YtAnalyticsReadonlyScope)
+
+	scopes, err := scopesForFlags(scope_flags)
+	if err != nil {
+		return nil, err
+	}
+	saConfig, err := google.JWTConfigFromJSON(bytes, scopes...)
 	if err != nil {
 		return nil, NewError(ErrorInvalidServiceAccount, err)
 	}
