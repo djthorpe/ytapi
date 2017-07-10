@@ -6,6 +6,9 @@ package cidcommands
 */
 
 import (
+	"errors"
+	"strings"
+
 	"github.com/djthorpe/ytapi/youtubepartner/v1"
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -112,6 +115,30 @@ func RegisterClaimHistoryFormat(values *ytapi.Values, table *ytapi.Table) error 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Policy by ID
+
+func policyByIdentifier(name string) (*youtubepartner.Policy, error) {
+	// TODO
+	return &youtubepartner.Policy{}, nil
+}
+
+func policyByWorldwideRule(name string) (*youtubepartner.Policy, error) {
+	switch strings.TrimSpace(strings.ToLower(name)) {
+	case "block":
+		// TODO
+		return &youtubepartner.Policy{}, nil
+	case "track":
+		// TODO
+		return &youtubepartner.Policy{}, nil
+	case "monetize":
+		// TODO
+		return &youtubepartner.Policy{}, nil
+	default:
+		return nil, errors.New("Invalid policy value")
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // List Claims
 
 func ListClaims(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
@@ -205,6 +232,27 @@ func InsertClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 // Patch Claim
 
 func PatchClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-	// TODO
+	// create call and set parameters
+	claim := values.GetString(&ytapi.FlagClaim)
+	call := service.PAPI.Claims.Patch(claim, &youtubepartner.Claim{
+		BlockOutsideOwnership: values.GetBool(&ytapi.FlagClaimBlockOutsideOwnership),
+		Status:                values.GetString(&ytapi.FlagClaimStatus),
+		ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
+			"BlockOutsideOwnership": &ytapi.FlagClaimBlockOutsideOwnership,
+			"Status":                &ytapi.FlagClaimStatus,
+		}),
+	})
+	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+
+	// Execute
+	response, err := call.Do(service.CallOptions()...)
+	if err != nil {
+		return err
+	}
+
+	// Append claim to table
+	if err = table.Append([]*youtubepartner.Claim{response}); err != nil {
+		return err
+	}
 	return nil
 }
