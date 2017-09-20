@@ -14,15 +14,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	context "golang.org/x/net/context"
-	ctxhttp "golang.org/x/net/context/ctxhttp"
-	gensupport "google.golang.org/api/gensupport"
-	googleapi "google.golang.org/api/googleapi"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	context "golang.org/x/net/context"
+	ctxhttp "golang.org/x/net/context/ctxhttp"
+	gensupport "google.golang.org/api/gensupport"
+	googleapi "google.golang.org/api/googleapi"
 )
 
 // Always reference these packages, just in case the auto-generated code
@@ -2976,8 +2977,8 @@ type Package struct {
 	// Content: The package's metadata file contents.
 	Content string `json:"content,omitempty"`
 
-	// CustomId: The list of customer IDs.
-	CustomId []string `json:"custom_id,omitempty"`
+	// CustomIds: The list of customer IDs.
+	CustomIds []string `json:"customIds,omitempty"`
 
 	// Id: An ID that YouTube assigns and uses to uniquely identify the
 	// package.
@@ -4059,6 +4060,78 @@ func (s *TerritoryOwners) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+type ValidateAsyncRequest struct {
+	// Content: The metadata file contents.
+	Content string `json:"content,omitempty"`
+
+	// Kind: The type of the API resource. For this operation, the value is
+	// youtubePartner#validateAsyncRequest.
+	Kind string `json:"kind,omitempty"`
+
+	// UploaderName: The uploader name.
+	UploaderName string `json:"uploaderName,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Content") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Content") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ValidateAsyncRequest) MarshalJSON() ([]byte, error) {
+	type noMethod ValidateAsyncRequest
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type ValidateAsyncResponse struct {
+	// Kind: The type of the API resource. For this operation, the value is
+	// youtubePartner#validateAsyncResponse.
+	Kind string `json:"kind,omitempty"`
+
+	// Status: The validation status.
+	Status string `json:"status,omitempty"`
+
+	// ValidationId: The validation ID.
+	ValidationId string `json:"validationId,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Kind") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Kind") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ValidateAsyncResponse) MarshalJSON() ([]byte, error) {
+	type noMethod ValidateAsyncResponse
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 type ValidateError struct {
 	// ColumnName: The column name where the error occurred.
 	ColumnName string `json:"columnName,omitempty"`
@@ -4174,6 +4247,83 @@ type ValidateResponse struct {
 
 func (s *ValidateResponse) MarshalJSON() ([]byte, error) {
 	type noMethod ValidateResponse
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type ValidateStatusRequest struct {
+	// Kind: The type of the API resource. For this operation, the value is
+	// youtubePartner#validateStatusRequest.
+	Kind string `json:"kind,omitempty"`
+
+	// Locale: The desired locale of the error messages as defined in BCP 47
+	// (http://tools.ietf.org/html/bcp47). For example, "en-US" or "de". If
+	// not specified we will return the error messages in English ("en").
+	Locale string `json:"locale,omitempty"`
+
+	// ValidationId: The validation ID.
+	ValidationId string `json:"validationId,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Kind") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Kind") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ValidateStatusRequest) MarshalJSON() ([]byte, error) {
+	type noMethod ValidateStatusRequest
+	raw := noMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type ValidateStatusResponse struct {
+	// Errors: The list of errors and/or warnings.
+	Errors []*ValidateError `json:"errors,omitempty"`
+
+	// IsMetadataOnly: If this is a metadata-only package.
+	IsMetadataOnly bool `json:"isMetadataOnly,omitempty"`
+
+	// Kind: The type of the API resource. For this operation, the value is
+	// youtubePartner#validateStatusResponse.
+	Kind string `json:"kind,omitempty"`
+
+	// Status: The validation status.
+	Status string `json:"status,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Errors") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Errors") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *ValidateStatusResponse) MarshalJSON() ([]byte, error) {
+	type noMethod ValidateStatusResponse
 	raw := noMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -13782,16 +13932,12 @@ func (c *ReferencesGetCall) Do(opts ...googleapi.CallOption) (*Reference, error)
 // method id "youtubePartner.references.insert":
 
 type ReferencesInsertCall struct {
-	s                *Service
-	reference        *Reference
-	urlParams_       gensupport.URLParams
-	media_           io.Reader
-	mediaBuffer_     *gensupport.MediaBuffer
-	mediaType_       string
-	mediaSize_       int64 // mediaSize, if known.  Used only for calls to progressUpdater_.
-	progressUpdater_ googleapi.ProgressUpdater
-	ctx_             context.Context
-	header_          http.Header
+	s          *Service
+	reference  *Reference
+	urlParams_ gensupport.URLParams
+	mediaInfo_ *gensupport.MediaInfo
+	ctx_       context.Context
+	header_    http.Header
 }
 
 // Insert: Creates a reference in one of the following ways:
@@ -13841,12 +13987,7 @@ func (c *ReferencesInsertCall) Media(r io.Reader, options ...googleapi.MediaOpti
 	if ct := c.reference.ContentType; ct != "" {
 		options = append([]googleapi.MediaOption{googleapi.ContentType(ct)}, options...)
 	}
-	opts := googleapi.ProcessMediaOptions(options)
-	chunkSize := opts.ChunkSize
-	if !opts.ForceEmptyContentType {
-		r, c.mediaType_ = gensupport.DetermineContentType(r, opts.ContentType)
-	}
-	c.media_, c.mediaBuffer_ = gensupport.PrepareUpload(r, chunkSize)
+	c.mediaInfo_ = gensupport.NewInfoFromMedia(r, options)
 	return c
 }
 
@@ -13861,11 +14002,7 @@ func (c *ReferencesInsertCall) Media(r io.Reader, options ...googleapi.MediaOpti
 // supersede any context previously provided to the Context method.
 func (c *ReferencesInsertCall) ResumableMedia(ctx context.Context, r io.ReaderAt, size int64, mediaType string) *ReferencesInsertCall {
 	c.ctx_ = ctx
-	rdr := gensupport.ReaderAtToReader(r, size)
-	rdr, c.mediaType_ = gensupport.DetermineContentType(rdr, mediaType)
-	c.mediaBuffer_ = gensupport.NewMediaBuffer(rdr, googleapi.DefaultUploadChunkSize)
-	c.media_ = nil
-	c.mediaSize_ = size
+	c.mediaInfo_ = gensupport.NewInfoFromResumableMedia(r, size, mediaType)
 	return c
 }
 
@@ -13874,7 +14011,7 @@ func (c *ReferencesInsertCall) ResumableMedia(ctx context.Context, r io.ReaderAt
 // not slow down the upload operation. This should only be called when
 // using ResumableMedia (as opposed to Media).
 func (c *ReferencesInsertCall) ProgressUpdater(pu googleapi.ProgressUpdater) *ReferencesInsertCall {
-	c.progressUpdater_ = pu
+	c.mediaInfo_.SetProgressUpdater(pu)
 	return c
 }
 
@@ -13919,27 +14056,16 @@ func (c *ReferencesInsertCall) doRequest(alt string) (*http.Response, error) {
 	reqHeaders.Set("Content-Type", "application/json")
 	c.urlParams_.Set("alt", alt)
 	urls := googleapi.ResolveRelative(c.s.BasePath, "references")
-	if c.media_ != nil || c.mediaBuffer_ != nil {
+	if c.mediaInfo_ != nil {
 		urls = strings.Replace(urls, "https://www.googleapis.com/", "https://www.googleapis.com/upload/", 1)
-		protocol := "multipart"
-		if c.mediaBuffer_ != nil {
-			protocol = "resumable"
-		}
-		c.urlParams_.Set("uploadType", protocol)
+		c.urlParams_.Set("uploadType", c.mediaInfo_.UploadType())
 	}
 	if body == nil {
 		body = new(bytes.Buffer)
 		reqHeaders.Set("Content-Type", "application/json")
 	}
-	if c.media_ != nil {
-		combined, ctype := gensupport.CombineBodyMedia(body, "application/json", c.media_, c.mediaType_)
-		defer combined.Close()
-		reqHeaders.Set("Content-Type", ctype)
-		body = combined
-	}
-	if c.mediaBuffer_ != nil && c.mediaType_ != "" {
-		reqHeaders.Set("X-Upload-Content-Type", c.mediaType_)
-	}
+	body, cleanup := c.mediaInfo_.UploadRequest(reqHeaders, body)
+	defer cleanup()
 	urls += "?" + c.urlParams_.Encode()
 	req, _ := http.NewRequest("POST", urls, body)
 	req.Header = reqHeaders
@@ -13972,20 +14098,10 @@ func (c *ReferencesInsertCall) Do(opts ...googleapi.CallOption) (*Reference, err
 	if err := googleapi.CheckResponse(res); err != nil {
 		return nil, err
 	}
-	if c.mediaBuffer_ != nil {
-		loc := res.Header.Get("Location")
-		rx := &gensupport.ResumableUpload{
-			Client:    c.s.client,
-			UserAgent: c.s.userAgent(),
-			URI:       loc,
-			Media:     c.mediaBuffer_,
-			MediaType: c.mediaType_,
-			Callback: func(curr int64) {
-				if c.progressUpdater_ != nil {
-					c.progressUpdater_(curr, c.mediaSize_)
-				}
-			},
-		}
+	rx := c.mediaInfo_.ResumableUpload(res.Header.Get("Location"))
+	if rx != nil {
+		rx.Client = c.s.client
+		rx.UserAgent = c.s.userAgent()
 		ctx := c.ctx_
 		if ctx == nil {
 			ctx = context.TODO()
@@ -14713,6 +14829,274 @@ func (c *ValidatorValidateCall) Do(opts ...googleapi.CallOption) (*ValidateRespo
 	//   },
 	//   "response": {
 	//     "$ref": "ValidateResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/youtubepartner"
+	//   ]
+	// }
+
+}
+
+// method id "youtubePartner.validator.validateAsync":
+
+type ValidatorValidateAsyncCall struct {
+	s                    *Service
+	validateasyncrequest *ValidateAsyncRequest
+	urlParams_           gensupport.URLParams
+	ctx_                 context.Context
+	header_              http.Header
+}
+
+// ValidateAsync: Validate a metadata file asynchronously.
+func (r *ValidatorService) ValidateAsync(validateasyncrequest *ValidateAsyncRequest) *ValidatorValidateAsyncCall {
+	c := &ValidatorValidateAsyncCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.validateasyncrequest = validateasyncrequest
+	return c
+}
+
+// OnBehalfOfContentOwner sets the optional parameter
+// "onBehalfOfContentOwner": The onBehalfOfContentOwner parameter
+// identifies the content owner that the user is acting on behalf of.
+// This parameter supports users whose accounts are associated with
+// multiple content owners.
+func (c *ValidatorValidateAsyncCall) OnBehalfOfContentOwner(onBehalfOfContentOwner string) *ValidatorValidateAsyncCall {
+	c.urlParams_.Set("onBehalfOfContentOwner", onBehalfOfContentOwner)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ValidatorValidateAsyncCall) Fields(s ...googleapi.Field) *ValidatorValidateAsyncCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ValidatorValidateAsyncCall) Context(ctx context.Context) *ValidatorValidateAsyncCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ValidatorValidateAsyncCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ValidatorValidateAsyncCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.validateasyncrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "validatorAsync")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "youtubePartner.validator.validateAsync" call.
+// Exactly one of *ValidateAsyncResponse or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *ValidateAsyncResponse.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ValidatorValidateAsyncCall) Do(opts ...googleapi.CallOption) (*ValidateAsyncResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &ValidateAsyncResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Validate a metadata file asynchronously.",
+	//   "httpMethod": "POST",
+	//   "id": "youtubePartner.validator.validateAsync",
+	//   "parameters": {
+	//     "onBehalfOfContentOwner": {
+	//       "description": "The onBehalfOfContentOwner parameter identifies the content owner that the user is acting on behalf of. This parameter supports users whose accounts are associated with multiple content owners.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "validatorAsync",
+	//   "request": {
+	//     "$ref": "ValidateAsyncRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "ValidateAsyncResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/youtubepartner"
+	//   ]
+	// }
+
+}
+
+// method id "youtubePartner.validator.validateAsyncStatus":
+
+type ValidatorValidateAsyncStatusCall struct {
+	s                     *Service
+	validatestatusrequest *ValidateStatusRequest
+	urlParams_            gensupport.URLParams
+	ctx_                  context.Context
+	header_               http.Header
+}
+
+// ValidateAsyncStatus: Get the asynchronous validation status.
+func (r *ValidatorService) ValidateAsyncStatus(validatestatusrequest *ValidateStatusRequest) *ValidatorValidateAsyncStatusCall {
+	c := &ValidatorValidateAsyncStatusCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.validatestatusrequest = validatestatusrequest
+	return c
+}
+
+// OnBehalfOfContentOwner sets the optional parameter
+// "onBehalfOfContentOwner": The onBehalfOfContentOwner parameter
+// identifies the content owner that the user is acting on behalf of.
+// This parameter supports users whose accounts are associated with
+// multiple content owners.
+func (c *ValidatorValidateAsyncStatusCall) OnBehalfOfContentOwner(onBehalfOfContentOwner string) *ValidatorValidateAsyncStatusCall {
+	c.urlParams_.Set("onBehalfOfContentOwner", onBehalfOfContentOwner)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *ValidatorValidateAsyncStatusCall) Fields(s ...googleapi.Field) *ValidatorValidateAsyncStatusCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *ValidatorValidateAsyncStatusCall) Context(ctx context.Context) *ValidatorValidateAsyncStatusCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *ValidatorValidateAsyncStatusCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *ValidatorValidateAsyncStatusCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.validatestatusrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "validatorAsyncStatus")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "youtubePartner.validator.validateAsyncStatus" call.
+// Exactly one of *ValidateStatusResponse or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *ValidateStatusResponse.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *ValidatorValidateAsyncStatusCall) Do(opts ...googleapi.CallOption) (*ValidateStatusResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &ValidateStatusResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Get the asynchronous validation status.",
+	//   "httpMethod": "POST",
+	//   "id": "youtubePartner.validator.validateAsyncStatus",
+	//   "parameters": {
+	//     "onBehalfOfContentOwner": {
+	//       "description": "The onBehalfOfContentOwner parameter identifies the content owner that the user is acting on behalf of. This parameter supports users whose accounts are associated with multiple content owners.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "validatorAsyncStatus",
+	//   "request": {
+	//     "$ref": "ValidateStatusRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "ValidateStatusResponse"
 	//   },
 	//   "scopes": [
 	//     "https://www.googleapis.com/auth/youtubepartner"

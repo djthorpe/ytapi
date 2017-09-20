@@ -31,6 +31,7 @@ const (
 	FLAG_STREAM
 	FLAG_CONTENTOWNER
 	FLAG_TIME
+	FLAG_DURATION
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +90,8 @@ func (this *Flag) TypeString() string {
 		return "contentowner" + suffix
 	case this.Type == FLAG_TIME:
 		return "datetime" + suffix
+	case this.Type == FLAG_DURATION:
+		return "duration" + suffix
 	default:
 		return "other" + suffix
 	}
@@ -194,4 +197,12 @@ func (this *Flag) asTime(value string) (time.Time, error) {
 		return time.Time{}, err
 	}
 	return datetime, nil
+}
+
+func (this *Flag) asDuration(value string) (time.Duration, error) {
+	duration, err := util.ParseDuration(value, false)
+	if err != nil {
+		return 0, err
+	}
+	return duration, nil
 }
