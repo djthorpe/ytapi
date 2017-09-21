@@ -32,7 +32,7 @@ func RegisterClaimCommands() []*ytapi.Command {
 			Name:           "GetClaim",
 			Description:    "Get Existing claim",
 			ServiceAccount: true,
-			Required:       []*ytapi.Flag{&ytapi.FlagClaim},
+			Optional:       []*ytapi.Flag{&ytapi.FlagClaim, &ytapi.FlagVideo},
 			Setup:          RegisterClaimFormat,
 			Execute:        GetClaim,
 		},
@@ -48,7 +48,7 @@ func RegisterClaimCommands() []*ytapi.Command {
 			Name:           "ClaimHistory",
 			Description:    "List history for a claim",
 			ServiceAccount: true,
-			Required:       []*ytapi.Flag{&ytapi.FlagClaim},
+			Optional:       []*ytapi.Flag{&ytapi.FlagClaim, &ytapi.FlagVideo},
 			Setup:          RegisterClaimHistoryFormat,
 			Execute:        GetClaimHistory,
 		},
@@ -117,9 +117,13 @@ func RegisterClaimHistoryFormat(values *ytapi.Values, table *ytapi.Table) error 
 // Return Policy
 
 func policyByValue(value string) (*youtubepartner.Policy, error) {
-	return &youtubepartner.Policy{
-		Id: value,
-	}, nil
+	value2 := strings.TrimSpace(strings.ToLower(value))
+	switch value2 {
+	case "block", "track", "monetize", "takedown":
+		return policyByWorldwideRule(value2)
+	default:
+		return policyByIdentifier(value)
+	}
 }
 
 func policyByIdentifier(name string) (*youtubepartner.Policy, error) {
@@ -129,16 +133,39 @@ func policyByIdentifier(name string) (*youtubepartner.Policy, error) {
 }
 
 func policyByWorldwideRule(name string) (*youtubepartner.Policy, error) {
-	switch strings.TrimSpace(strings.ToLower(name)) {
+	switch name {
 	case "block":
-		// TODO
-		return &youtubepartner.Policy{}, nil
+		return &youtubepartner.Policy{
+			Rules: []*youtubepartner.PolicyRule{
+				&youtubepartner.PolicyRule{
+					Action: "block",
+				},
+			},
+		}, nil
 	case "track":
-		// TODO
-		return &youtubepartner.Policy{}, nil
+		return &youtubepartner.Policy{
+			Rules: []*youtubepartner.PolicyRule{
+				&youtubepartner.PolicyRule{
+					Action: "track",
+				},
+			},
+		}, nil
 	case "monetize":
-		// TODO
-		return &youtubepartner.Policy{}, nil
+		return &youtubepartner.Policy{
+			Rules: []*youtubepartner.PolicyRule{
+				&youtubepartner.PolicyRule{
+					Action: "monetize",
+				},
+			},
+		}, nil
+	case "takedown":
+		return &youtubepartner.Policy{
+			Rules: []*youtubepartner.PolicyRule{
+				&youtubepartner.PolicyRule{
+					Action: "takedown",
+				},
+			},
+		}, nil
 	default:
 		return nil, errors.New("Invalid policy value")
 	}
@@ -177,8 +204,21 @@ func ListClaims(service *ytservice.Service, values *ytapi.Values, table *ytapi.T
 // Get Claim
 
 func GetClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+	// claim or video parameter
+	var err error
+	var claim string
+	if values.IsSet(&ytapi.FlagClaim) {
+		claim = values.GetString(&ytapi.FlagClaim)
+	} else if values.IsSet(&ytapi.FlagVideo) {
+		if claim, err = claimSearchByVideo(service, values); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("Expect -claim or -video flag")
+	}
+
 	// create call and set parameters
-	call := service.PAPI.Claims.Get(values.GetString(&ytapi.FlagClaim))
+	call := service.PAPI.Claims.Get(claim)
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
 	// Execute
@@ -196,8 +236,21 @@ func GetClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Tab
 // Claim History
 
 func GetClaimHistory(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+	// claim or video parameter
+	var err error
+	var claim string
+	if values.IsSet(&ytapi.FlagClaim) {
+		claim = values.GetString(&ytapi.FlagClaim)
+	} else if values.IsSet(&ytapi.FlagVideo) {
+		if claim, err = claimSearchByVideo(service, values); err != nil {
+			return err
+		}
+	} else {
+		return errors.New("Expect -claim or -video flag")
+	}
+
 	// create call and set parameters
-	call := service.PAPI.ClaimHistory.Get(values.GetString(&ytapi.FlagClaim))
+	call := service.PAPI.ClaimHistory.Get(claim)
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
 	// Execute
