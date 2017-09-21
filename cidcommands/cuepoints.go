@@ -7,9 +7,9 @@ package cidcommands
 
 import (
 	"errors"
-)
+	"fmt"
+	"time"
 
-import (
 	"github.com/djthorpe/ytapi/youtubepartner/v1"
 	"github.com/djthorpe/ytapi/ytapi"
 	"github.com/djthorpe/ytapi/ytservice"
@@ -28,6 +28,14 @@ func RegisterCuepointsCommands() []*ytapi.Command {
 			Optional:       []*ytapi.Flag{&ytapi.FlagCuepointOffset, &ytapi.FlagCuepointDuration, &ytapi.FlagCuepointTime},
 			Setup:          RegisterCuepointFormat,
 			Execute:        InsertCuepoint,
+		},
+		&ytapi.Command{
+			Name:           "InsertPodCuepoints",
+			Description:    "Inserts several cuepoints within a 'pod' into a live broadcast",
+			ServiceAccount: true,
+			Required:       []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagCuepointDuration, &ytapi.FlagCuepointPodDuration},
+			Setup:          RegisterCuepointFormat,
+			Execute:        InsertPodCuepoints,
 		},
 	}
 }
@@ -58,7 +66,7 @@ func RegisterCuepointFormat(values *ytapi.Values, table *ytapi.Table) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// List Content Owners
+// Insert Cuepoints
 
 func InsertCuepoint(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
 
@@ -86,5 +94,45 @@ func InsertCuepoint(service *ytservice.Service, values *ytapi.Values, table *yta
 	if err = table.Append([]*youtubepartner.LiveCuepoint{response}); err != nil {
 		return err
 	}
+	return nil
+}
+
+func InsertPodCuepoints(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	if values.IsSet(&ytapi.FlagChannel) == false {
+		return errors.New("Missing channel value")
+	}
+
+	duration := values.GetDuration(&ytapi.FlagCuepointDuration)
+	podduration := values.GetDuration(&ytapi.FlagCuepointPodDuration)
+	if podduration < duration {
+		return errors.New("--duration argument should be less than --podduration argument")
+	}
+
+	call := service.PAPI.LiveCuepoints.Insert(values.GetString(&ytapi.FlagChannel), &youtubepartner.LiveCuepoint{
+		BroadcastId: values.GetString(&ytapi.FlagVideo),
+		Settings: &youtubepartner.CuepointSettings{
+			CueType:      "ad",
+			DurationSecs: int64(duration.Seconds()),
+		},
+	})
+	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
+
+	time_now := time.Now()
+	for {
+		table.Info(fmt.Sprintf("Triggering cuepoint of duration %v", duration))
+		response, err := call.Do(service.CallOptions()...)
+		if err != nil {
+			return err
+		}
+		if err = table.Append([]*youtubepartner.LiveCuepoint{response}); err != nil {
+			return err
+		}
+		time.Sleep(duration)
+		if time.Since(time_now) >= podduration {
+			break
+		}
+	}
+
 	return nil
 }

@@ -125,6 +125,7 @@ var (
 	FlagCuepointOffset             = Flag{Name: "offset", Description: "Offset time (ms)", Type: FLAG_UINT}
 	FlagCuepointDuration           = Flag{Name: "duration", Description: "Duration", Type: FLAG_DURATION}
 	FlagCuepointTime               = Flag{Name: "time", Description: "Walltime", Type: FLAG_TIME}
+	FlagCuepointPodDuration        = Flag{Name: "podduration", Description: "Ad Pod Duration", Type: FLAG_DURATION}
 	FlagVideoFilter                = Flag{Name: "filter", Description: "Video filter", Type: FLAG_ENUM, Extra: "chart|like|dislike|likes|favorites|uploads|watchhistory|watchlater", Default: "uploads"}
 	FlagVideoCategory              = Flag{Name: "category", Description: "Video Category", Type: FLAG_UINT}
 	FlagVideoRating                = Flag{Name: "rating", Description: "Video Rating", Type: FLAG_ENUM, Extra: "like|dislike|none"}
