@@ -183,6 +183,8 @@ func claimSearchByVideo(service *ytservice.Service, values *ytapi.Values) (strin
 	if err != nil {
 		return "", err
 	}
+	// TODO - We might return more than one claim, only count active claims
+	// not inactive ones
 	if len(response.Items) != 1 {
 		return "", errors.New("Invalid claim")
 	}
@@ -268,14 +270,22 @@ func GetClaimHistory(service *ytservice.Service, values *ytapi.Values, table *yt
 // Create Claim
 
 func InsertClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
+
+	// policy parameter
+	var err error
+	var policy *youtubepartner.Policy
+	if values.IsSet(&ytapi.FlagPolicy) {
+		if policy, err = policyByValue(values.GetString(&ytapi.FlagPolicy)); err != nil {
+			return err
+		}
+	}
+
 	// create call and set parameters
 	call := service.PAPI.Claims.Insert(&youtubepartner.Claim{
 		AssetId:     values.GetString(&ytapi.FlagAsset),
 		VideoId:     values.GetString(&ytapi.FlagVideo),
 		ContentType: values.GetString(&ytapi.FlagClaimType),
-		Policy: &youtubepartner.Policy{
-			Id: values.GetString(&ytapi.FlagPolicy),
-		},
+		Policy:      policy,
 	})
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 
