@@ -25,6 +25,7 @@ _testmain.go
 
 .DS_Store
 build/version.json
+youtubepartner/v1
 version.go
 *~
 .vscode
