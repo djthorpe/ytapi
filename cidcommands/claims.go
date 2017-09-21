@@ -56,7 +56,7 @@ func RegisterClaimCommands() []*ytapi.Command {
 			Name:           "UpdateClaim",
 			Description:    "Update an existing claim or video",
 			ServiceAccount: true,
-			Optional:       []*ytapi.Flag{&ytapi.FlagVideo,&ytapi.FlagClaim,&ytapi.FlagClaimStatus, &ytapi.FlagPolicy, &ytapi.FlagClaimBlockOutsideOwnership},
+			Optional:       []*ytapi.Flag{&ytapi.FlagVideo, &ytapi.FlagClaim, &ytapi.FlagClaimStatus, &ytapi.FlagPolicy, &ytapi.FlagClaimBlockOutsideOwnership},
 			Setup:          RegisterClaimFormat,
 			Execute:        PatchClaim,
 		},
@@ -116,9 +116,16 @@ func RegisterClaimHistoryFormat(values *ytapi.Values, table *ytapi.Table) error 
 ////////////////////////////////////////////////////////////////////////////////
 // Return Policy
 
+func policyByValue(value string) (*youtubepartner.Policy, error) {
+	return &youtubepartner.Policy{
+		Id: value,
+	}, nil
+}
+
 func policyByIdentifier(name string) (*youtubepartner.Policy, error) {
-	// TODO
-	return &youtubepartner.Policy{}, nil
+	return &youtubepartner.Policy{
+		Id: name,
+	}, nil
 }
 
 func policyByWorldwideRule(name string) (*youtubepartner.Policy, error) {
@@ -140,21 +147,20 @@ func policyByWorldwideRule(name string) (*youtubepartner.Policy, error) {
 ////////////////////////////////////////////////////////////////////////////////
 // Return Claim
 
-func claimSearchByVideo(service *ytservice.Service,values *ytapi.Values) (string,error) {
+func claimSearchByVideo(service *ytservice.Service, values *ytapi.Values) (string, error) {
 	// create call and set parameters
 	call := service.PAPI.ClaimSearch.List()
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))
 	call = call.VideoId(values.GetString(&ytapi.FlagVideo))
 	response, err := call.Do(service.CallOptions()...)
 	if err != nil {
-		return "",err
+		return "", err
 	}
 	if len(response.Items) != 1 {
-		return "",errors.New("Invalid claim")
+		return "", errors.New("Invalid claim")
 	}
-	return response.Items[0].Id,nil
+	return response.Items[0].Id, nil
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // List Claims
@@ -250,24 +256,30 @@ func InsertClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.
 // Patch Claim
 
 func PatchClaim(service *ytservice.Service, values *ytapi.Values, table *ytapi.Table) error {
-	// create call and set parameters
-	claim := values.GetString(&ytapi.FlagClaim)
+	var err error
+
+	// claim or video parameter
+	var claim string
 	if values.IsSet(&ytapi.FlagClaim) {
-		// Do nothing
+		claim = values.GetString(&ytapi.FlagClaim)
 	} else if values.IsSet(&ytapi.FlagVideo) {
-		var err error
-		if claim, err = claimSearchByVideo(service,values); err != nil {
+		if claim, err = claimSearchByVideo(service, values); err != nil {
 			return err
 		}
 	} else {
 		return errors.New("Expect -claim or -video flag")
 	}
+
+	// policy parameter
+	var policy *youtubepartner.Policy
+	if values.IsSet(&ytapi.FlagPolicy) {
+		policy, err = policyByValue(values.GetString(&ytapi.FlagPolicy))
+	}
+
 	call := service.PAPI.Claims.Patch(claim, &youtubepartner.Claim{
 		BlockOutsideOwnership: values.GetBool(&ytapi.FlagClaimBlockOutsideOwnership),
 		Status:                values.GetString(&ytapi.FlagClaimStatus),
-		Policy: &youtubepartner.Policy{
-			Id: values.GetString(&ytapi.FlagPolicy),
-		},
+		Policy:                policy,
 		ForceSendFields: values.SetFields(map[string]*ytapi.Flag{
 			"BlockOutsideOwnership": &ytapi.FlagClaimBlockOutsideOwnership,
 			"Status":                &ytapi.FlagClaimStatus,

@@ -133,7 +133,7 @@ echo "  \"service_account\":\"${SERVICE_ACCOUNT}\"" >> ${JSON_PATH}
 echo "}" >> ${JSON_PATH}
 
 # get dependencies
-${GO} get
+${GO} get -u
 
 # build the command line tool
 ${GO} run build/build.go ${JSON_PATH} ${TEMPLATE_PATH} > ${VERSION_PATH}
