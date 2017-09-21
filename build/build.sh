@@ -66,6 +66,10 @@ if [ -z "${GOBIN}" ]; then
   echo "GOBIN not set, go install will fail" >&2
   exit -1
 fi
+if [ ! -d "${CURRENT_PATH}/../youtubepartner/v1" ]; then
+  echo "YouTube Partner API not found, run build/updateapi.sh first" >&2
+  exit -1
+fi
 
 ##############################################################
 # Check for client secret (-c) and/or service account flag (-s)
