@@ -65,13 +65,16 @@ func InsertCuepoint(service *ytservice.Service, values *ytapi.Values, table *yta
 	if values.IsSet(&ytapi.FlagChannel) == false {
 		return errors.New("Missing channel value")
 	}
+
+	duration := values.GetDuration(&ytapi.FlagCuepointDuration)
+
 	call := service.PAPI.LiveCuepoints.Insert(values.GetString(&ytapi.FlagChannel), &youtubepartner.LiveCuepoint{
 		BroadcastId: values.GetString(&ytapi.FlagVideo),
 		Settings: &youtubepartner.CuepointSettings{
 			CueType:      "ad",
 			OffsetTimeMs: values.GetInt(&ytapi.FlagCuepointOffset),
 			Walltime:     values.GetTimeInISOFormat(&ytapi.FlagCuepointTime),
-			DurationSecs: values.GetInt(&ytapi.FlagCuepointDuration),
+			DurationSecs: int64(duration.Seconds()),
 		},
 	})
 	call = call.OnBehalfOfContentOwner(values.GetString(&ytapi.FlagContentOwner))

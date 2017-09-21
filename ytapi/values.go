@@ -16,13 +16,14 @@ import (
 
 // Value structure defines a generic value
 type Value struct {
-	v_string string
-	v_uint   uint64
-	v_float  float64
-	v_bool   bool
-	v_time   time.Time
-	is_set   bool
-	flag     *Flag
+	v_string   string
+	v_uint     uint64
+	v_float    float64
+	v_bool     bool
+	v_time     time.Time
+	v_duration time.Duration
+	is_set     bool
+	flag       *Flag
 }
 
 // Values structure defines a set of values
@@ -196,6 +197,9 @@ func (this *Value) SetString(value string) error {
 	case this.flag.Type == FLAG_TIME:
 		this.v_time, err = this.flag.asTime(value)
 		break
+	case this.flag.Type == FLAG_DURATION:
+		this.v_duration, err = this.flag.asDuration(value)
+		break
 	}
 
 	if err == nil {
@@ -266,6 +270,23 @@ func (this *Value) Time() time.Time {
 		return value
 	}
 	return time.Time{}
+}
+
+func (this *Value) Duration() time.Duration {
+	if this.flag.Type != FLAG_DURATION {
+		panic("Not a Duration type")
+	}
+	if this.is_set {
+		return this.v_duration
+	}
+	if this.flag.Default != "" {
+		value, err := this.flag.asDuration(this.flag.Default)
+		if err != nil {
+			panic(err)
+		}
+		return value
+	}
+	return 0
 }
 
 func (this *Value) IsBoolFlag() bool {
@@ -352,6 +373,10 @@ func (this *Values) IsKindOf(flag *Flag, kind int) bool {
 		if _, err := flag.asTime(value); err != nil {
 			return false
 		}
+	case FLAG_DURATION:
+		if _, err := flag.asDuration(value); err != nil {
+			return false
+		}
 	}
 	return true
 }
@@ -405,6 +430,14 @@ func (this *Values) GetTime(flag *Flag) time.Time {
 		panic("Missing flag")
 	}
 	return value.Time()
+}
+
+func (this *Values) GetDuration(flag *Flag) time.Duration {
+	value, exists := this.values[flag]
+	if exists == false {
+		panic("Missing flag")
+	}
+	return value.Duration()
 }
 
 func (this *Values) GetTimeInISOFormat(flag *Flag) string {

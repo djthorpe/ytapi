@@ -31,6 +31,7 @@ const (
 	FLAG_STREAM
 	FLAG_CONTENTOWNER
 	FLAG_TIME
+	FLAG_DURATION
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +47,15 @@ type Flag struct {
 	Array       bool
 	added       bool
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// GLOBAL VARIABLES
+
+var (
+	RegExStreamKey        = regexp.MustCompile("^([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})$")
+	RegExStreamIdentifier = regexp.MustCompile("^([a-zA-Z0-9\\-]{38})$")
+	RegExVideoIdentifier  = regexp.MustCompile("^([a-zA-Z0-9\\-\\_]{11})$")
+)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Flag implementation
@@ -80,6 +90,8 @@ func (this *Flag) TypeString() string {
 		return "contentowner" + suffix
 	case this.Type == FLAG_TIME:
 		return "datetime" + suffix
+	case this.Type == FLAG_DURATION:
+		return "duration" + suffix
 	default:
 		return "other" + suffix
 	}
@@ -107,7 +119,7 @@ func (this *Flag) asEnum(value string) (string, error) {
 }
 
 func (this *Flag) asVideo(value string) (string, error) {
-	matched, _ := regexp.MatchString("^([a-zA-Z0-9\\-\\_]{11})$", value)
+	matched := RegExVideoIdentifier.MatchString(value)
 	if matched == false {
 		return "", fmt.Errorf("Malformed video value: %s", value)
 	}
@@ -115,11 +127,11 @@ func (this *Flag) asVideo(value string) (string, error) {
 }
 
 func (this *Flag) asStream(value string) (string, error) {
-	matched, _ := regexp.MatchString("^([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})$", value)
+	matched := RegExStreamKey.MatchString(value)
 	if matched {
 		return value, nil
 	}
-	matched2, _ := regexp.MatchString("^([a-zA-Z0-9\\-]{38})$", value)
+	matched2 := RegExStreamIdentifier.MatchString(value)
 	if matched2 {
 		return value, nil
 	}
@@ -185,4 +197,12 @@ func (this *Flag) asTime(value string) (time.Time, error) {
 		return time.Time{}, err
 	}
 	return datetime, nil
+}
+
+func (this *Flag) asDuration(value string) (time.Duration, error) {
+	duration, err := util.ParseDuration(value, false)
+	if err != nil {
+		return 0, err
+	}
+	return duration, nil
 }

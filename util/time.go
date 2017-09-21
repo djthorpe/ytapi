@@ -76,3 +76,11 @@ func ParseTime(value string, notnull bool) (time.Time, error) {
 	// error
 	return time.Time{}, errors.New(fmt.Sprint("Cannot parse time value: \"", value, "\""))
 }
+
+func ParseDuration(value string, notnull bool) (time.Duration, error) {
+	value = strings.TrimSpace(value)
+	if notnull == false && value == "" {
+		return 0, nil
+	}
+	return time.ParseDuration(value)
+}
