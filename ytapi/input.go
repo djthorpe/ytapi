@@ -18,10 +18,9 @@ import (
 // TYPES
 
 type Input struct {
-	handle  io.ReadCloser
-	format  InputFormat
-	fields  []string
-	records []map[string]string
+	handle io.ReadCloser
+	format InputFormat
+	table  *Table
 }
 
 type InputFormat int
@@ -50,8 +49,7 @@ func NewInput() *Input {
 	// Set defaults
 	this.handle = os.Stdin
 	this.format = INPUT_CSV
-	this.fields = nil
-	this.records = make([]map[string]string, 0)
+	this.table = nil
 
 	// Success
 	return this
@@ -62,6 +60,7 @@ func (this *Input) Close() {
 	if this.handle != os.Stdin {
 		this.handle.Close()
 		this.handle = os.Stdin
+		this.table = nil
 	}
 }
 
@@ -76,7 +75,6 @@ func (this *Input) SetDataSource(handle io.ReadCloser, format InputFormat) {
 
 // ReadAll will read everything
 func (this *Input) ReadAll() error {
-	var fields []string
 	reader := csv.NewReader(this.handle)
 	for {
 		record, err := reader.Read()
@@ -88,10 +86,11 @@ func (this *Input) ReadAll() error {
 			continue
 		}
 
-		if fields == nil {
-			// If fields is empty, then we create the field names
-			fields = this.setFieldNames(record)
-		} else if err := this.append(fields, record); err != nil {
+		if this.table == nil {
+			// Create the field names
+			this.table = NewTable()
+			this.table.SetColumns(this.setFieldNames(record))
+		} else if err := this.append(record); err != nil {
 			return err
 		}
 	}
@@ -112,11 +111,9 @@ func (this *Input) setFieldNames(fields []string) []string {
 	return fieldNames
 }
 
-func (this *Input) append(fields []string, record []string) error {
-	if len(fields) != len(record) {
-		return ErrFieldMismatch
-	}
-	fmt.Println(fields, "=>", record)
+func (this *Input) append(record []string) error {
+	values := this.table.NewRow()
+	fmt.Println(values, "=>", record)
 	return nil
 }
 
