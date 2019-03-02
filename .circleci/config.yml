@@ -3,9 +3,9 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.11
+        environment:
+          GO111MODULE: "ON"
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
-    environment:
-       GO111MODULE: on
     steps:
       - checkout
       - run: build/updateapi.sh
