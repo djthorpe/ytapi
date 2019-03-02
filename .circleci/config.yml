@@ -9,6 +9,5 @@ jobs:
     steps:
       - checkout
       - run: build/updateapi.sh
-      - run: go get -v -t -d ./...
       - run: build/build.sh
       - run: go test -v ./...
