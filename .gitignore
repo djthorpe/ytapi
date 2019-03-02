@@ -8,5 +8,5 @@ build/version.json
 youtubepartner/v1
 version.go
 .vscode
-
+*.sum
 
