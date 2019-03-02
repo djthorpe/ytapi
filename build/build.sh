@@ -31,7 +31,7 @@ fi
 CURRENT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 JSON_PATH="${TMPDIR}/version.json"
 TEMPLATE_PATH="${CURRENT_PATH}/version.go.tmpl"
-VERSION_PATH="${CURRENT_PATH}/../version.go"
+VERSION_PATH="${CURRENT_PATH}/../cmd/ytapi/version.go"
 GIT=`which git`
 GO=`which go`
 
@@ -140,7 +140,7 @@ ${GO} run build/build.go ${JSON_PATH} ${TEMPLATE_PATH} > ${VERSION_PATH}
 if [ $? -ne 0 ] ; then
   exit $?
 fi
-GOOS=${GOOS} GOARCH=${GOARCH} ${GO} install -ldflags "-s -w" ytapi.go version.go
+GOOS=${GOOS} GOARCH=${GOARCH} ${GO} install -ldflags "-s -w" ./cmd/ytapi/...
 if [ $? -ne 0 ] ; then
   exit $?
 fi
