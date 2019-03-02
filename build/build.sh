@@ -62,10 +62,6 @@ if [ ! -x ${GO} ] ; then
   echo "go not installed or executable" >&2
   exit -1
 fi
-if [ -z "${GOBIN}" ]; then
-  echo "GOBIN not set, go install will fail" >&2
-  exit -1
-fi
 if [ ! -d "${CURRENT_PATH}/../youtubepartner/v1" ]; then
   echo "YouTube Partner API not found, run build/updateapi.sh first" >&2
   exit -1
