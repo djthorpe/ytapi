@@ -12,7 +12,10 @@ import (
 	"os/user"
 	"path/filepath"
 
+	// Frameworks
+	"github.com/djthorpe/ytapi/brightcove"
 	"github.com/djthorpe/ytapi/brightcoveapi"
+	"github.com/djthorpe/ytapi/util"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +54,33 @@ func ClientOptions(debug bool) ([]brightcoveapi.ClientOption, error) {
 	return options, nil
 }
 
+func RegisterCommands() []*util.Command {
+	return brightcove.RegisterCMSCommands()
+}
+
+func PrintUsage(dev *os.File, commands []*util.Command) {
+	execname := filepath.Base(os.Args[0])
+	fmt.Fprintf(dev, "\nUsage of %s:\n\n", execname)
+	fmt.Fprintf(dev, "  %s -help\n", execname)
+	fmt.Fprintf(dev, "  %s <flags>... <api-call> <arguments>...\n", execname)
+	fmt.Fprintln(dev, "")
+
+	fmt.Fprintln(dev, "API Calls:")
+	for _, command := range commands {
+		fmt.Fprintf(dev, "  %-20s %s\n", command.Name, command.Description)
+	}
+	fmt.Fprintln(dev, "")
+}
+
+func GetCommand(arg string, commands []*util.Command) *util.Command {
+	for _, command := range commands {
+		if command.Name == arg {
+			return command
+		}
+	}
+	return nil
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 func main() {
@@ -65,7 +95,17 @@ func main() {
 	} else if client, err := brightcoveapi.NewClient(credentials, options...); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(-1)
-	} else {
-		fmt.Println(client)
+	} else if commands := RegisterCommands(); len(commands) == 0 {
+		fmt.Fprintln(os.Stderr, "No commands registered")
+		os.Exit(-1)
+	} else if args := flag.Args(); len(args) == 0 {
+		PrintUsage(os.Stderr, commands)
+		os.Exit(-1)
+	} else if command := GetCommand(args[0], commands); command == nil {
+		PrintUsage(os.Stderr, commands)
+		os.Exit(-1)
+	} else if err := command.ExecBrightcove(client, args[1:]); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(-1)
 	}
 }
