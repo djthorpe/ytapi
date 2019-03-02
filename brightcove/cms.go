@@ -2,7 +2,6 @@ package brightcove
 
 import (
 	"errors"
-	"fmt"
 
 	// Frameworks
 	"github.com/djthorpe/ytapi/brightcoveapi"
@@ -17,38 +16,64 @@ func RegisterCMSCommands() []*util.Command {
 		&util.Command{
 			Name:        "GetVideoCount",
 			Description: "Get count of videos in account",
+			Format:      FormatVideoCount,
 			Brightcove:  GetVideoCount,
 		},
 		&util.Command{
 			Name:        "GetVideos",
 			Description: "Get videos in account",
+			Format:      FormatVideos,
 			Brightcove:  GetVideos,
 		},
 	}
 }
 
-func GetVideoCount(client *brightcoveapi.Client, args []string) error {
-	if len(args) != 0 {
-		return errors.New("Too many arguments")
-	}
-	if count, err := client.CMS.GetVideoCount(); err != nil {
+/////////////////////////////////////////////////////////////////////
+
+func FormatVideoCount(output *util.Table) error {
+	if err := output.AddColumn("video_count"); err != nil {
 		return err
-	} else {
-		fmt.Println(count)
 	}
 
 	// Success
 	return nil
 }
 
-func GetVideos(client *brightcoveapi.Client, args []string) error {
+func GetVideoCount(client *brightcoveapi.Client, output *util.Table, args []string) error {
+	if len(args) != 0 {
+		return errors.New("Too many arguments")
+	}
+	if count, err := client.CMS.GetVideoCount(); err != nil {
+		return err
+	} else {
+		output.Append(map[string]uint{"video_count": count})
+	}
+
+	// Success
+	return nil
+}
+
+/////////////////////////////////////////////////////////////////////
+
+func FormatVideos(output *util.Table) error {
+	if err := output.AddColumn("id"); err != nil {
+		return err
+	}
+
+	// Success
+	return nil
+}
+
+func GetVideos(client *brightcoveapi.Client, output *util.Table, args []string) error {
 	if len(args) != 0 {
 		return errors.New("Too many arguments")
 	}
 	if videos, err := client.CMS.GetVideos(); err != nil {
 		return err
 	} else {
-		fmt.Println(videos)
+		for _, video := range videos {
+			output.Append(video)
+		}
 	}
 
 	// Success
