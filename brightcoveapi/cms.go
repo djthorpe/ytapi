@@ -31,14 +31,14 @@ type Video struct {
 	Live              bool                   `json:"live"`
 	ClipSourceVideoId string                 `json:"clip_source_video_id"`
 	Complete          bool                   `json:"complete"`
-	CreatedAt         string                 `json:"created_at"` // 2015-09-17T16:08:37.108Z
+	CreatedAt         string                 `json:"created_at" ytapi:"datetime"` // 2015-09-17T16:08:37.108Z
 	CuePoints         []*VideoCuePoint       `json:"cue_points"`
-	CustomFields      map[string]string      `json:"custom_fields"`
+	CustomFields      map[string]string      `json:"custom_fields" ytapi:"string_map"`
 	DeliveryType      string                 `json:"delivery_type"`
 	Description       string                 `json:"description"`
 	DigitalMasterId   string                 `json:"digital_master_id"`
 	DrmDisabled       bool                   `json:"drm_disabled"`
-	Duration          uint32                 `json:"duration"`
+	Duration          uint32                 `json:"duration" ytapi:"seconds"`
 	Economics         string                 `json:"economics"`
 	FolderId          string                 `json:"folder_id"`
 	Geo               *VideoGeo              `json:"geo"`
@@ -49,13 +49,13 @@ type Video struct {
 	OfflineEnabled    bool                   `json:"offline_enabled"`
 	OriginalFilename  string                 `json:"original_filename"`
 	Projection        string                 `json:"projection"`
-	PublishedAt       string                 `json:"published_at"`
+	PublishedAt       string                 `json:"published_at" ytapi:"datetime"`
 	ReferenceId       string                 `json:"reference_id"`
 	Schedule          *VideoSchedule         `json:"schedule"`
 	State             string                 `json:"state"`
-	Tags              []string               `json:"tags"`
+	Tags              []string               `json:"tags" ytapi:"string_array"`
 	TextTracks        []*VideoTextTrack      `json:"text_tracks"`
-	UpdatedAt         string                 `json:"updated_at"`
+	UpdatedAt         string                 `json:"updated_at" ytapi:"datetime"`
 }
 
 type VideoTextTrack struct {
@@ -93,6 +93,23 @@ type VideoImageSource struct {
 	Src string `json:"src"`
 }
 
+type VideoSource struct {
+	AssetId      string `json:"asset_id"`
+	AppName      string `json:"app_name"`
+	Type         string `json:"type"`
+	Codec        string `json:"codec"`
+	Container    string `json:"container"`
+	Width        uint   `json:"width"`
+	Height       uint   `json:"height"`
+	Size         uint   `json:"size"`
+	Duration     uint   `json:"duration" ytapi:"seconds"`
+	EncodingRate uint   `json:"encoding_rate"`
+	Remote       bool   `json:"remote"`
+	Src          string `json:"src"`
+	StreamName   string `json:"stream_name"`
+	UploadedAt   string `json:"uploaded_at" ytapi:"datetime"`
+}
+
 type VideoLink struct {
 	Text string `json:"text"`
 	Url  string `json:"url"`
@@ -113,6 +130,30 @@ type VideoSharing struct {
 
 type VideoCount struct {
 	Count uint `json:"count"`
+}
+
+type Asset struct {
+	Id                  string `json:"id"`
+	AudioOnly           bool   `json:"audio_only"`
+	CdnOriginId         string `json:"cdn_origin_id"`
+	Complete            bool   `json:"complete"`
+	ControllerType      string `json:"controller_type"`
+	CurrentFilename     string `json:"current_filename"`
+	Name                string `json:"name"`
+	ProgressiveDownload bool   `json:"progressive_download"`
+	ReferenceId         string `json:"reference_id"`
+	RemoteStreamName    string `json:"remote_stream_name"`
+	RemoteUrl           string `json:"remote_url"`
+	Size                uint   `json:"size"`
+	Type                string `json:"type"`
+	UploadedAt          string `json:"uploaded_at" ytapi:"datetime"`
+	UpdatedAt           string `json:"updated_at" ytapi:"datetime"`
+	EncodingRate        uint   `json:"encoding_rate"`
+	Width               uint   `json:"frame_width"`
+	Height              uint   `json:"frame_height"`
+	Container           string `json:"video_container"`
+	Codec               string `json:"video_codec"`
+	Duration            uint   `json:"video_duration" ytapi:"seconds"`
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -223,6 +264,133 @@ func (this *cms) GetVideoById(video_id []string, options ...ClientOption) ([]*Vi
 			}
 			return videos, nil
 		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////
+// GET VIDEO SOURCES
+
+// GetVideoSources gets a video object - you can include up to 10 video ids
+// https://docs.brightcove.com/cms-api/v1/doc/index.html#operation/GetVideoSources
+func (this *cms) GetVideoSources(video_id string, options ...ClientOption) ([]*VideoSource, error) {
+	var sources []*VideoSource
+
+	// Return ErrBadParameter if no video is specified
+	if len(video_id) == 0 {
+		return nil, ErrBadParameter
+	}
+
+	if err := this.client.SetOptions(options); err != nil {
+		return nil, err
+	} else if absurl, err := URLJoin(this.baseurl, "accounts/"+this.client.AccountId()+"/videos/"+video_id+"/sources", this.client.options); err != nil {
+		return nil, err
+	} else if req, err := this.client.NewRequest("GET", absurl.String()); err != nil {
+		return nil, err
+	} else if resp, err := this.client.Do(req); err != nil {
+		return nil, err
+	} else {
+		decoder := json.NewDecoder(resp.Body)
+		defer resp.Body.Close()
+		if err := decoder.Decode(&sources); err != nil {
+			return nil, err
+		}
+		return sources, nil
+	}
+}
+
+/////////////////////////////////////////////////////////////////////
+// GET DIGITAL MASTER INFO
+
+// GetDigitalMasterInfo
+// https://docs.brightcove.com/cms-api/v1/doc/index.html#operation/GetDigitalMasterInfo
+
+func (this *cms) GetDigitalMasterInfo(video_id string, options ...ClientOption) (*Asset, error) {
+	var digital_master *Asset
+
+	// Return ErrBadParameter if no video is specified
+	if len(video_id) == 0 {
+		return nil, ErrBadParameter
+	}
+
+	if err := this.client.SetOptions(options); err != nil {
+		return nil, err
+	} else if absurl, err := URLJoin(this.baseurl, "accounts/"+this.client.AccountId()+"/videos/"+video_id+"/digital_master", this.client.options); err != nil {
+		return nil, err
+	} else if req, err := this.client.NewRequest("GET", absurl.String()); err != nil {
+		return nil, err
+	} else if resp, err := this.client.Do(req); err != nil {
+		return nil, err
+	} else {
+		decoder := json.NewDecoder(resp.Body)
+		defer resp.Body.Close()
+		if err := decoder.Decode(&digital_master); err != nil {
+			return nil, err
+		}
+		return digital_master, nil
+	}
+}
+
+/////////////////////////////////////////////////////////////////////
+// GET ASSETS
+
+// GetAssets gets assets for a video object - you can include up to 10 video ids
+// https://docs.brightcove.com/cms-api/v1/doc/index.html#operation/GetVideoByIdOrReferenceId
+func (this *cms) GetAssets(video_id string, options ...ClientOption) ([]*Asset, error) {
+	var assets []*Asset
+
+	// Return ErrBadParameter if no videos are specified
+	if len(video_id) == 0 {
+		return nil, ErrBadParameter
+	}
+
+	// We don't count the number of videos, we expect the API to return an error
+	// when the maximum number of parameters is reached
+	if err := this.client.SetOptions(options); err != nil {
+		return nil, err
+	} else if absurl, err := URLJoin(this.baseurl, "accounts/"+this.client.AccountId()+"/videos/"+video_id+"/assets", this.client.options); err != nil {
+		return nil, err
+	} else if req, err := this.client.NewRequest("GET", absurl.String()); err != nil {
+		return nil, err
+	} else if resp, err := this.client.Do(req); err != nil {
+		return nil, err
+	} else {
+		decoder := json.NewDecoder(resp.Body)
+		defer resp.Body.Close()
+		if err := decoder.Decode(&assets); err != nil {
+			return nil, err
+		}
+		return assets, nil
+	}
+}
+
+/////////////////////////////////////////////////////////////////////
+// GET RENDITION
+
+// https://docs.brightcove.com/cms-api/v1/doc/index.html#operation/GetRendition
+
+func (this *cms) GetRendition(video_id, asset_id string, options ...ClientOption) (*Asset, error) {
+	var rendition *Asset
+
+	// Return ErrBadParameter if no video is specified
+	if len(video_id) == 0 || len(asset_id) == 0 {
+		return nil, ErrBadParameter
+	}
+
+	if err := this.client.SetOptions(options); err != nil {
+		return nil, err
+	} else if absurl, err := URLJoin(this.baseurl, "accounts/"+this.client.AccountId()+"/videos/"+video_id+"/assets/renditions/"+asset_id, this.client.options); err != nil {
+		return nil, err
+	} else if req, err := this.client.NewRequest("GET", absurl.String()); err != nil {
+		return nil, err
+	} else if resp, err := this.client.Do(req); err != nil {
+		return nil, err
+	} else {
+		decoder := json.NewDecoder(resp.Body)
+		defer resp.Body.Close()
+		if err := decoder.Decode(&rendition); err != nil {
+			return nil, err
+		}
+		return rendition, nil
 	}
 }
 
