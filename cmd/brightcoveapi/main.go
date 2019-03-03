@@ -55,7 +55,10 @@ func ClientOptions(debug bool) ([]brightcoveapi.ClientOption, error) {
 }
 
 func RegisterCommands() []*util.Command {
-	return brightcove.RegisterCMSCommands()
+	var commands []*util.Command
+	commands = append(commands, brightcove.RegisterCMSCommands()...)
+	commands = append(commands, brightcove.RegisterYouTubeCommands()...)
+	return commands
 }
 
 func PrintUsage(dev *os.File, commands []*util.Command) {
