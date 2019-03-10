@@ -19,10 +19,13 @@ type BrightcoveCall func(*brightcoveapi.Client, *Table, []string) error
 type FormatCall func(*Table) error
 
 type Command struct {
-	Name        string
-	Description string
-	Format      FormatCall
-	Brightcove  BrightcoveCall
+	Name          string
+	Description   string
+	Usage         string
+	OptionalFlags []string
+	RequiredFlags []string
+	Format        FormatCall
+	Brightcove    BrightcoveCall
 }
 
 ////////////////////////////////////////////////////////////////////////////////
