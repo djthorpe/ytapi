@@ -23,8 +23,7 @@ const (
 	DEFAULTS_FILENAME = "brightcove.json"
 	FLAG_CREDENTIALS  = "credentials"
 	FLAG_DEBUG        = "debug"
-	FLAG_OFFSET       = "offset"
-	FLAG_LIMIT        = "limit"
+	FLAG_TIMEOUT      = "timeout"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,9 +45,10 @@ func PathCredentials(folder string) (string, error) {
 	}
 }
 
-func ClientOptions(debug bool) ([]brightcoveapi.ClientOption, error) {
+func ClientOptions(flagset *util.FlagSet) ([]brightcoveapi.ClientOption, error) {
 	options := make([]brightcoveapi.ClientOption, 0, 5)
-	options = append(options, brightcoveapi.WithDebug(debug))
+	options = append(options, brightcoveapi.WithDebug(flagset.GetBool(FLAG_DEBUG)))
+	options = append(options, brightcoveapi.WithTimeout(flagset.GetDuration(FLAG_TIMEOUT)))
 	return options, nil
 }
 
@@ -80,29 +80,48 @@ func PrintUsage(dev *os.File, commands []*util.Command, flags *util.FlagSet) {
 	}
 	fmt.Fprintln(dev, "")
 
-	PrintGlobalFlags(dev, flags)
+	PrintAllFlags(dev, flags)
 }
 
-func PrintGlobalFlags(dev *os.File, flags *util.FlagSet) {
-	fmt.Fprintln(dev, "General flags:")
-	for _, flag := range flags.FlagsForScope(util.SCOPE_GLOBAL) {
-		var value string
-		if flag.String() != "" {
-			value = fmt.Sprintf(" (default \"%v\")", flag.String())
+func PrintAllFlags(dev *os.File, flagset *util.FlagSet) {
+	for _, scope := range []util.ScopeType{util.SCOPE_REQUIRED, util.SCOPE_OPTIONAL, util.SCOPE_GLOBAL} {
+		if flags := flagset.FlagsForScope(scope); len(flags) > 0 {
+			fmt.Fprintf(dev, "%v flags:\n", scope)
+			for _, flag := range flags {
+				var value string
+				if flag.String() != "" {
+					value = fmt.Sprintf(" (default \"%v\")", flag.String())
+				}
+				fmt.Fprintf(dev, "  %-30s %s%s\n", fmt.Sprintf("-%s=%s", flag.Name(), flag.Type()), flag.Description(), value)
+			}
+			fmt.Fprintln(dev, "")
 		}
-		fmt.Fprintf(dev, "  %-30s %s%s\n", fmt.Sprintf("-%s=%s", flag.Name(), flag.Type()), "USAGE", value)
 	}
-	fmt.Fprintln(dev, "")
 }
 
 func PrintUsageCommand(dev *os.File, command *util.Command, flags *util.FlagSet) {
+	// Create a table object
+	table := util.NewTable()
+
+	// Format
+	if command.Format != nil {
+		if err := command.Format(command, flags, table); err != nil {
+			fmt.Fprintln(dev, err)
+			return
+		}
+	}
+
 	fmt.Fprintf(dev, "%s: %s\n", command.Name, command.Description)
 	fmt.Fprintln(dev, "")
+
 	if command.Usage != "" {
-		fmt.Fprintf(dev, "\nUsage of %s:\n\n", command.Name)
+		fmt.Fprintf(dev, "\nUsage of %s:\n", command.Name)
+		fmt.Fprintf(dev, "  %s (<flag> <flag> ...) %s\n", flags.Name(), command.Usage)
+		fmt.Fprintf(dev, "  %s -help %s\n", flags.Name(), command.Usage)
 		fmt.Fprintln(dev, "")
 	}
-	PrintGlobalFlags(dev, flags)
+
+	PrintAllFlags(dev, flags)
 }
 
 func GetCommand(arg string, commands []*util.Command) *util.Command {
@@ -114,7 +133,7 @@ func GetCommand(arg string, commands []*util.Command) *util.Command {
 	return nil
 }
 
-// RegisterFlags registers all the flags
+// RegisterFlags registers all the global flags
 func RegisterFlags(flags *util.FlagSet) error {
 	if err := flags.String(FLAG_CREDENTIALS, ".ytapi", "Folder containing credentials", util.SCOPE_GLOBAL); err != nil {
 		return err
@@ -122,13 +141,9 @@ func RegisterFlags(flags *util.FlagSet) error {
 	if err := flags.Bool(FLAG_DEBUG, false, "Show API requests and responses on stderr", util.SCOPE_GLOBAL); err != nil {
 		return err
 	}
-	if err := flags.Uint(FLAG_OFFSET, 0, "Return results starting at this row", util.SCOPE_OPTIONAL); err != nil {
+	if err := flags.Duration(FLAG_TIMEOUT, 0, "Request timeout", util.SCOPE_GLOBAL); err != nil {
 		return err
 	}
-	if err := flags.Uint(FLAG_LIMIT, 0, "Number of results to return", util.SCOPE_OPTIONAL); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -147,29 +162,21 @@ func main() {
 	} else if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(-1)
+	} else if flags.NArg() == 0 {
+		PrintUsage(os.Stderr, commands, flags)
+	} else if credentials, err := PathCredentials(flags.GetString(FLAG_CREDENTIALS)); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(-1)
+	} else if options, err := ClientOptions(flags); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(-1)
+	} else if client, err := brightcoveapi.NewClient(credentials, options...); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(-1)
+	} else if command := GetCommand(flags.Args()[0], commands); command == nil {
+		PrintUsage(os.Stderr, commands, flags)
+	} else if err := command.ExecBrightcove(client, flags); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(-1)
 	}
-	/*
-
-			} else  else if credentials, err := PathCredentials(flags.GetString(FLAG_CREDENTIALS)); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-1)
-		} else if options, err := ClientOptions(flags.GetBool(FLAG_DEBUG)); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-1)
-		} else if client, err := brightcoveapi.NewClient(credentials, options...); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-1)
-		} else if commands := RegisterCommands(); len(commands) == 0 {
-			fmt.Fprintln(os.Stderr, "No commands registered")
-			os.Exit(-1)
-		} else if args := flag.Args(); len(args) == 0 {
-			PrintUsage(os.Stderr, commands)
-			os.Exit(-1)
-		} else if command := GetCommand(args[0], commands); command == nil {
-			PrintUsage(os.Stderr, commands)
-			os.Exit(-1)
-		} else if err := command.ExecBrightcove(client, args[1:]); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(-1)
-		}*/
 }

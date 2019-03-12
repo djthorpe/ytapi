@@ -5,9 +5,9 @@
 package util
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
+	"time"
 )
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,10 @@ type Value struct {
 }
 
 type Field struct {
-	Name  string
-	Path  string
-	Type  FieldType
-	Scope ScopeType
+	Name, Description string
+	Path              string
+	Type              FieldType
+	Scope             ScopeType
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,7 @@ const (
 	FIELD_STRING_MAP
 	FIELD_DATETIME
 	FIELD_SECONDS
+	FIELD_DURATION
 )
 
 const (
@@ -71,6 +72,14 @@ func (this *Value) Type() FieldType {
 	}
 }
 
+func (this *Value) Description() string {
+	if this.f != nil {
+		return this.f.Description
+	} else {
+		return ""
+	}
+}
+
 func (this *Value) String() string {
 	switch this.v.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -96,8 +105,32 @@ func (this *Value) Int() int64 {
 	return this.v.Int()
 }
 
+func (this *Value) Duration() time.Duration {
+	return this.v.Interface().(time.Duration)
+}
+
 func (this *Value) Set(value string) error {
-	return errors.New("Not implemented")
+	switch this.f.Type {
+	case FIELD_DURATION:
+		if duration, err := time.ParseDuration(value); err != nil {
+			return err
+		} else {
+			this.v = reflect.ValueOf(duration)
+		}
+		/*	case FIELD_UINT:
+			case FIELD_INT:
+			case FIELD_BOOL:
+			case FIELD_STRING:
+			case FIELD_STRING_ARRAY:
+			case FIELD_STRING_MAP:
+			case FIELD_DATETIME:
+			case FIELD_SECONDS:*/
+	default:
+		return fmt.Errorf("Set: type %v not implemented for %v", this.f.Type, this.f.Name)
+	}
+
+	// Success
+	return nil
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +153,22 @@ func (t FieldType) String() string {
 		return "<datetime>"
 	case FIELD_SECONDS:
 		return "<seconds>"
+	case FIELD_DURATION:
+		return "<duration>"
 	default:
 		return "<value>"
+	}
+}
+
+func (s ScopeType) String() string {
+	switch s {
+	case SCOPE_GLOBAL:
+		return "Global"
+	case SCOPE_OPTIONAL:
+		return "Optional"
+	case SCOPE_REQUIRED:
+		return "Required"
+	default:
+		return "Other"
 	}
 }

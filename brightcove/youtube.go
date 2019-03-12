@@ -45,7 +45,7 @@ func RegisterYouTubeCommands() []*util.Command {
 
 /////////////////////////////////////////////////////////////////////
 
-func FormatYouTubeMetdata(output *util.Table) error {
+func FormatYouTubeMetdata(command *util.Command, flagset *util.FlagSet, output *util.Table) error {
 	if err := output.AddColumnsFrom(reflect.ValueOf(&YouTubeWebUpload{})); err != nil {
 		return err
 	}

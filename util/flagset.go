@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"time"
 )
 
 type FlagSet struct {
@@ -37,6 +38,10 @@ func (this *FlagSet) Args() []string {
 	return this.flagset.Args()
 }
 
+func (this *FlagSet) NArg() int {
+	return this.flagset.NArg()
+}
+
 func (this *FlagSet) FlagsForScope(scope ScopeType) []*Value {
 	fields := make([]*Value, 0)
 	this.flagset.VisitAll(func(f *flag.Flag) {
@@ -52,7 +57,7 @@ func (this *FlagSet) FlagsForScope(scope ScopeType) []*Value {
 func (this *FlagSet) String(name, value, usage string, scope ScopeType) error {
 	if this.flagset.Lookup(name) != nil {
 		return fmt.Errorf("Duplicate flag: %s", name)
-	} else if value := NewValue(reflect.ValueOf(value), &Field{Name: name, Type: FIELD_STRING, Scope: scope}); value == nil {
+	} else if value := NewValue(reflect.ValueOf(value), &Field{Name: name, Description: usage, Type: FIELD_STRING, Scope: scope}); value == nil {
 		return fmt.Errorf("Invalid flag: %s", name)
 	} else {
 		this.flagset.Var(value, name, usage)
@@ -64,7 +69,7 @@ func (this *FlagSet) String(name, value, usage string, scope ScopeType) error {
 func (this *FlagSet) Bool(name string, value bool, usage string, scope ScopeType) error {
 	if this.flagset.Lookup(name) != nil {
 		return fmt.Errorf("Duplicate flag: %s", name)
-	} else if value := NewValue(reflect.ValueOf(value), &Field{Name: name, Type: FIELD_BOOL, Scope: scope}); value == nil {
+	} else if value := NewValue(reflect.ValueOf(value), &Field{Name: name, Description: usage, Type: FIELD_BOOL, Scope: scope}); value == nil {
 		return fmt.Errorf("Invalid flag: %s", name)
 	} else {
 		this.flagset.Var(value, name, usage)
@@ -76,7 +81,19 @@ func (this *FlagSet) Bool(name string, value bool, usage string, scope ScopeType
 func (this *FlagSet) Uint(name string, value uint, usage string, scope ScopeType) error {
 	if this.flagset.Lookup(name) != nil {
 		return fmt.Errorf("Duplicate flag: %s", name)
-	} else if value := NewValue(reflect.ValueOf(value), &Field{Name: name, Type: FIELD_UINT, Scope: scope}); value == nil {
+	} else if value := NewValue(reflect.ValueOf(value), &Field{Name: name, Description: usage, Type: FIELD_UINT, Scope: scope}); value == nil {
+		return fmt.Errorf("Invalid flag: %s", name)
+	} else {
+		this.flagset.Var(value, name, usage)
+	}
+	// success
+	return nil
+}
+
+func (this *FlagSet) Duration(name string, value time.Duration, usage string, scope ScopeType) error {
+	if this.flagset.Lookup(name) != nil {
+		return fmt.Errorf("Duplicate flag: %s", name)
+	} else if value := NewValue(reflect.ValueOf(value), &Field{Name: name, Description: usage, Type: FIELD_DURATION, Scope: scope}); value == nil {
 		return fmt.Errorf("Invalid flag: %s", name)
 	} else {
 		this.flagset.Var(value, name, usage)
@@ -100,5 +117,13 @@ func (this *FlagSet) GetBool(name string) bool {
 		return false
 	} else {
 		return flag.Value.(*Value).Bool()
+	}
+}
+
+func (this *FlagSet) GetDuration(name string) time.Duration {
+	if flag := this.flagset.Lookup(name); flag == nil {
+		return 0
+	} else {
+		return flag.Value.(*Value).Duration()
 	}
 }
